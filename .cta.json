@@ -1,0 +1,19 @@
+{
+  "projectName": "timetable-manager-v3",
+  "mode": "file-router",
+  "typescript": true,
+  "tailwind": true,
+  "packageManager": "npm",
+  "git": true,
+  "version": 1,
+  "framework": "react-cra",
+  "chosenAddOns": [
+    "eslint",
+    "start",
+    "netlify",
+    "tanstack-query",
+    "tRPC",
+    "mcp",
+    "t3env"
+  ]
+}
