@@ -17,7 +17,7 @@ const getTheme = (mode: PaletteMode) => {
     palette: {
       mode,
       ...(mode === 'light'
-        ? {
+        ? { // light mode
             primary: {
               main: '#6DBF6F',
             },
@@ -25,7 +25,7 @@ const getTheme = (mode: PaletteMode) => {
               main: '#5151d4',
             },
           }
-        : {
+        : { // dark mode
             primary: {
               main: '#509a52',
             },

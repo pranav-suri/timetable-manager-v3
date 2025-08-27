@@ -12,8 +12,6 @@ export const Route = createFileRoute('/timetable/')({
   component: TimetableCombined,
 })
 
-const drawerwidth = 300
-
 const Main = styled('main', {
   shouldForwardProp: (prop) => prop !== 'drawerState',
 })<{
@@ -21,18 +19,17 @@ const Main = styled('main', {
   drawerwidth: number
 }>(({ theme, drawerState, drawerwidth }) => ({
   flexGrow: 1,
-  padding: theme.spacing(3),
   transition: theme.transitions.create('margin', {
     easing: theme.transitions.easing.easeInOut,
     duration: theme.transitions.duration.leavingScreen,
   }),
-  marginRight: -drawerwidth,
+  // marginRight: drawerwidth,
   ...(drawerState && {
     transition: theme.transitions.create('margin', {
       easing: theme.transitions.easing.easeInOut,
       duration: theme.transitions.duration.enteringScreen,
     }),
-    marginRight: 0,
+    marginRight: drawerwidth,
   }),
   /**
    * This is necessary to enable the selection of content. In the DOM, the stacking order is determined
@@ -51,6 +48,9 @@ export default function TimetableCombined() {
   const [timetable, setTimetable] = useState<RouterOutput['timetable'] | null>(
     null,
   )
+
+  const drawerwidth = 300
+
   const handleDrawerOpen = () => {
     setDrawerState(true)
   }
