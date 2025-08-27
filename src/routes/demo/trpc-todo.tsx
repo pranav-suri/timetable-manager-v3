@@ -1,40 +1,40 @@
-import { useCallback, useState } from 'react'
-import { createFileRoute } from '@tanstack/react-router'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { useTRPC } from '@/integrations/trpc'
+import { useCallback, useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useTRPC } from "@/integrations/trpc";
 
-export const Route = createFileRoute('/demo/trpc-todo')({
+export const Route = createFileRoute("/demo/trpc-todo")({
   component: TRPCTodos,
   loader: async ({ context }) => {
     await context.queryClient.prefetchQuery(
       context.trpc.todos.list.queryOptions(),
-    )
+    );
   },
-})
+});
 
 function TRPCTodos() {
-  const trpc = useTRPC()
-  const { data, refetch } = useQuery(trpc.todos.list.queryOptions())
+  const trpc = useTRPC();
+  const { data, refetch } = useQuery(trpc.todos.list.queryOptions());
 
-  const [todo, setTodo] = useState('')
+  const [todo, setTodo] = useState("");
   const { mutate: addTodo } = useMutation({
     ...trpc.todos.add.mutationOptions(),
     onSuccess: () => {
-      refetch()
-      setTodo('')
+      refetch();
+      setTodo("");
     },
-  })
+  });
 
   const submitTodo = useCallback(() => {
-    addTodo({ name: todo })
-  }, [addTodo, todo])
+    addTodo({ name: todo });
+  }, [addTodo, todo]);
 
   return (
     <div
       className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-100 to-blue-100 p-4 text-white"
       style={{
         backgroundImage:
-          'radial-gradient(50% 50% at 95% 5%, #4a90c2 0%, #317eb9 50%, #1e4d72 100%)',
+          "radial-gradient(50% 50% at 95% 5%, #4a90c2 0%, #317eb9 50%, #1e4d72 100%)",
       }}
     >
       <div className="w-full max-w-2xl p-8 rounded-xl backdrop-blur-md bg-black/50 shadow-xl border-8 border-black/10">
@@ -55,8 +55,8 @@ function TRPCTodos() {
             value={todo}
             onChange={(e) => setTodo(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                submitTodo()
+              if (e.key === "Enter") {
+                submitTodo();
               }
             }}
             placeholder="Enter a new todo..."
@@ -72,5 +72,5 @@ function TRPCTodos() {
         </div>
       </div>
     </div>
-  )
+  );
 }

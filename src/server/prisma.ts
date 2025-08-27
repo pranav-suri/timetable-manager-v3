@@ -1,10 +1,10 @@
-import { Prisma, PrismaClient } from '__generated__/prisma/client'
+import { Prisma, PrismaClient } from "__generated__/prisma/client";
 
-import sampleDataUpload from './controllers/sampleData'
+import sampleDataUpload from "./controllers/sampleData";
 
 export const prisma = new PrismaClient({
   // log: ['query', 'info', 'warn', 'error'],
-})
+});
 
 async function main() {
   // Create a new timetable if it doesn't exist
@@ -12,13 +12,13 @@ async function main() {
   await prisma.timetable.upsert({
     create: {
       id: 1,
-      name: 'Timetable 1',
+      name: "Timetable 1",
     },
     update: {},
     where: {
       id: 1,
     },
-  })
+  });
 
   // Inner Join,
   await prisma.timetable.findFirst({
@@ -27,25 +27,25 @@ async function main() {
         some: {},
       },
     },
-  })
+  });
 
-  await prisma.timetable.findFirst()
-  console.time(': Time taken for data upload')
+  await prisma.timetable.findFirst();
+  console.time(": Time taken for data upload");
   try {
-    await sampleDataUpload('ODD')
-    await sampleDataUpload('EVEN')
-    return
+    await sampleDataUpload("ODD");
+    await sampleDataUpload("EVEN");
+    return;
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
-      if (e.code === 'P2002') {
-        console.log('Unique constraint violation. Sample Data already exists.')
+      if (e.code === "P2002") {
+        console.log("Unique constraint violation. Sample Data already exists.");
       } else {
-        console.error(e)
+        console.error(e);
       }
     }
   } finally {
-    console.timeEnd(': Time taken for data upload')
+    console.timeEnd(": Time taken for data upload");
   }
 }
 
-main()
+main();

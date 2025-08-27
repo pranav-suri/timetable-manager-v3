@@ -1,51 +1,51 @@
 import {
-    joinSubdivisionName,
-    parseCsvData,
-    removeDuplicates,
-    validateCsvData,
+  joinSubdivisionName,
+  parseCsvData,
+  removeDuplicates,
+  validateCsvData,
 } from "./utils";
 import type { Prisma } from "__generated__/prisma/client";
 import type { BatchAndSubdivisionData } from "./csvHeaders";
 import { prisma } from "@/server/prisma";
 
 export async function uploadSubdivsionData(
-    csvData: string,
-    timetableId: number,
+  csvData: string,
+  timetableId: number,
 ) {
-    const parsedCsv = await parseCsvData<BatchAndSubdivisionData>(csvData);
-    if (!validateCsvData(parsedCsv, "batchAndSubdivision")) return false;
+  const parsedCsv = await parseCsvData<BatchAndSubdivisionData>(csvData);
+  if (!validateCsvData(parsedCsv, "batchAndSubdivision")) return false;
 
-    // Creating subdivisions
-    let subdivisionCreate: Prisma.SubdivisionCreateManyInput[] = [];
-    for (const row of parsedCsv.data) {
-        const {
-            batch_name: batchName,
-            department_name: departmentName,
-            // division_name is not required as it already a part of subdivision name
-            subdivision_name: subdivisionName,
-        } = row;
+  // Creating subdivisions
+  let subdivisionCreate: Prisma.SubdivisionCreateManyInput[] = [];
+  for (const row of parsedCsv.data) {
+    const {
+      batch_name: batchName,
+      department_name: departmentName,
+      // division_name is not required as it already a part of subdivision name
+      subdivision_name: subdivisionName,
+    } = row;
 
-        // creating a subdivision name
-        const joinedName = joinSubdivisionName({
-            batchName,
-            departmentName,
-            subdivisionName,
-        });
-
-        subdivisionCreate.push({
-            name: joinedName,
-            timetableId,
-        });
-    }
-    subdivisionCreate = removeDuplicates(subdivisionCreate);
-    await prisma.subdivision.createMany({
-        data: subdivisionCreate,
+    // creating a subdivision name
+    const joinedName = joinSubdivisionName({
+      batchName,
+      departmentName,
+      subdivisionName,
     });
-    return true;
+
+    subdivisionCreate.push({
+      name: joinedName,
+      timetableId,
+    });
+  }
+  subdivisionCreate = removeDuplicates(subdivisionCreate);
+  await prisma.subdivision.createMany({
+    data: subdivisionCreate,
+  });
+  return true;
 }
 export async function getSubdivisionsByTimetable(timetableId: number) {
-    const subdivisions = await prisma.subdivision.findMany({
-        where: { timetableId },
-    });
-    return subdivisions;
+  const subdivisions = await prisma.subdivision.findMany({
+    where: { timetableId },
+  });
+  return subdivisions;
 }

@@ -1,7 +1,7 @@
-import { z } from 'zod'
-import { publicProcedure } from '../init'
-import type { TRPCRouterRecord } from '@trpc/server'
-import { prisma } from '@/server/prisma'
+import { z } from "zod";
+import { publicProcedure } from "../init";
+import type { TRPCRouterRecord } from "@trpc/server";
+import { prisma } from "@/server/prisma";
 
 export const tableRouter = {
   /**
@@ -10,11 +10,11 @@ export const tableRouter = {
   teachers: publicProcedure
     .input(z.object({ timetableId: z.number() }))
     .query(async ({ input }) => {
-      const { timetableId } = input
+      const { timetableId } = input;
       const teachers = await prisma.teacher.findMany({
         where: { timetableId },
-      })
-      return { teachers }
+      });
+      return { teachers };
     }),
   /**
    * Get all subjects for a timetable
@@ -22,14 +22,14 @@ export const tableRouter = {
   subjects: publicProcedure
     .input(z.object({ timetableId: z.number() }))
     .query(async ({ input }) => {
-      const { timetableId } = input
+      const { timetableId } = input;
       const groups = await prisma.group.findMany({
         where: { timetableId },
-      })
+      });
       const subjects = await prisma.subject.findMany({
         where: { groupId: { in: groups.map((group) => group.id) } },
-      })
-      return { subjects }
+      });
+      return { subjects };
     }),
   /**
    * Get all subdivisions for a timetable
@@ -37,11 +37,11 @@ export const tableRouter = {
   subdivisions: publicProcedure
     .input(z.object({ timetableId: z.number() }))
     .query(async ({ input }) => {
-      const { timetableId } = input
+      const { timetableId } = input;
       const subdivisions = await prisma.subdivision.findMany({
         where: { timetableId },
-      })
-      return { subdivisions }
+      });
+      return { subdivisions };
     }),
   timetable: publicProcedure
     .input(
@@ -90,7 +90,7 @@ export const tableRouter = {
             },
           },
         },
-      })
-      return { slots }
+      });
+      return { slots };
     }),
-} satisfies TRPCRouterRecord
+} satisfies TRPCRouterRecord;

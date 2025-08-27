@@ -1,42 +1,42 @@
-import { useCallback, useEffect, useState } from 'react'
-import { createFileRoute } from '@tanstack/react-router'
+import { useCallback, useEffect, useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
 
 type Todo = {
-  id: number
-  title: string
-}
+  id: number;
+  title: string;
+};
 
-export const Route = createFileRoute('/demo/mcp-todos')({
+export const Route = createFileRoute("/demo/mcp-todos")({
   component: ORPCTodos,
-})
+});
 
 function ORPCTodos() {
-  const [todos, setTodos] = useState<Array<Todo>>([])
+  const [todos, setTodos] = useState<Array<Todo>>([]);
 
   useEffect(() => {
-    const eventSource = new EventSource('/api/mcp-todos')
+    const eventSource = new EventSource("/api/mcp-todos");
     eventSource.onmessage = (event) => {
-      setTodos(JSON.parse(event.data))
-    }
-    return () => eventSource.close()
-  }, [])
+      setTodos(JSON.parse(event.data));
+    };
+    return () => eventSource.close();
+  }, []);
 
-  const [todo, setTodo] = useState('')
+  const [todo, setTodo] = useState("");
 
   const submitTodo = useCallback(async () => {
-    await fetch('/api/mcp-todos', {
-      method: 'POST',
+    await fetch("/api/mcp-todos", {
+      method: "POST",
       body: JSON.stringify({ title: todo }),
-    })
-    setTodo('')
-  }, [todo])
+    });
+    setTodo("");
+  }, [todo]);
 
   return (
     <div
       className="flex items-center justify-center min-h-screen bg-gradient-to-br from-teal-200 to-emerald-900 p-4 text-white"
       style={{
         backgroundImage:
-          'radial-gradient(70% 70% at 20% 20%, #07A798 0%, #045C4B 60%, #01251F 100%)',
+          "radial-gradient(70% 70% at 20% 20%, #07A798 0%, #045C4B 60%, #01251F 100%)",
       }}
     >
       <div className="w-full max-w-2xl p-8 rounded-xl backdrop-blur-md bg-black/50 shadow-xl border-8 border-black/10">
@@ -57,8 +57,8 @@ function ORPCTodos() {
             value={todo}
             onChange={(e) => setTodo(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                submitTodo()
+              if (e.key === "Enter") {
+                submitTodo();
               }
             }}
             placeholder="Enter a new todo..."
@@ -74,5 +74,5 @@ function ORPCTodos() {
         </div>
       </div>
     </div>
-  )
+  );
 }

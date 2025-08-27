@@ -1,13 +1,13 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
-import { styled } from '@mui/material/styles'
-import { Box } from '@mui/material'
-import { useQuery } from '@tanstack/react-query'
-import MuiTimetable from './-MuiTimetable'
-import { TIMETABLE_ID, useTRPC } from '@/integrations/trpc'
-import { NavBar } from '@/components/Navbar'
+import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { styled } from "@mui/material/styles";
+import { Box } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
+import MuiTimetable from "./-MuiTimetable";
+import { TIMETABLE_ID, useTRPC } from "@/integrations/trpc";
+import { NavBar } from "@/components/Navbar";
 
-export const Route = createFileRoute('/timetable/')({
+export const Route = createFileRoute("/timetable/")({
   component: TimetableCombined,
   loader: async ({ context }) => {
     await context.queryClient.prefetchQuery(
@@ -15,24 +15,24 @@ export const Route = createFileRoute('/timetable/')({
         timetableId: TIMETABLE_ID,
         subdivsionIds: [4, 5, 6],
       }),
-    )
+    );
   },
-})
+});
 
-const Main = styled('main', {
-  shouldForwardProp: (prop) => prop !== 'drawerState',
+const Main = styled("main", {
+  shouldForwardProp: (prop) => prop !== "drawerState",
 })<{
-  drawerState?: boolean
-  drawerwidth: number
+  drawerState?: boolean;
+  drawerwidth: number;
 }>(({ theme, drawerState, drawerwidth }) => ({
   flexGrow: 1,
-  transition: theme.transitions.create('margin', {
+  transition: theme.transitions.create("margin", {
     easing: theme.transitions.easing.easeInOut,
     duration: theme.transitions.duration.leavingScreen,
   }),
   // marginRight: drawerwidth,
   ...(drawerState && {
-    transition: theme.transitions.create('margin', {
+    transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.easeInOut,
       duration: theme.transitions.duration.enteringScreen,
     }),
@@ -44,34 +44,34 @@ const Main = styled('main', {
    * those that appear earlier. Since the Drawer comes after the Main content, this adjustment ensures
    * proper interaction with the underlying content.
    */
-  position: 'relative',
-}))
+  position: "relative",
+}));
 
 export default function TimetableCombined() {
-  const trpc = useTRPC()
+  const trpc = useTRPC();
   const { data: timetable } = useQuery(
     trpc.timetable.queryOptions({
       timetableId: TIMETABLE_ID,
       subdivsionIds: [4, 5, 6],
     }),
-  )
-  const [drawerState, setDrawerState] = useState(false)
+  );
+  const [drawerState, setDrawerState] = useState(false);
   const [selectedSlotIndex, setSelectedSlotIndex] = useState<number | null>(
     null,
-  )
+  );
 
-  const drawerwidth = 300
+  const drawerwidth = 300;
 
   const handleDrawerOpen = () => {
-    setDrawerState(true)
-  }
+    setDrawerState(true);
+  };
 
   const handleDrawerClose = () => {
-    setDrawerState(false)
-  }
+    setDrawerState(false);
+  };
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: "flex" }}>
       <NavBar />
       <Main
         drawerState={drawerState}
@@ -87,5 +87,5 @@ export default function TimetableCombined() {
         )}
       </Main>
     </Box>
-  )
+  );
 }

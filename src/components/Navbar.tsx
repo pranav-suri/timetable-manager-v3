@@ -1,22 +1,22 @@
-import { useContext } from 'react'
-import { AppBar, Toolbar } from '@mui/material'
-import { ThemeModeContext } from '@/context/ThemeModeContext'
+import { useContext } from "react";
+import { AppBar, Toolbar } from "@mui/material";
+import { ThemeModeContext } from "@/context/ThemeModeContext";
 import {
   // ToggleAllData as AllDataSwitch,
   DarkMode as DarkModeSwitch,
-} from '@/components/Buttons'
+} from "@/components/Buttons";
 
 export const NavBar = () => {
   // TODO: #7 @MatricalDefunkt Implement the ability to select an academic year, batch, division and thus a timetable
   // TODO: #8 @MatricalDefunkt Add the feature to remove selected values if a previous value is changed
-  const { themeMode } = useContext(ThemeModeContext)
+  const { themeMode } = useContext(ThemeModeContext);
   return (
     <AppBar
       position="fixed"
       sx={{
-        padding: '0.5rem',
-        backdropFilter: 'blur(16px)',
-        backgroundColor: `hsla(0, 0%, ${themeMode === 'dark' ? '30%' : '60%'}, 50%)`,
+        padding: "0.5rem",
+        backdropFilter: "blur(16px)",
+        backgroundColor: `hsla(0, 0%, ${themeMode === "dark" ? "30%" : "60%"}, 50%)`,
       }}
       color="transparent"
     >
@@ -37,5 +37,5 @@ export const NavBar = () => {
         <DarkModeSwitch />
       </Toolbar>
     </AppBar>
-  )
-}
+  );
+};

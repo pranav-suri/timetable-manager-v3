@@ -1,3 +1,3 @@
-import DarkMode from './ToggleDarkMode'
+import DarkMode from "./ToggleDarkMode";
 
-export { DarkMode }
+export { DarkMode };

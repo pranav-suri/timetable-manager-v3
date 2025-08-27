@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState } from "react";
 import {
   Card,
   CardContent,
@@ -11,84 +11,84 @@ import {
   TableHead,
   TableRow,
   Typography,
-} from '@mui/material'
-import type { RouterOutput } from '@/integrations/trpc'
-import getColor from '@/utils/getColor'
-import { ThemeModeContext } from '@/context/ThemeModeContext'
+} from "@mui/material";
+import type { RouterOutput } from "@/integrations/trpc";
+import getColor from "@/utils/getColor";
+import { ThemeModeContext } from "@/context/ThemeModeContext";
 
-type Timetable = RouterOutput['timetable']
-type Slot = Timetable['slots'][0]
-type SlotData = Slot['lectureSlots'][0]
-type Lecture = SlotData['lecture']
-type LectureSubdivision = Lecture['lectureSubdivisions'][0]
-type LectureClassroom = Lecture['lectureClassrooms'][0]
+type Timetable = RouterOutput["timetable"];
+type Slot = Timetable["slots"][0];
+type SlotData = Slot["lectureSlots"][0];
+type Lecture = SlotData["lecture"];
+type LectureSubdivision = Lecture["lectureSubdivisions"][0];
+type LectureClassroom = Lecture["lectureClassrooms"][0];
 
 const getInitials = (name: string) => {
   // get all initials (eg: Dr. Nilima Zade = DNZ)
-  const initials = name.match(/\b\w/g) || []
-  return initials.map((initial) => initial.toUpperCase()).join('')
-}
+  const initials = name.match(/\b\w/g) || [];
+  return initials.map((initial) => initial.toUpperCase()).join("");
+};
 
 function printClasses(lectureClassrooms: LectureClassroom[]) {
   return lectureClassrooms.map((lectureClassroom, classroomIndex) => (
     <Typography key={classroomIndex}>
-      {' '}
+      {" "}
       {lectureClassroom.classroom.name}
-      {classroomIndex !== lectureClassrooms.length - 1 && ','}
+      {classroomIndex !== lectureClassrooms.length - 1 && ","}
     </Typography>
-  ))
+  ));
 }
 function printSubdivisions(lectureSubdivisions: LectureSubdivision[]) {
   return lectureSubdivisions.map((lectureSubdivision, subdivisionsIndex) => (
     <Typography key={subdivisionsIndex}>
-      {' '}
+      {" "}
       {lectureSubdivision.subdivision.name}
-      {subdivisionsIndex !== lectureSubdivisions.length - 1 && ','}
+      {subdivisionsIndex !== lectureSubdivisions.length - 1 && ","}
     </Typography>
-  ))
+  ));
 }
 
 function Cell({
   lecture,
   viewAllData,
 }: {
-  lecture: Lecture
-  viewAllData: boolean
+  lecture: Lecture;
+  viewAllData: boolean;
 }) {
-  const { themeMode } = useContext(ThemeModeContext)
+  const { themeMode } = useContext(ThemeModeContext);
   return (
     <Card
       sx={{
         backgroundColor: getColor(lecture.subject.name, themeMode),
-        margin: '0.5rem',
+        margin: "0.5rem",
       }}
     >
       <CardHeader
         title={
           viewAllData
             ? lecture.subject.name
-            : getInitials(lecture.subject.name || '')
+            : getInitials(lecture.subject.name || "")
         }
-        titleTypographyProps={{ fontWeight: '500', fontSize: '1rem' }}
-        sx={{ padding: 0, margin: '8px' }}
+        titleTypographyProps={{ fontWeight: "500", fontSize: "1rem" }}
+        sx={{ padding: 0, margin: "8px" }}
       />
-      <CardContent sx={{ padding: 0, margin: '8px' }} style={{ padding: 0 }}>
-        {viewAllData ? lecture.teacher.name : ''}
-        {viewAllData ? <br /> : ''}
-        {printSubdivisions(lecture.lectureSubdivisions)}{' '}
+      <CardContent sx={{ padding: 0, margin: "8px" }} style={{ padding: 0 }}>
+        {viewAllData ? lecture.teacher.name : ""}
+        {viewAllData ? <br /> : ""}
+        {printSubdivisions(lecture.lectureSubdivisions)}{" "}
         {viewAllData ? <br /> : <></>}
         {printClasses(lecture.lectureClassrooms)}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 function Slot({
   lectureSlots,
   viewAllData,
 }: {
-  lectureSlots: SlotData[]
-  viewAllData: boolean
+  lectureSlots: SlotData[];
+  viewAllData: boolean;
 }) {
   return (
     <div>
@@ -100,7 +100,7 @@ function Slot({
         />
       ))}
     </div>
-  )
+  );
 }
 
 function Row({
@@ -111,21 +111,21 @@ function Row({
   handleDrawerOpen,
   setSelectedSlotIndex,
 }: {
-  timetable: RouterOutput['timetable']
-  day: number
-  slotNumbers: Set<number>
-  viewAllData: boolean
-  handleDrawerOpen: () => void
-  setSelectedSlotIndex: React.Dispatch<React.SetStateAction<number | null>>
+  timetable: RouterOutput["timetable"];
+  day: number;
+  slotNumbers: Set<number>;
+  viewAllData: boolean;
+  handleDrawerOpen: () => void;
+  setSelectedSlotIndex: React.Dispatch<React.SetStateAction<number | null>>;
 }) {
   const DAYS = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-  ]
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
 
   return (
     <TableRow>
@@ -138,18 +138,18 @@ function Row({
         .map((slotNumber) => {
           const slotIndex = timetable.slots.findIndex(
             (slot) => slot.day == day && slot.number == slotNumber,
-          )
+          );
           if (slotIndex === -1)
             console.log(
               `Slot not found for day ${day} and slot number ${slotNumber}`,
-            )
+            );
 
           return (
             <TableCell
               key={slotNumber}
               onClick={() => {
-                handleDrawerOpen()
-                setSelectedSlotIndex(slotIndex)
+                handleDrawerOpen();
+                setSelectedSlotIndex(slotIndex);
               }}
             >
               <Slot
@@ -157,10 +157,10 @@ function Row({
                 viewAllData={viewAllData}
               />
             </TableCell>
-          )
+          );
         })}
     </TableRow>
-  )
+  );
 }
 
 function Headers({ slotNumbers }: { slotNumbers: Set<number> }) {
@@ -173,8 +173,8 @@ function Headers({ slotNumbers }: { slotNumbers: Set<number> }) {
           <TableCell key={slotNumber}>{slotNumber}</TableCell>
         ))}
     </React.Fragment>
-  )
-  return headers
+  );
+  return headers;
 }
 
 export default function MuiTimetable({
@@ -182,18 +182,18 @@ export default function MuiTimetable({
   handleDrawerOpen,
   setSelectedSlotIndex,
 }: {
-  timetableData: Timetable
-  handleDrawerOpen: () => void
-  setSelectedSlotIndex: React.Dispatch<React.SetStateAction<number | null>>
+  timetableData: Timetable;
+  handleDrawerOpen: () => void;
+  setSelectedSlotIndex: React.Dispatch<React.SetStateAction<number | null>>;
 }) {
-  const slotNumbers = new Set<number>()
-  const slotDays = new Set<number>()
-  const [{ viewAllData }] = useState({ viewAllData: true })
+  const slotNumbers = new Set<number>();
+  const slotDays = new Set<number>();
+  const [{ viewAllData }] = useState({ viewAllData: true });
 
   timetableData.slots.forEach((slot) => {
-    slotNumbers.add(slot.number)
-    slotDays.add(slot.day)
-  })
+    slotNumbers.add(slot.number);
+    slotDays.add(slot.day);
+  });
 
   return (
     <TableContainer component={Paper} className="printable">
@@ -220,5 +220,5 @@ export default function MuiTimetable({
         </TableBody>
       </Table>
     </TableContainer>
-  )
+  );
 }

@@ -1,47 +1,47 @@
-import fs from 'node:fs'
+import fs from "node:fs";
 
-const todosPath = './mcp-todos.json'
+const todosPath = "./mcp-todos.json";
 
 // In-memory todos storage
 const todos = fs.existsSync(todosPath)
-  ? JSON.parse(fs.readFileSync(todosPath, 'utf8'))
+  ? JSON.parse(fs.readFileSync(todosPath, "utf8"))
   : [
       {
         id: 1,
-        title: 'Buy groceries',
+        title: "Buy groceries",
       },
-    ]
+    ];
 
 // Subscription callbacks per userID
-let subscribers: Array<(todos: Array<Todo>) => void> = []
+let subscribers: Array<(todos: Todo[]) => void> = [];
 
 export type Todo = {
-  id: number
-  title: string
-}
+  id: number;
+  title: string;
+};
 
 // Get the todos for a user
-export function getTodos(): Array<Todo> {
-  return todos
+export function getTodos(): Todo[] {
+  return todos;
 }
 
 // Add an item to the todos
 export function addTodo(title: string) {
-  todos.push({ id: todos.length + 1, title })
-  fs.writeFileSync(todosPath, JSON.stringify(todos, null, 2))
-  notifySubscribers()
+  todos.push({ id: todos.length + 1, title });
+  fs.writeFileSync(todosPath, JSON.stringify(todos, null, 2));
+  notifySubscribers();
 }
 
 // Subscribe to cart changes for a user
-export function subscribeToTodos(callback: (todos: Array<Todo>) => void) {
-  subscribers.push(callback)
-  callback(todos)
+export function subscribeToTodos(callback: (todos: Todo[]) => void) {
+  subscribers.push(callback);
+  callback(todos);
   return () => {
-    subscribers = subscribers.filter((cb) => cb !== callback)
-  }
+    subscribers = subscribers.filter((cb) => cb !== callback);
+  };
 }
 
 // Notify all subscribers of a user's cart
 function notifySubscribers() {
-  subscribers.forEach((cb) => cb(todos))
+  subscribers.forEach((cb) => cb(todos));
 }
