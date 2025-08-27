@@ -182,7 +182,7 @@ export default function MuiTimetable({
   handleDrawerOpen,
   setSelectedSlotIndex,
 }: {
-  timetableData: Timetable | null
+  timetableData: Timetable
   handleDrawerOpen: () => void
   setSelectedSlotIndex: React.Dispatch<React.SetStateAction<number | null>>
 }) {
@@ -190,7 +190,6 @@ export default function MuiTimetable({
   const slotDays = new Set<number>()
   const [{ viewAllData }] = useState({ viewAllData: true })
 
-  if (!timetableData) return
   timetableData.slots.forEach((slot) => {
     slotNumbers.add(slot.number)
     slotDays.add(slot.day)

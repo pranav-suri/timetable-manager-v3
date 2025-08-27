@@ -2,7 +2,9 @@ import { Prisma, PrismaClient } from '__generated__/prisma/client'
 
 import sampleDataUpload from './controllers/sampleData'
 
-export const prisma = new PrismaClient()
+export const prisma = new PrismaClient({
+  // log: ['query', 'info', 'warn', 'error'],
+})
 
 async function main() {
   // Create a new timetable if it doesn't exist
@@ -36,7 +38,7 @@ async function main() {
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       if (e.code === 'P2002') {
-        console.log("Unique constraint violation during sample data creation. Data already exists.")
+        console.log('Unique constraint violation. Sample Data already exists.')
       } else {
         console.error(e)
       }

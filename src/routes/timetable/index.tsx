@@ -1,11 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { styled } from '@mui/material/styles'
 import { Box } from '@mui/material'
+import { useQuery } from '@tanstack/react-query'
 import MuiTimetable from './-MuiTimetable'
-import type { RouterOutput } from '@/integrations/trpc'
-import { TIMETABLE_ID } from '@/integrations/trpc'
-import { trpcClient as t } from '@/integrations/reactQueryRootProvider'
+import { TIMETABLE_ID, useTRPC } from '@/integrations/trpc'
 import { NavBar } from '@/components/Navbar'
 
 export const Route = createFileRoute('/timetable/')({
@@ -41,11 +40,15 @@ const Main = styled('main', {
 }))
 
 export default function TimetableCombined() {
+  const trpc = useTRPC()
+  const { data: timetable } = useQuery(
+    trpc.timetable.queryOptions({
+      timetableId: TIMETABLE_ID,
+      subdivsionIds: [4, 5, 6],
+    }),
+  )
   const [drawerState, setDrawerState] = useState(false)
   const [selectedSlotIndex, setSelectedSlotIndex] = useState<number | null>(
-    null,
-  )
-  const [timetable, setTimetable] = useState<RouterOutput['timetable'] | null>(
     null,
   )
 
@@ -59,15 +62,6 @@ export default function TimetableCombined() {
     setDrawerState(false)
   }
 
-  useEffect(() => {
-    t.timetable
-      .query({ subdivsionIds: [4, 5, 6], timetableId: TIMETABLE_ID })
-      .then((data) => {
-        setTimetable(data)
-        console.log(data)
-      })
-  }, [])
-
   return (
     <Box sx={{ display: 'flex' }}>
       <NavBar />
@@ -76,11 +70,13 @@ export default function TimetableCombined() {
         drawerwidth={drawerwidth}
         className="main"
       >
-        <MuiTimetable
-          timetableData={timetable}
-          handleDrawerOpen={handleDrawerOpen}
-          setSelectedSlotIndex={setSelectedSlotIndex}
-        />
+        {timetable && (
+          <MuiTimetable
+            timetableData={timetable}
+            handleDrawerOpen={handleDrawerOpen}
+            setSelectedSlotIndex={setSelectedSlotIndex}
+          />
+        )}
       </Main>
     </Box>
   )
