@@ -11,3 +11,6 @@ count.txt
 .vinxi
 todos.json
 mcp-todos.json
+__generated__
+*.db
+prisma/migrations

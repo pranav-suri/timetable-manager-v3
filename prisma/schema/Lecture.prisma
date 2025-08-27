@@ -1,0 +1,30 @@
+model Lecture {
+  id                  Int                  @id @default(autoincrement())
+  teacherId           Int
+  subjectId           Int
+  count               Int                  @default(1)
+  teacher             Teacher              @relation(fields: [teacherId], references: [id])
+  subject             Subject              @relation(fields: [subjectId], references: [id])
+  createdAt           DateTime             @default(now())
+  lectureSubdivisions LectureSubdivision[]
+  lectureClassrooms   LectureClassroom[]
+  slotDatas           SlotData[]
+}
+
+model LectureSubdivision {
+  subdivisionId Int
+  lectureId     Int
+  subdivision   Subdivision @relation(fields: [subdivisionId], references: [id])
+  lecture       Lecture     @relation(fields: [lectureId], references: [id])
+
+  @@id([subdivisionId, lectureId])
+}
+
+model LectureClassroom {
+  classroomId Int
+  lectureId   Int
+  classroom   Classroom @relation(fields: [classroomId], references: [id])
+  lecture     Lecture   @relation(fields: [lectureId], references: [id])
+
+  @@id([classroomId, lectureId])
+}

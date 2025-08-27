@@ -1,0 +1,21 @@
+model Subdivision {
+  id                     Int                      @id @default(autoincrement())
+  name                   String
+  timetableId            Int
+  timetable              Timetable                @relation(fields: [timetableId], references: [id])
+  subdivsionUnavailables SubdivisionUnavailable[]
+  lectureSubdivisions    LectureSubdivision[]
+
+  @@unique([name, timetableId])
+}
+
+model SubdivisionUnavailable {
+  slotId        Int
+  subdivisionId Int
+  slot          Slot        @relation(fields: [slotId], references: [id])
+  subdivision   Subdivision @relation(fields: [subdivisionId], references: [id])
+  timetableId   Int?
+
+  @@id([slotId, subdivisionId])
+}
+

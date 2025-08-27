@@ -1,0 +1,10 @@
+model SlotData {
+  id        Int     @id @default(autoincrement())
+  slotId    Int
+  lectureId Int
+  isLocked  Boolean @default(false)
+  slot      Slot    @relation(fields: [slotId], references: [id])
+  lecture   Lecture @relation(fields: [lectureId], references: [id])
+
+  @@unique([slotId, lectureId])
+}

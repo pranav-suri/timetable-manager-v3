@@ -1,0 +1,20 @@
+model Classroom {
+  id          Int                    @id @default(autoincrement())
+  name        String
+  timetableId Int
+  timetable   Timetable              @relation(fields: [timetableId], references: [id])
+  slots       ClassroomUnavailable[]
+  lectures    LectureClassroom[]
+  subjectClassroom SubjectClassroom[]
+
+  @@unique([name, timetableId])
+}
+
+model ClassroomUnavailable {
+  slotId      Int
+  classroomId Int
+  slot        Slot      @relation(fields: [slotId], references: [id])
+  classroom   Classroom @relation(fields: [classroomId], references: [id])
+
+  @@id([slotId, classroomId])
+}

@@ -1,7 +1,5 @@
 import { z } from 'zod'
-
-import { createTRPCRouter, publicProcedure } from './init'
-
+import { publicProcedure } from '../init'
 import type { TRPCRouterRecord } from '@trpc/server'
 
 const todos = [
@@ -10,7 +8,7 @@ const todos = [
   { id: 3, name: 'Finish the project' },
 ]
 
-const todosRouter = {
+export const todosRouter = {
   list: publicProcedure.query(() => todos),
   add: publicProcedure
     .input(z.object({ name: z.string() }))
@@ -20,8 +18,3 @@ const todosRouter = {
       return newTodo
     }),
 } satisfies TRPCRouterRecord
-
-export const trpcRouter = createTRPCRouter({
-  todos: todosRouter,
-})
-export type TRPCRouter = typeof trpcRouter
