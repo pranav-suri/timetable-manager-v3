@@ -13,3 +13,54 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+* {
+    padding: 0;
+    margin: 0;
+    text-decoration: none;
+    list-style: none;
+    border: none;
+    box-sizing: border-box;
+}
+
+.flex-div {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+}
+
+
+table {
+    overflow-x: scroll;
+    overflow-y: scroll;
+}
+th,
+td {
+    min-width: 200px;
+}
+table,
+th,
+td,
+tr {
+    border: 1px solid black;
+    border-collapse: collapse;
+    padding: 15px;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #333;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-corner {
+    background-color: #0000;
+}
+
+@page {
+    size: A3 landscape;
+}

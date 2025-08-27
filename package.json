@@ -13,7 +13,12 @@
     "check": "prettier --write . && eslint --fix"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@fontsource/roboto": "^5.2.6",
     "@modelcontextprotocol/sdk": "^1.17.0",
+    "@mui/icons-material": "^7.3.1",
+    "@mui/material": "^7.3.1",
     "@prisma/client": "^6.14.0",
     "@t3-oss/env-core": "^0.12.0",
     "@tailwindcss/vite": "^4.0.6",
@@ -28,10 +33,12 @@
     "@trpc/client": "^11.4.3",
     "@trpc/server": "^11.4.3",
     "@trpc/tanstack-react-query": "^11.4.3",
+    "papaparse": "^5.5.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "superjson": "^2.2.2",
     "tailwindcss": "^4.0.6",
+    "uniqolor": "^1.1.1",
     "vite-tsconfig-paths": "^5.1.4",
     "zod": "^3.24.2"
   },
@@ -39,6 +46,7 @@
     "@tanstack/eslint-config": "^0.3.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.2.0",
+    "@types/papaparse": "^5.3.16",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react": "^4.3.4",

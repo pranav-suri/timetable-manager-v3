@@ -1,0 +1,394 @@
+﻿teacher_name,teacher_email,subject_name,batch_name,department_name,group_name,is_lab,group_allow_simultaneous
+Dr Ram Kishun Lodhi,ramkishun.lodhi@sitpune.edu.in,Engineering Mathematics III,sy,cs,core,0,0
+Dr Pratiksha Bhavsar,pratiksha.bhavsar@sitpune.edu.in,Engineering Mathematics III,sy,cs,core,0,0
+Dr Ram Kishun Lodhi,ramkishun.lodhi@sitpune.edu.in,Engineering Mathematics III Tut,sy,cs,core,0,0
+Dr Pratiksha Bhavsar,pratiksha.bhavsar@sitpune.edu.in,Engineering Mathematics III Tut,sy,cs,core,0,0
+Dr Jitendra RajpurohitMr Mayur Gaikawad,jitendra.rajpurohit@sitpune.edu.in,FlexiCredit Course OOPs with JAVA,sy,cs,core,0,0
+Dr Sonali Kothari,sonali.kothari@sitpune.edu.in,FlexiCredit Course OOPs with JAVA,sy,cs,core,0,0
+Dr Sonali KothariMr Mayur Gaikawad,sonali.kothari@sitpune.edu.in,FlexiCredit Course OOPs with JAVA,sy,cs,core,0,0
+VF Sushank Dahiwadkar,sushank.dahiwadkar.vf@sitpune.edu.in,FlexiCredit Course OOPs with JAVA,sy,cs,core,0,0
+Dr Vijayshri Khedkar,vijayshri.khedkar@sitpune.edu.in,Database Management Systems,sy,cs,core,0,0
+Dr Pooja Anil Bagane,pooja.bagane@sitpune.edu.in,Database Management Systems,sy,cs,core,0,0
+Dr Vani Hiremani,vani.hiremani@sitpune.edu.in,Database Management Systems,sy,cs,core,0,0
+Dr Vijayshri Khedkar,vijayshri.khedkar@sitpune.edu.in,Data Base Management Systems Lab,sy,cs,core,1,0
+Mrs Shubhangi Deokar,shubhangi.deokar@sitpune.edu.in,Data Base Management Systems Lab,sy,cs,core,1,0
+Dr Rupali Gangarde,rupali.gangarde@sitpune.edu.in,Data Base Management Systems Lab,sy,cs,core,1,0
+Dr Deepak Dharrao,deepak.dharrao@sitpune.edu.in,Data Base Management Systems Lab,sy,cs,core,1,0
+Dr Pooja Bagane,pooja.bagane@sitpune.edu.in,Data Base Management Systems Lab,sy,cs,core,1,0
+Mrs Usha Jogalekar,usha.jogalekar@sitpune.edu.in,Data Base Management Systems Lab,sy,cs,core,1,0
+Dr Vani HiremaniDr Smita Mahajan,vani.hiremani@sitpune.edu.in,Data Base Management Systems Lab,sy,cs,core,1,0
+Dr Nilima Zade,nilima.zade@sitpune.edu.in,Operating Systems,sy,cs,core,0,0
+Mr Ranjeet Bidwe,ranjeet.bidwe@sitpune.edu.in,Operating Systems,sy,cs,core,0,0
+Dr Renuka Agrawal,renuka.agrawal@sitpune.edu.in,Operating Systems,sy,cs,core,0,0
+Dr Nilima Zade,nilima.zade@sitpune.edu.in,Operating Systems Lab,sy,cs,core,1,0
+Mr Ranjeet BidweDr Prachi Kadam,ranjeet.bidwe@sitpune.edu.in,Operating Systems Lab,sy,cs,core,1,0
+Dr Renuka Agrawal,renuka.agrawal@sitpune.edu.in,Operating Systems Lab,sy,cs,core,1,0
+VFNikita Konde,nikita.konda.vf@sitpune.edu.in,Basic French,sy,cs,elective,0,1
+VFRasika Lanke,rasika.lanke.vf@sitpune.edu.in,Basic German Div 1,sy,cs,elective,0,1
+VFRasika Lanke,rasika.lanke.vf@sitpune.edu.in,Basic German Div 2,sy,cs,elective,0,1
+Dr Amol Dhumane,amol.dhumane@sitpune.edu.in,Distributed System and Resource Management,ty,cs,core,0,0
+Dr Pradeep Arya,pradeep.arya@sitpune.edu.in,Distributed System and Resource Management,ty,cs,core,0,0
+Dr Sashikala MishraDr Kailash Shaw,sashikala.mishra@sitpune.edu.in,FlexiCredit Course Web  Mobile Application Development,ty,cs,core,0,0
+Dr Ankit Vishnoi,ankit.vishnoi@sitpune.edu.in,FlexiCredit Course Web  Mobile Application Development,ty,cs,core,0,0
+VF Sushank Dahiwadkar,sushank.dahiwadkar.vf@sitpune.edu.in,FlexiCredit Course Web  Mobile Application Development,ty,cs,core,0,0
+Dr Bhavna Ambudkar,bhavna.ambudkar@sitpune.edu.in,Design Thinking,ty,cs,core,0,0
+VFSanjana Devadiga,sanjana.devadiga.vf@sitpune.edu.in,Capstone Course,ty,cs,core,0,0
+VF Parija Bhise,parija.bhise.vf@sitpune.edu.in,Organizational Behaviour,ty,cs,core,0,0
+Dr Shwetambari Chiwhane,shwetambari.chiwhane@sitpune.edu.in,Data Warehousing and Mining 1,ty,cs,elective,0,1
+Dr Rupali Gangarde,rupali.gangarde@sitpune.edu.in,Data Warehousing and Mining 2,ty,cs,elective,0,1
+Dr Shwetambari Chiwhane,shwetambari.chiwhane@sitpune.edu.in,Data Warehousing and Mining Lab 1,ty,cs,elective,1,1
+Dr Rupali Gangarde,rupali.gangarde@sitpune.edu.in,Data Warehousing and Mining Lab 2,ty,cs,elective,1,1
+Dr Shubham Joshi,shubham.joshi@sitpune.edu.in,Internet of Things 1,ty,cs,elective,0,1
+Dr Shubham Joshi,shubham.joshi@sitpune.edu.in,Internet of Things Lab 1,ty,cs,elective,1,1
+Mrs Usha Jogalekar,usha.jogalekar@sitpune.edu.in,Image Processing 1,ty,cs,elective,0,1
+Mrs Usha Jogalekar,usha.jogalekar@sitpune.edu.in,Image Processing Lab 1,ty,cs,elective,1,1
+Dr Deepak Parashar,deepak.parashar@sitpune.edu.in,Artificial Intelligence 1,ty,cs,elective,0,1
+Dr Deepak Parashar,deepak.parashar@sitpune.edu.in,Artificial Intelligence Lab 2,ty,cs,elective,1,1
+Dr Shivali Wagle,shivali.wagle@sitpune.edu.in,Artificial Intelligence Lab 5,ty,cs,elective,1,1
+Mrs Nivedita Mishra,nivedita.mishra@sitpune.edu.in,Artificial Intelligence Lab 3,ty,cs,elective,1,1
+Dr Sudhanshu Suhas Gonge,sudhanshu.gonge@sitpune.edu.in,Human Computer Interface 1,ty,cs,elective,0,1
+Dr Sudhanshu Suhas Gonge,sudhanshu.gonge@sitpune.edu.in,Human Computer Interface Lab 1,ty,cs,elective,1,1
+Dr Rahul Raghvendra Joshi,rahulj@sitpune.edu.in,Advanced Algorithms 1,ty,cs,elective,0,1
+Dr Rahul Joshi,rahulj@sitpune.edu.in,Advanced Algorithms Lab 1,ty,cs,elective,1,1
+Dr Vipin Tiwari,vipin.tiwari@sitpune.edu.in,Advanced Algorithms Lab 2,ty,cs,elective,1,1
+Dr Kanhaya Sharma Dr Shilpa Gite,kanhaiya.sharma@sitpune.edu.in,Introduction to Big Data 1,ty,cs,elective,0,1
+VfSurabhi Thatte,surabhi.thatte.vf@sitpune.edu.in,Introduction to Big Data 2,ty,cs,elective,0,1
+Mrs Shubhangi Deokar,shubhangi.deokar@sitpune.edu.in,Open Source Technology 1,ty,cs,elective,0,1
+Dr Sudhanshu Suhas Gonge,sudhanshu.gonge@sitpune.edu.in,Open Source Technology 2,ty,cs,elective,0,1
+Dr Aditi Sharma,aditi.sharma@sitpune.edu.in,Open Source Technology 3,ty,cs,elective,0,1
+Dr Rupali Gangarde,rupali.gangarde@sitpune.edu.in,Data Warehousing and Mining Lab 3,ty,cs,elective,1,1
+Dr Shwetambari Chiwhane,shwetambari.chiwhane@sitpune.edu.in,Data Warehousing and Mining Lab 4,ty,cs,elective,1,1
+Dr Shubham Joshi,shubham.joshi@sitpune.edu.in,Internet of Things Lab 2,ty,cs,elective,1,1
+Dr Shubham Joshi,shubham.joshi@sitpune.edu.in,Internet of Things Lab 3,ty,cs,elective,1,1
+Dr Deepak Parashar,deepak.parashar@sitpune.edu.in,Artificial Intelligence Lab 4,ty,cs,elective,1,1
+Dr Rahul Joshi,rahulj@sitpune.edu.in,Advanced Algorithms Lab 3,ty,cs,elective,1,1
+Dr Vipin Tiwari,vipin.tiwari@sitpune.edu.in,Advanced Algorithms Lab 4,ty,cs,elective,1,1
+Mrs Nivedita Mishra,nivedita.mishra@sitpune.edu.in,Artificial Intelligence Lab 1,ty,cs,elective,1,1
+Dr Sayali Sandbhor,sayali.sandbhor@sitpune.edu.in,Service Learning ,sy,civil,core,0,0
+Dr Vaishnavi Dabir,vaishnavi.dabir@sitpune.edu.in,Service Learning ,sy,civil,core,0,0
+Dr Junaid Nisar,junaid.nisar@sitpune.edu.in,Statistics Probability and Numerical Methods SPNM,sy,civil,core,0,0
+Dr Junaid Nisar,junaid.nisar@sitpune.edu.in,Statistics Probability and Numerical Methods Lab SPNM Lab,sy,civil,core,1,0
+Prof Vinaj Jatti,vinay.jatti@sitpune.edu.in,Computer Aided Structural Analysis I CASA,sy,civil,core,0,0
+VF Pratibha Sharma ,pratibha.sharma.vf@sitpune.edu.in,Princples of Economics  POE,sy,civil,core,0,0
+Dr Sayali Apte,sayali.apte@sitpune.edu.in,Open Channel Flow OCF,sy,civil,core,0,0
+Dr Sayali Apte,sayali.apte@sitpune.edu.in,Open Channel Flow Simulation Lab OCFS Lab,sy,civil,core,1,0
+Dr Mugdha Kshirsagar,mugdhak@sitpune.edu.in,Geotechnical Engineering GE,sy,civil,core,0,0
+Dr Mugdha Kshirsagar,mugdhak@sitpune.edu.in,Geotechnical Engineering Lab GE Lab,sy,civil,core,1,0
+Dr Sankit Kasssa,sankit.kassa@sitpune.edu.in,Entrepreneurship Venture,sy,civil,core,0,0
+VF Rima Banarjee ,rima.banerjee.vf@sitpune.edu.in,Foundation of Ethics ,sy,civil,elective,0,1
+VF Tanuja Yelale ,tanuja.yelale.vf@sitpune.edu.in,Introduction to Indian Philosophy ,sy,civil,elective,0,1
+Dr Vaishnavi Dabir,vaishnavi.dabir@sitpune.edu.in,Environmental Engineering II EE II,ty,civil,core,0,0
+Prof Humera Khanum,humera.khanum@sitpune.edu.in,FlexiCredit Course,ty,civil,core,0,0
+Dr Sanjay Kulkarni,sanjay.kulkarni@sitpune.edu.in,Structural DesignII SD II,ty,civil,core,0,0
+Dr Sayali Sandbhor,sayali.sandbhor@sitpune.edu.in,Capstone Course,ty,civil,core,0,0
+Prof Humera Khanum,humera.khanum@sitpune.edu.in,FlexiCredit Course Lab,ty,civil,core,1,0
+VF Pratibha Sharma ,pratibha.sharma.vf@sitpune.edu.in,Principal of Economics POE,ty,civil,core,0,0
+Dr Sanjay Kulkarni,sanjay.kulkarni@sitpune.edu.in,Bridge Engineering,ty,civil,elective,0,1
+Prof Rushikesh Kulkarni,rushikeshk@sitpune.edu.in,Introduction To Remote Sensing And Gis,ty,civil,elective,0,1
+Prof Sagar Kolekar,sagar.kolekar@sitpune.edu.in,Environmental Systems Lab,ty,civil,elective,1,1
+Prof Sarfaraj Shaikh,sarfarajs@sitpune.edu.in,3d Printing And Prototyping,ty,civil,elective,0,1
+Prof Shruti Maheshwari,shruti.maheshwari@sitpune.edu.in,Project Management ,ty,civil,elective,0,1
+Dr Prasad Kantipudi,prasad.kantipudi@sitpune.edu.in,Control Systems,sy,entc,core,0,0
+Dr DMarshiana,marshiana.d@sitpune.edu.in,Control Systems,sy,entc,core,0,0
+Dr Prasad Kantipudi,prasad.kantipudi@sitpune.edu.in,Control Systems Lab,sy,entc,core,1,0
+Dr DMarshiana,marshiana.d@sitpune.edu.in,Control Systems Lab,sy,entc,core,1,0
+Dr Saffrine Kingsly,saffrine.kingsly@sitpune.edu.in,Electromagnetic Field Theory,sy,entc,core,0,0
+Dr Mousami Bhanja,mousumi.bhanja@sitpune.edu.in,Analog Circuit Design,sy,entc,core,0,0
+Dr Ujwala Kshirsagar,ujwala.kshirsagar@sitpune.edu.in,Analog Circuit Design,sy,entc,core,0,0
+Dr Mousami Bhanja,mousumi.bhanja@sitpune.edu.in,Analog Circuit Design Lab,sy,entc,core,1,0
+Dr Ujwala Kshirsagar,ujwala.kshirsagar@sitpune.edu.in,Analog Circuit Design Lab,sy,entc,core,1,0
+Dr Mangal Singh,mangal.singh@sitpune.edu.in,Principles of Communication,sy,entc,core,0,0
+Dr Aditya Jain,aditya.j@sitpune.edu.in,Principles of Communication Lab,sy,entc,core,1,0
+Dr Mangal Singh,mangal.singh@sitpune.edu.in,Principles of Communication Lab,sy,entc,core,1,0
+Dr Sumit Kumar,kumar.sumit@sitpune.edu.in,Principles of Communication Lab,sy,entc,core,1,0
+Dr Bhavna Ambudkar,bhavna.ambudkar@sitpune.edu.in,Entrepreneurship Venture,sy,entc,core,0,0
+Dr Priyanka TupeWaghmare,priyanka.tupe@sitpune.edu.in,Service Learning,sy,entc,core,0,0
+Dr Shilpa Hudnurkar,shilpa.hudnurkar@sitpune.edu.in,Hardware Interfacing and Sensor Integration,sy,entc,core,0,0
+Dr Shilpa Hudnurkar,shilpa.hudnurkar@sitpune.edu.in,Hardware Interfacing and Sensor Integration Lab,sy,entc,core,1,0
+Dr Priti Shahane,pritis@sitpune.edu.in,Hardware Interfacing and Sensor Integration Lab,sy,entc,core,1,0
+Ms Tanuja Yelale,tanuja.yelale.vf@sitpune.edu.in,Introduction to Indian Philosophy,sy,entc,elective,0,1
+Ms Rima Banerjee,tanuja.yelale.vf@sitpune.edu.in,Foundation of Ethics,sy,entc,elective,0,1
+Dr Krithikaa Mohanarangam,krithikaa.mohanarangam@sitpune.edu.in,Computer Networks,ty,entc,core,0,0
+Dr Priyanka TupeWaghmare,priyanka.tupe@sitpune.edu.in,Computer Networks,ty,entc,core,0,0
+Dr Krithikaa Mohanarangam,krithikaa.mohanarangam@sitpune.edu.in,Computer Networks Lab,ty,entc,core,1,0
+Dr Ujwala Kshirsagar,ujwala.kshirsagar@sitpune.edu.in,Electronic Design Workshop,ty,entc,core,0,0
+Dr Vijay Kumar Lamba,vijay.lamba@sitpune.edu.in,Electronic Design Workshop,ty,entc,core,0,0
+Dr Sankit Kassa,sankit.kassa@sitpune.edu.in,Electronic Design Workshop,ty,entc,core,0,0
+Dr Saffrine Kingsly,saffrine.kingsly@sitpune.edu.in,Electronic Design Workshop,ty,entc,core,0,0
+Dr Aditya Jain,aditya.j@sitpune.edu.in,Capstone Course,ty,entc,core,0,0
+Prof Kunal Shejul,kunal.shejul@sitpune.edu.in,Principles of Economics,ty,entc,core,0,0
+Dr Anurag Mahajan,anurag.mahajan@sitpune.edu.in,Digital Design with Verilog,ty,entc,core,0,0
+Dr Priti Shahane,pritis@sitpune.edu.in,Digital Design with Verilog,ty,entc,core,0,0
+Dr Anurag Mahajan,anurag.mahajan@sitpune.edu.in,Digital Design with Verilog Lab,ty,entc,core,1,0
+Dr Priti Shahane,pritis@sitpune.edu.in,Digital Design with Verilog Lab,ty,entc,core,1,0
+Dr Sankit Kassa,sankit.kassa@sitpune.edu.in,Digital Image Processing,ty,entc,elective,0,1
+Dr Sankit Kassa,sankit.kassa@sitpune.edu.in,Digital Image Processing Lab,ty,entc,elective,1,1
+Dr Anurag Mahajan,anurag.mahajan@sitpune.edu.in,Microwaves and Radar,ty,entc,elective,0,1
+Dr Anurag Mahajan,anurag.mahajan@sitpune.edu.in,Microwaves and Radar Lab,ty,entc,elective,1,1
+Mr Shripad Deshpande,shripad.deshpande@sitpune.edu.in,Embedded System Design,ty,entc,elective,0,1
+Mr Shripad Deshpande,shripad.deshpande@sitpune.edu.in,Embedded System Design Lab,ty,entc,elective,1,1
+Prof Smita Khole,smita.khole.vf@sitpune.edu.in,Digital CMOS VLSI Design,ty,entc,elective,0,1
+Prof Smita Khole,smita.khole.vf@sitpune.edu.in,CAD for VLSI Design Lab,ty,entc,elective,1,1
+Prof Shruti Maheshwari,shruti.maheshwari@sitpune.edu.in,Project Management,ty,entc,elective,0,1
+Dr Amol Dhumane,amol.dhumane@sitpune.edu.in,Java,ty,entc,elective,0,1
+Dr Snehal Bhosle,snehal.bhosale@sitpune.edu.in,Introduction to Data Science,ty,entc,elective,0,1
+Dr Ankur Goyal,ankur.goyal@sitpune.edu.in,Introduction To Ai & Ml,ty,entc,elective,0,1
+Dr Chandan Choubey,chandan.choubey@sitpune.edu.in,Project Based LearningIII,ty,entc,core,0,0
+Dr BSVeena BSV,veena@sitpune.edu.in,MathematicsII,fy,cs,core,0,0
+Dr BSVeena BSV,veena@sitpune.edu.in,MathematicsTutII,fy,cs,core,0,0
+Dr Rupali Nagar RN,rupali.nagar@sitpune.edu.in,Physics,fy,cs,core,0,0
+Dr Rupali Nagar RN,rupali.nagar@sitpune.edu.in,Physics Lab,fy,cs,core,1,0
+Dr Neha Divekar ND,neha.divekar@sitpune.edu.in,Communication skill,fy,cs,core,0,0
+Dr Neha Divekar ND,neha.divekar@sitpune.edu.in,Communication skill Lab,fy,cs,core,1,0
+Dr Kanhaiya Sharma KSH,kanhaiya.sharma@sitpune.edu.in,Programming in C,fy,cs,core,0,0
+Dr Kanhaiya Sharma KSH,kanhaiya.sharma@sitpune.edu.in,Programming in C Lab,fy,cs,core,1,0
+Prof Surabhi Thatte ST,surabhi.thatte.phd2020@sitpune.edu.in,Programming in C Lab,fy,cs,core,1,0
+Prof Sachin R Gaikwad SRG,sachin.gaikwad@sitpune.edu.in,Programming in C Lab,fy,cs,core,1,0
+Dr Meena Laad ML,headappliedscience@sitpune.edu.in,Creative Thinking,fy,cs,core,0,0
+Dr Javid Gani Dar JGD,javid.dar@sitpune.edu.in,Stattistics and Probability,fy,cs,core,0,0
+Dr Vaishnavi Dabir VSD,vaishnavi.dabir@sitpune.edu.in,Environmental Science,fy,cs,core,0,0
+Dr BSVeena BSV,veena@sitpune.edu.in,MathematicsII ,fy,cs,core,0,0
+Dr BSVeena BSV,veena@sitpune.edu.in,MathematicsII Tut,fy,cs,core,0,0
+Dr Shahid Wani,shahid.wani@sitpune.edu.in,MathematicsII Tut,fy,cs,core,0,0
+Dr Sneha Gajbhiye SAG,sneha.gajbhiye@sitpune.edu.in,MathematicsII Tut,fy,cs,core,0,0
+Dr Neeru Bhagat NB,neeru.bhagat@sitpune.edu.in,Physics for Computer Engineers,fy,cs,core,0,0
+Dr Neeru Bhagat NB,neeru.bhagat@sitpune.edu.in,Physics Lab,fy,cs,core,1,0
+Dr Neha Divekar ND,neha.divekar@sitpune.edu.in,Communication Skills,fy,cs,core,0,0
+Dr Swagata Ghos SG,swagata.ghosh@sitpune.edu.in,Communication Skills Lab,fy,cs,core,1,0
+Dr Neha Divekar ND,neha.divekar@sitpune.edu.in,Communication Skills Lab,fy,cs,core,1,0
+Prof Surabhi Thatte ST,surabhi.thatte.phd2020@sitpune.edu.in,Programming in C,fy,cs,core,0,0
+Prof Sachin Gaikwad,sachin.gaikwad@sitpune.edu.in,Programming in C Lab,fy,cs,core,1,0
+Prof Mahesh Arse MA,mahesh.arse@sitpune.edu.in,Programming in C Lab,fy,cs,core,1,0
+Dr Shahid Wani,shahid.wani@sitpune.edu.in,Stattistics and Probability Tut,fy,cs,core,0,0
+Dr Sneha Gajbhiye SAG,sneha.gajbhiye@sitpune.edu.in,MathematicsII,fy,cs,core,0,0
+Dr Kuldeep Mishra,kuldeep.mishra@sitpune.edu.in,Physics Lab,fy,cs,core,1,0
+Dr Swagata Ghos SG,swagata.ghosh@sitpune.edu.in,Communication Skills,fy,cs,core,0,0
+Dr Shahid Wani,shahid.wani@sitpune.edu.in,Statistics and Probability,fy,cs,core,0,0
+Dr Chhaya Lande CL,chhaya.lande@sitpune.edu.in,Calculus,fy,aiml,core,0,0
+Dr Chhaya Lande CL,chhaya.lande@sitpune.edu.in,Calculus Tut II,fy,aiml,core,0,0
+Dr Kuldeep Mishra,kuldeep.mishra@sitpune.edu.in,Physics,fy,aiml,core,0,0
+Dr Kuldeep Mishra,kuldeep.mishra@sitpune.edu.in,Physics Lab,fy,aiml,core,1,0
+Dr Meena Laad ML,headappliedscience@sitpune.edu.in,Physics Lab,fy,aiml,core,1,0
+Prof Smita Khole SK,smita.khole.vf@sitpune.edu.in,Prgramming in C,fy,aiml,core,0,0
+Prof Suman Tanwar ST,suman.tanwar.vf@sitpune.edu.in,Programming in C Lab,fy,aiml,core,1,0
+Prof Hema Karande HK,hema.karande@sitpune.edu.in,Programming in C Lab,fy,aiml,core,1,0
+Prof Chintan Kishor CK,chintan.kishor.vf@sitpune.edu.in,Communication Skills,fy,aiml,core,0,0
+Prof Chintan Kishor CK,chintan.kishor.vf@sitpune.edu.in,Communication Skills Lab,fy,aiml,core,1,0
+Dr Meena Laad ML,headappliedscience@sitpune.edu.in,Creative Thinking,fy,aiml,core,0,0
+Dr Soham Sanjay Gokhale SSG,soham.gokhale@sitpune.edu.in,Statistics for Data Science,fy,aiml,core,0,0
+Dr Soham Sanjay Gokhale SSG,soham.gokhale@sitpune.edu.in,Statistics for Data ScienceTut II,fy,aiml,core,0,0
+Dr Sangeeta Pant SP,sangeeta.pant@sitpune.edu.in,Statistics for Data ScienceTut II,fy,aiml,core,0,0
+Prof Mayur Gaikwad MRG,mayur.gaikwad@sitpune.edu.in,Software Tools for Artificial Intelligence and Machine learning,fy,aiml,core,0,0
+Prof Manali Date MD,manali.date.phd2021@sitpune.edu.in,Environmental Science,fy,aiml,core,0,0
+Dr Adigoppula Raju AR,adigoppula.raju@sitpune.edu.in,Calculus Tut II,fy,aiml,core,0,0
+Dr Soham Sanjay Gokhale SSG,sangeeta.pant@sitpune.edu.in,Statistics for Data ScienceTut II,fy,aiml,core,0,0
+Dr Harsh Dhiman HHD,harsh.dhiman@sitpune.edu.in,Software Tools for Artificial Intelligence and Machine learning,fy,aiml,core,0,0
+Dr Shilpa Malge SM,shilpam@sitpune.edu.in,MathematicsII,fy,entc,core,0,0
+Dr Shilpa Malge SM,shilpam@sitpune.edu.in,MAII Tut,fy,entc,core,0,0
+Prof Sushma Parihar SP,sushmap@sitpune.edu.in,Fundamentals of Electrical and Electronics Engineering,fy,entc,core,0,0
+Prof Sushma Parihar SP,sushmap@sitpune.edu.in,Fundamentals of Electrical and Electronics Engineering Lab,fy,entc,core,1,0
+Dr Dipika Jaspal DKJ,dipikaj@sitpune.edu.in,Chemistry,fy,entc,core,0,0
+Dr Dipika Jaspal DKJ,dipikaj@sitpune.edu.in,Chemistry Lab,fy,entc,core,1,0
+Dr Prabhat Thakur PBT,prabhat.thakur@sitpune.edu.in,Programing and Problem Solving,fy,entc,core,0,0
+Dr Prabhat Thakur PBT,prabhat.thakur@sitpune.edu.in,Programing and Problem Solving lab,fy,entc,core,1,0
+Dr Niting Solke NS,nitin.solke@sitpune.edu.in,Engineering Graphics Lab,fy,entc,core,1,0
+Dr Ravi Sekhar RS,ravi.sekhar@sitpune.edu.in,Engineering Graphics Lab,fy,entc,core,1,0
+Dr Swagata Ghos SG,swagata.ghosh@sitpune.edu.in,Critical Thinking,fy,entc,core,0,0
+Prof Kunal Shejul KMS,kunal.shejul@sitpune.edu.in,Data Analytics with Excel,fy,entc,core,0,0
+Dr Mousami Bhanja MB,mousumi.bhanja@sitpune.edu.in,Data Analytics with Excel,fy,entc,core,0,0
+Dr Rupali Nagar RN,rupali.nagar@sitpune.edu.in,Tinker Lab,fy,entc,core,1,0
+Dr Paresh Nasikkar,paresh.nasikkar@sitpune.edu.in,Tinker Lab,fy,entc,core,1,0
+Dr Vijay Kumar Lamba ,vijay.lamba@sitpune.edu.in,Tinker Lab,fy,entc,core,1,0
+Dr shekhar Bhame,shekhar.bhame@sitpune.edu.in,Tinker Lab,fy,entc,core,1,0
+Dr Sayali Apte SA,sayali.apte@sitpune.edu.in,Tinker Lab,fy,entc,core,1,0
+Prof Mugdha K,mugdha.thanawala.btech2019@sitpune.edu.in,Tinker Lab,fy,entc,core,1,0
+Prof Sarfaraj Shaikh,sarfarajs@sitpune.edu.in,Tinker Lab,fy,entc,core,1,0
+Dr Ramesh BT,ramesh.bt@sitpune.edu.in,Tinker Lab,fy,entc,core,1,0
+Prof Mahesh Arse MA,mahesh.arse@sitpune.edu.in,Tinker Lab,fy,entc,core,1,0
+Prof Sachin Gaikwad SG,sachin.gaikwad@sitpune.edu.in,Tinker Lab,fy,entc,core,1,0
+Mr Anthony Augustine,anthony.augustine@siu.edu.in,FFL,fy,entc,core,0,0
+Dr Sneha Gajbhiye SAG,sneha.gajbhiye@sitpune.edu.in,MathematicsII Tut,fy,entc,core,0,0
+Dr Shilpa Malge SM,shilpam@sitpune.edu.in,MathematicsII Tut,fy,entc,core,0,0
+Dr Pritesh Shah PS,pritesh.shah@sitpune.edu.in,Fundamental of Electical and Electronics Engineering,fy,entc,core,0,0
+Prof Jayshree PandeJP,jayshree.pande@sitpune.edu.in,Fundamental of Electical and Electronics Engineering Lab,fy,entc,core,1,0
+Prof Sushma Parihar SP,sushmap@sitpune.edu.in,Fundamental of Electical and Electronics Engineering Lab,fy,entc,core,1,0
+Prof Prajakta Mukadam,prajakta.magdum.vf@sitpune.edu.in,Chemistry Lab,fy,entc,core,1,0
+Dr Snehal Bhosale SB,snehal.bhosale@sitpune.edu.in,Programming and Problem Solving,fy,entc,core,0,0
+Dr Snehal Bhosale SB,snehal.bhosale@sitpune.edu.in,Programming and Problem Solving Lab,fy,entc,core,1,0
+Dr Amol Dalvi AD,amol.dalvi@sitpune.edu.in,Engineering Graphics Lab,fy,entc,core,1,0
+Dr Prabhat Thakur PBT,prabhat.thakur@sitpune.edu.in,Data Analytics with Excel,fy,entc,core,0,0
+Mr Anthony Augustine,anthony.augustine@siu.edu.in,Fitness For Life,fy,entc,core,0,0
+Dr Sangeeta Pant SP,sangeeta.pant@sitpune.edu.in,MAII Mathematics,fy,ra,core,0,0
+Dr Sangeeta Pant SP,sangeeta.pant@sitpune.edu.in,MAII MathematicsTut,fy,ra,core,0,0
+Dr Nilisha Itankar NI,nilisha.itankar@sitpune.edu.in,Chemistry,fy,ra,core,0,0
+Dr Nilisha Itankar NI,nilisha.itankar@sitpune.edu.in,Chemistry Lab,fy,ra,core,1,0
+Dr Chandan Kumar Choubey CKC,chandan.choubey@sitpune.edu.in,Basic Electrical and Electronics Engineering,fy,ra,core,0,0
+Dr Chandan Kumar Choubey CKC,chandan.choubey@sitpune.edu.in,Basic Electrical and Electronics Engineering lab,fy,ra,core,1,0
+Prof Pragya Saxena PS,pragya.saxena@sitpune.edu.in,Engineering Graphics ,fy,ra,core,0,0
+Prof Pragya Saxena PS,pragya.saxena@sitpune.edu.in,Engineering Graphics Lab,fy,ra,core,1,0
+Prof Parvez A Patel PAP,parvez.patel.phd2022@sitpune.edu.in,Software Tools for Robotics,fy,ra,core,0,0
+Dr Swagata Ghos SG,swagata.ghosh@sitpune.edu.in,Critical Thinking,fy,ra,core,0,0
+Mr Anthony Augustine,anthony.augustine@siu.edu.in,Fitness For Life,fy,ra,core,0,0
+Dr Ramesh BT,ramesh.bt@sitpune.edu.in,Tinker Lab,fy,ra,core,1,0
+Prof Sachin R Gaikwad SRG,sachin.gaikwad@sitpune.edu.in,Tinker Lab,fy,ra,core,1,0
+Dr Shekhar Bhame SB,shekhar.bhame@sitpune.edu.in,Tinker Lab,fy,ra,core,1,0
+Dr Rupali Nagar RN,rupali.nagar@sitpune.edu.in,Tinker Lab,fy,ra,core,1,0
+Prof Mugdha K,mugdha.thanawala.btech2019@sitpune.edu.in,Tinker Lab,fy,ra,core,1,0
+Prof Mahesh Arse MA,mahesh.arse@sitpune.edu.in,Tinker Lab,fy,ra,core,1,0
+Prof Sarfaraj Shaikh,sarfarajs@sitpune.edu.in,Tinker Lab,fy,ra,core,1,0
+Dr Sayali Apte SA,sayali.apte@sitpune.edu.in,Tinker Lab,fy,ra,core,1,0
+Dr Paresh Nasikkar,paresh.nasikkar@sitpune.edu.in,Tinker Lab,fy,ra,core,1,0
+Dr Vijay Kumar Lamba ,vijay.lamba@sitpune.edu.in,Tinker Lab,fy,ra,core,1,0
+Dr Adigoppula Raju AR,adigoppula.raju@sitpune.edu.in,Engineering Mathematics II,fy,mech,core,0,0
+Dr Adigoppula Raju AR,adigoppula.raju@sitpune.edu.in,Engineering Mathematics II Tut,fy,mech,core,0,0
+Dr Shekhar Bhame SB,shekhar.bhame@sitpune.edu.in,Chemistry,fy,mech,core,0,0
+Dr Shekhar Bhame SB,shekhar.bhame@sitpune.edu.in,Chemistry Lab,fy,mech,core,1,0
+Prof Jayshree PandeJP,jayshree.pande@sitpune.edu.in,Basic Electrical and Electronics Engineering,fy,mech,core,0,0
+Prof Jayshree PandeJP,jayshree.pande@sitpune.edu.in,Basic Electrical and Electronics Engineering lab,fy,mech,core,1,0
+Dr Vijay Jatti VY,vijay.jatti@sitpune.edu.in,Engineering Mechanics,fy,mech,core,0,0
+Prof Vikas Gulia VG,vikas.gulia@sitpune.edu.in,Engineering Mechanics Lab,fy,mech,core,1,0
+Dr Amol Dalvi AD,amol.dalvi@sitpune.edu.in,Software Tools for Mechanical engineering ,fy,mech,core,0,0
+Mr Anthony Augustine,anthony.augustine@siu.edu.in,Fitness For Life,fy,mech,core,0,0
+Dr Swagata Ghos SG,swagata.ghosh@sitpune.edu.in,Critical Thinking,fy,mech,core,0,0
+Prof Sachin R Gaikwad SRG,sachin.gaikwad@sitpune.edu.in,Tinker Lab,fy,mech,core,1,0
+Dr Shekhar Bhame SB,shekhar.bhame@sitpune.edu.in,Tinker Lab,fy,mech,core,1,0
+Dr Rupali Nagar RN,rupali.nagar@sitpune.edu.in,Tinker Lab,fy,mech,core,1,0
+Dr Sayali Apte SA,sayali.apte@sitpune.edu.in,Tinker Lab,fy,mech,core,1,0
+Prof Mahesh Arse MA,mahesh.arse@sitpune.edu.in,Tinker Lab,fy,mech,core,1,0
+Prof Mugdha K,mugdha.thanawala.btech2019@sitpune.edu.in,Tinker Lab,fy,mech,core,1,0
+Prof Sarfaraj Shaikh,sarfarajs@sitpune.edu.in,Tinker Lab,fy,mech,core,1,0
+Dr Paresh Nasikkar,paresh.nasikkar@sitpune.edu.in,Tinker Lab,fy,mech,core,1,0
+Dr Vijay Kumar Lamba ,vijay.lamba@sitpune.edu.in,Tinker Lab,fy,mech,core,1,0
+Dr Ramesh BT,ramesh.bt@sitpune.edu.in,Tinker Lab,fy,mech,core,1,0
+Dr Adigoppula Raju AR,adigoppula.raju@sitpune.edu.in,Engineering MathematicsII,fy,civil,core,0,0
+Dr Adigoppula Raju AR,adigoppula.raju@sitpune.edu.in,Engineering MathematicsII Tut,fy,civil,core,0,0
+Dr Shekhar Bhame SB,shekhar.bhame@sitpune.edu.in,Chemistry,fy,civil,core,0,0
+Prof Prajakta Mukadam,prajakta.magdum.vf@sitpune.edu.in,Chemistry Lab,fy,civil,core,1,0
+Prof Sagar Kolekar SK,sagar.kolekar@sitpune.edu.in,Digital Land Surveying and Mapping,fy,civil,core,0,0
+Prof Sagar Kolekar SK,sagar.kolekar@sitpune.edu.in,Digital Land Surveying and Mapping Lab,fy,civil,core,1,0
+Prof Rushikesh Kulkarni RPK ,rushikeshk@sitpune.edu.in,Indroduction to Python Programming Lab,fy,civil,core,1,0
+Prof Amar Jain AJN,amar.jain@sitpune.edu.in,Building Construction Technology,fy,civil,core,0,0
+Dr Harikrishan R HKR,harikrishnan.r@sitpune.edu.in,Basic of Sensors and Microcontrollers,fy,civil,core,0,0
+Dr Harikrishan R HKR,harikrishnan.r@sitpune.edu.in,Basic of Sensors and Microcontrollers Lab,fy,civil,core,1,0
+Prof Amar Jain AJN,amar.jain@sitpune.edu.in,Software Tools for Civil Engineers,fy,civil,core,0,0
+Dr Swagata Ghos SG,swagata.ghosh@sitpune.edu.in,Critical Thinking,fy,civil,core,0,0
+Mr Anthony Augustine,anthony.augustine@siu.edu.in,Fitness For Life,fy,civil,core,0,0
+Prof Sachin R Gaikwad SRG,sachin.gaikwad@sitpune.edu.in,Tinker Lab,fy,civil,core,1,0
+Dr Shekhar Bhame SB,shekhar.bhame@sitpune.edu.in,Tinker Lab,fy,civil,core,1,0
+Dr Rupali Nagar RN,rupali.nagar@sitpune.edu.in,Tinker Lab,fy,civil,core,1,0
+Dr Sayali Apte SA,sayali.apte@sitpune.edu.in,Tinker Lab,fy,civil,core,1,0
+Prof Mahesh Arse MA,mahesh.arse@sitpune.edu.in,Tinker Lab,fy,civil,core,1,0
+Prof Mugdha K,mugdha.thanawala.btech2019@sitpune.edu.in,Tinker Lab,fy,civil,core,1,0
+Prof Sarfaraj Shaikh,sarfarajs@sitpune.edu.in,Tinker Lab,fy,civil,core,1,0
+Dr Paresh Nasikkar,paresh.nasikkar@sitpune.edu.in,Tinker Lab,fy,civil,core,1,0
+Dr Vijay Kumar Lamba ,vijay.lamba@sitpune.edu.in,Tinker Lab,fy,civil,core,1,0
+Dr Ramesh BT,ramesh.bt@sitpune.edu.in,Tinker Lab,fy,civil,core,1,0
+Dr Shahid Tamboli,shahidt@sitpune.edu.in,CADCAM,ty,mech,core,0,0
+Dr Anindita Roy,anindita.roy@sitpune.edu.in,FCC H,ty,mech,core,0,0
+Dr Chandrakant Sonawane,chandrakant.sonawane@sitpune.edu.in,FCC H,ty,mech,core,0,0
+Dr Sanjay Pohekar,sanjay.pohekar@sitpune.edu.in,Project Based LearningII PBL II,ty,mech,core,0,0
+Prof Shruti Maheshwari,shruti.maheshwari@sitpune.edu.in,Capstone Course CC,ty,mech,core,0,0
+Mr Anish Dhoble,anish.dhoble.vf@sitpune.edu.in,Capstone Course CC,ty,mech,core,0,0
+Ms Pratibha Sharma,pratibha.sharma.vf@sitpune.edu.in,Principles of Economics PoE,ty,mech,core,0,0
+Dr Shahid Tamboli,shahidt@sitpune.edu.in,CADCAM Lab,ty,mech,core,1,0
+Prof Sarfaraj Shaikh,sarfarajs@sitpune.edu.in,CADCAM Lab,ty,mech,core,1,0
+Dr Mandar Sapre,mandar.sapre@sitpune.edu.in,Finite Element Methods,ty,mech,elective,0,1
+Dr Shahid Tamboli,shahidt@sitpune.edu.in,Jigs and Fixtures,ty,mech,elective,0,1
+Dr Mandar Sapre,mandar.sapre@sitpune.edu.in,Finite Element Methods Lab,ty,mech,elective,1,1
+Dr Anand Pandey,anand.pandey@sitpune.edu.in,Jigs and Fixtures Lab,ty,mech,elective,1,1
+Dr Anindita Roy,anindita.roy@sitpune.edu.in,Power Plant Engineering,ty,mech,elective,0,1
+Prof Vikas Gulia,vikas.gulia@sitpune.edu.in,Operations Research,ty,mech,elective,0,1
+Dr Amol Dhumane,amol.dhumane@sitpune.edu.in,Java,ty,mech,elective,0,1
+Dr Snehal Bhosale,snehal.bhosale@sitpune.edu.in,Introduction to Data Science,ty,mech,elective,0,1
+Prof Sarfaraj Shaikh,sarfarajs@sitpune.edu.in,3D Printing and Prototyping,ty,mech,elective,0,1
+Prof Shruti Maheshwari,shruti.maheshwari@sitpune.edu.in,Project management,ty,mech,elective,0,1
+Dr Ravi Sekhar,ravi.sekhar@sitpune.edu.in,Composite Materials,ty,mech,elective,0,1
+Dr Mandar Sapre,mandar.sapre@sitpune.edu.in,Engineering Design Optimization,ty,mech,elective,0,1
+Dr Amol Dalvi,amol.dalavi@sitpune.edu.in,Computer Aided Design II Lab,ty,mech,elective,1,1
+Dr Nitin Khedkar,nitin.khedkar@sitpune.edu.in,Computer Aided Design II Lab,ty,mech,elective,1,1
+Dr Shahid Tamboli,shahidt@sitpune.edu.in,Computer Aided Manufacturing Lab,ty,mech,elective,1,1
+Dr Mandar Sapre,mandar.sapre@sitpune.edu.in,Structural Dynamics and Non Linear Analysis Lab,ty,mech,elective,1,1
+Mr Rahul Gore,rahul.gore.vf@sitpune.edu.in,Structural Dynamics and Non Linear Analysis Lab,ty,mech,elective,1,1
+Dr Anirban Sur,anirban.sur@sitpune.edu.in,AI and ML for Smart Manufacturing,ty,mech,elective,0,1
+Dr Anirban Sur,anirban.sur@sitpune.edu.in,Industrial Internet of Things,ty,mech,elective,0,1
+Dr Anirban Sur,anirban.sur@sitpune.edu.in,Machine Learning and Artificial Intelligence Lab,ty,mech,elective,1,1
+Dr Anindita Roy,anindita.roy@sitpune.edu.in,Service Learning,sy,mech,core,0,0
+Dr Vijaykumar Jatti,vijaykumar.jatti@sitpune.edu.in,Statistics Probability and Numerical Methods SPNM,sy,mech,core,0,0
+Dr Junaid Nisar,junaid.nisar@sitpune.edu.in,Statistics Probability and Numerical Methods SPNM,sy,mech,core,0,0
+Dr Vijaykumar Jatti,vijaykumar.jatti@sitpune.edu.in,Statistics Probability and Numerical Methods Lab SPNM Lab,sy,mech,core,1,0
+Dr Junaid Nisar,junaid.nisar@sitpune.edu.in,Statistics Probability and Numerical Methods Lab SPNM Lab,sy,mech,core,1,0
+Dr Chandrakant Sonawane,chandrakant.sonawane@sitpune.edu.in,Fluid Mechanics FM,sy,mech,core,0,0
+Dr Chandrakant Sonawane,chandrakant.sonawane@sitpune.edu.in,Fluid Mechanics Lab FM Lab,sy,mech,core,1,0
+Dr Anindita Roy,anindita.roy@sitpune.edu.in,Fluid Mechanics Lab FM Lab,sy,mech,core,1,0
+Prof Vikas Gulia,vikas.gulia@sitpune.edu.in,Measurement and Metrology MM,sy,mech,core,0,0
+Prof Shruti Maheshwari,shruti.maheshwari@sitpune.edu.in,Measurement and Metrology Lab MM Lab,sy,mech,core,1,0
+Prof Vikas Gulia,vikas.gulia@sitpune.edu.in,Measurement and Metrology Lab MM Lab,sy,mech,core,1,0
+Prof Sarfaraj Shaikh,sarfarajs@sitpune.edu.in,Theory of Machines  I TOM I,sy,mech,core,0,0
+Prof Shruti Maheshwari,shruti.maheshwari@sitpune.edu.in,Theory of Machines  I LAb TOM I Lab,sy,mech,core,1,0
+Dr Sankit Kassa,sankit.kassa@sitpune.edu.in,Entrepreneurship Venture,sy,mech,core,0,0
+Dr Shrikrishna Kolhar,shrikrishna.kolhar@sitpune.edu.in,Introduction to Artificial Intelligence,sy,mech,core,0,0
+Rima Banerjee VF,rima.banerjee.vf@sitpune.edu.in,Foundation of Ethics,sy,mech,elective,0,1
+Dr Manoj Kumar Shukla,manoj.shukla@sitpune.edu.in,Robotics Operating System,ty,ra,core,0,0
+Dr Manoj Kumar Shukla,manoj.shukla@sitpune.edu.in,Robotics Operating System Lab,ty,ra,core,1,0
+Prof Aniket Nargundkar,aniket.nargundkar@sitpune.edu.in,PLC and SCADA,ty,ra,core,0,0
+Prof Aniket Nargundkar,aniket.nargundkar@sitpune.edu.in,PLC and SCADA Lab,ty,ra,core,1,0
+Mr Sameer Sayyad ,sameer.sayyad@sitpune.edu.in,PLC and SCADA Lab,ty,ra,core,1,0
+Dr Vijayshri Khedkar,vijayshri.khedkar@sitpune.edu.in,Database Management and Warehousing,ty,ra,core,0,0
+VF Mrs Pratibha Sharma,pratibha.sharma.vf@sitpune.edu.in,Principles of Economics,ty,ra,core,0,0
+Mr Sameer Sayyad ,sameer.sayyad@sitpune.edu.in,Path Planning and Reinforcement Learning,ty,ra,elective,0,1
+Mr Sameer Sayyad ,sameer.sayyad@sitpune.edu.in,Path Planning and Reinforcement Learning Lab,ty,ra,elective,1,1
+Dr Ankur Goyal,ankur.goyal@sitpune.edu.in,Introduction to AI and Machine Learning,ty,ra,elective,0,1
+Dr Snehal Bhosle,snehal.bhosale@sitpune.edu.in,Introduction to Data Science,ty,ra,elective,0,1
+Dr Amol Dhumane,amol.dhumane@sitpune.edu.in,Java,ty,ra,elective,0,1
+Ms Shruti Maheshwari,shruti.maheshwari@sitpune.edu.in,Project Management,ty,ra,elective,0,1
+Dr Sarfaraj Shaikh,sarfarajs@sitpune.edu.in,3D Printing and Prototyping,ty,ra,elective,0,1
+Prof Aniket Nargundhkar,aniket.nargundkar@sitpune.edu.in,Service Learning ,sy,ra,core,0,0
+Dr Javed K Sayyad,javed.sayyad@sitpune.edu.in,Robotic Control Systems,sy,ra,core,0,0
+Dr Javed K Sayyad,javed.sayyad@sitpune.edu.in,Robotic Control Systems Lab ,sy,ra,core,1,0
+Dr Ramesh B T,ramesh.bt@sitpune.edu.in,Kinematics and Dynamics of Robotics,sy,ra,core,0,0
+Dr Ramesh B T,ramesh.bt@sitpune.edu.in,Kinematics and Dynamics of Robotics Lab,sy,ra,core,1,0
+Dr Sachit T S,sachit.thimmappa@sitpune.edu.in,Application of AI in Robotics and Automation,sy,ra,core,0,0
+Dr Sachit T S,sachit.thimmappa@sitpune.edu.in,Application of AI in Robotics and Automation Lab,sy,ra,core,1,0
+Dr Pratiksha Bhavsar,pratiksha.bhavsar@sitpune.edu.in,Applied Mathematics for Robotics,sy,ra,core,0,0
+Dr Priya Jadhav,priya.jadhav@sitpune.edu.in,Hydraulics and Pneumatics for Robots,sy,ra,core,0,0
+Dr Priya Jadhav,priya.jadhav@sitpune.edu.in,Hydraulics and Pneumatics for Robots Lab,sy,ra,core,1,0
+Prof Bhavna Ambudkar,bhavna.ambudkar@sitpune.edu.in,Entrepreneurship Venture,sy,ra,core,0,0
+VF Ms Rima Banerjee,rima.banerjee.vf@sitpune.edu.in,Foundation of Ethics,sy,ra,elective,0,1
+VF Ms Tanuja Yelale,tanuja.yelale.vf@sitpune.edu.in,Introduction to Indian Philosophy,sy,ra,elective,0,1
+VF MrSharad Saraf,sharad.saraf.vf@sitpune.edu.in,Flexi Credit Course Programming with JAVA  Theory,sy,aiml,core,0,0
+Dr Kalyani Dhananjay Kadam,kalyanik@sitpune.edu.in,Flexi Credit CourseProgramming with JAVA Lab,sy,aiml,core,1,0
+Prof Mayur Gaikwad,mayur.gaikwad@sitpune.edu.in,Flexi Credit CourseProgramming with JAVA Lab,sy,aiml,core,1,0
+DrKetan  Kotecha,director@sitpune.edu.in,Supervised Machine Learning Theory,sy,aiml,core,0,0
+MsHema R Karande,hema.karande@sitpune.edu.in,Supervised Machine Learning Theory,sy,aiml,core,0,0
+Dr Pooja Vinayak Kamat,pooja.kamat@sitpune.edu.in,Supervised Machine Learning Theory,sy,aiml,core,0,0
+MsHema R Karande,hema.karande@sitpune.edu.in,Supervised Machine Learning Lab,sy,aiml,core,1,0
+Dr Preksha B Pareek,preksha.pareek@sitpune.edu.in,Supervised Machine Learning Lab,sy,aiml,core,1,0
+Dr Pooja Vinayak Kamat,pooja.kamat@sitpune.edu.in,Supervised Machine Learning Lab,sy,aiml,core,1,0
+Dr Shruti Ghanshyam Patil,headaiml@sitpune.edu.in,Unsupervised Learning Theory,sy,aiml,core,0,0
+Dr Prachi Nitin Kadam,prachi.kadam@sitpune.edu.in,Unsupervised Learning Theory,sy,aiml,core,0,0
+Dr Anupkumar Manohara Bongale,anupkumar.bongale@sitpune.edu.in,Unsupervised Learning Theory,sy,aiml,core,0,0
+Dr Prachi Nitin Kadam,prachi.kadam@sitpune.edu.in,Unsupervised Learning Lab,sy,aiml,core,1,0
+Dr Anupkumar Manohara Bongale,anupkumar.bongale@sitpune.edu.in,Unsupervised Learning Lab,sy,aiml,core,1,0
+VF DrSunder N,sundarparipurnam.n.vf@sitpune.edu.in,AI Ethics Theory,sy,aiml,core,0,0
+DrJitendra Rajpurohit,jitendra.rajpurohit@sitpune.edu.in,Optimization Techniques for Machine Learning Theory,sy,aiml,core,0,0
+Dr Amit Kumar,amit.kumar@sitpune.edu.in,Discrete Mathematics ,sy,aiml,core,0,0
+Dr Shahid Wani,shahid.wani@sitpune.edu.in,Discrete Mathematics Tut,sy,aiml,core,0,0
+Dr Amit Kumar,amit.kumar@sitpune.edu.in,Discrete Mathematics Tut,sy,aiml,core,0,0
+VF Mrs Pratibha Sharma,pratibha.sharma.vf@sitpune.edu.in,Principle of Economics Theory,sy,aiml,core,0,0
+VF Ms Rasika Lanke,rasika.lanke.vf@sitpune.edu.in,Basic German I,sy,aiml,elective,0,1
+VF Ms Nikita Konda,nikita.konda.vf@sitpune.edu.in,Basic French I,sy,aiml,elective,0,1
+Dr Shilpa Shailesh Gite,shilpa.gite@sitpune.edu.in,Generative Adversarial Networks GAN Theory,ty,aiml,core,0,0
+Dr Harsh Dhiman,harsh.dhiman@sitpune.edu.in,Generative Adversarial Networks Lab GAN,ty,aiml,core,1,0
+Dr KNandhini,nandhini.k@sitpune.edu.in,Generative Adversarial Networks Lab GAN,ty,aiml,core,1,0
+Dr Rahee Walambe,rahee.walambe@sitpune.edu.in,Reinforcement Learning Theory,ty,aiml,core,0,0
+DrSmita Rajendra Mahajan,smita.mahajan@sitpune.edu.in,Reinforcement Learning Lab,ty,aiml,core,1,0
+Dr Shrikrishna Kolhar,shrikrishna.kolhar@sitpune.edu.in,Reinforcement Learning Lab,ty,aiml,core,1,0
+DrOm Mishra,om.mishra@sitpune.edu.in,Computer Vision Theory,ty,aiml,core,0,0
+DrOm Mishra,om.mishra@sitpune.edu.in,Computer Vision Lab,ty,aiml,core,1,0
+Dr Kalyani Dhananjay Kadam,kalyanik@sitpune.edu.in,Computer Vision Lab,ty,aiml,core,1,0
+VF MrSharad Saraf,sharad.saraf.vf@sitpune.edu.in,Full stack development Theory,ty,aiml,core,0,0
+Dr Kailash Shaw,kailash.shaw@sitpune.edu.in,Full stack development Lab,ty,aiml,core,1,0
+VF Ms Parija Bhise,parija.bhise.vf@sitpune.edu.in,Organizatonal Behaviour Theory,ty,aiml,core,0,0
+MsShubhangi Deokar,shubhangi.deokar@sitpune.edu.in,Open Source Technologies,ty,aiml,elective,0,1
+Dr Kanhaiya Sharma,kanhaiya.sharma@sitpune.edu.in,Introduction To Big Data,ty,aiml,elective,0,1
+VF MsSanjana Devadiga,sanjana.devadiga.vf@sitpune.edu.in,Capstone course Theory,ty,aiml,core,0,0

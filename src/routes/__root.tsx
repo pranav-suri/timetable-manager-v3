@@ -6,16 +6,23 @@ import {
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanstackDevtools } from '@tanstack/react-devtools'
 
+import { CssBaseline } from '@mui/material'
 import Header from '../components/Header'
 
-import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
+import TanStackQueryDevtools from '../integrations/reactQueryDevtools'
 
 import appCss from '../styles.css?url'
 
 import type { QueryClient } from '@tanstack/react-query'
 
-import type { TRPCRouter } from '@/server/trpc/router'
 import type { TRPCOptionsProxy } from '@trpc/tanstack-react-query'
+import type { TRPCRouter } from '@/server/trpc/router'
+import { ThemeModeContextProvider } from '@/context/ThemeModeContext'
+
+import '@fontsource/roboto/300.css'
+import '@fontsource/roboto/400.css'
+import '@fontsource/roboto/500.css'
+import '@fontsource/roboto/700.css'
 
 interface MyRouterContext {
   queryClient: QueryClient
@@ -56,7 +63,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <Header />
-        {children}
+        <CssBaseline />
+        <ThemeModeContextProvider>{children}</ThemeModeContextProvider>
         <TanstackDevtools
           config={{
             position: 'bottom-left',
