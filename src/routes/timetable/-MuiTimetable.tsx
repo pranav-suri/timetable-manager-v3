@@ -18,7 +18,7 @@ import { ThemeModeContext } from '@/context/ThemeModeContext'
 
 type Timetable = RouterOutput['timetable']
 type Slot = Timetable['slots'][0]
-type SlotData = Slot['slotDatas'][0]
+type SlotData = Slot['lectureSlots'][0]
 type Lecture = SlotData['lecture']
 type LectureSubdivision = Lecture['lectureSubdivisions'][0]
 type LectureClassroom = Lecture['lectureClassrooms'][0]
@@ -84,15 +84,15 @@ function Cell({
 }
 
 function Slot({
-  slotDatas,
+  lectureSlots,
   viewAllData,
 }: {
-  slotDatas: SlotData[]
+  lectureSlots: SlotData[]
   viewAllData: boolean
 }) {
   return (
     <div>
-      {slotDatas.map((dataItem, slotDataIndex: number) => (
+      {lectureSlots.map((dataItem, slotDataIndex: number) => (
         <Cell
           key={slotDataIndex}
           lecture={dataItem.lecture}
@@ -153,7 +153,7 @@ function Row({
               }}
             >
               <Slot
-                slotDatas={timetable.slots[slotIndex].slotDatas}
+                lectureSlots={timetable.slots[slotIndex].lectureSlots}
                 viewAllData={viewAllData}
               />
             </TableCell>

@@ -37,7 +37,7 @@ export async function uploadTimetableData(
 /**
  * Combine duplicate lectures and remove the duplicates.
  * If two lectures have the same teacher, subject, classrooms, and subdivisions,
- * then they are duplicates and the slotData will be updated to point to the original lecture
+ * then they are duplicates and the lectureSlot will be updated to point to the original lecture
  */
 async function combineDuplicateLectures(timetableId: number) {
     const slotIds = (
@@ -48,7 +48,7 @@ async function combineDuplicateLectures(timetableId: number) {
 
     const lectures = await prisma.lecture.findMany({
         where: {
-            slotDatas: {
+            lectureSlots: {
                 some: {
                     slotId: {
                         in: slotIds,
@@ -80,8 +80,8 @@ async function combineDuplicateLectures(timetableId: number) {
         }
         const originalLectureId = uniqueLectures[key];
 
-        // Update slotData to point to the original lecture
-        await prisma.slotData.updateMany({
+        // Update lectureSlot to point to the original lecture
+        await prisma.lectureSlot.updateMany({
             where: {
                 lectureId: lecture.id,
             },
@@ -198,19 +198,19 @@ async function findOrCreateLectureWithSlotData({
             teacherId,
             subjectId,
         },
-        include: { slotDatas: true },
+        include: { lectureSlots: true },
     });
 
     for (const lecture of lectures) {
         // The lecture has not been assigned to any slot, this shouldn't
-        // as we always create a slotData entry when creating a lecture
+        // as we always create a lectureSlot entry when creating a lecture
         // Just added this check for safety, in case we separate out the
-        // creation of slotData from lecture creation
-        if (lecture.slotDatas.length === 0) return lecture;
-        const slotData = lecture.slotDatas.find((slotData) => {
-            return slotData.slotId === slotId;
+        // creation of lectureSlot from lecture creation
+        if (lecture.lectureSlots.length === 0) return lecture;
+        const lectureSlot = lecture.lectureSlots.find((lectureSlot) => {
+            return lectureSlot.slotId === slotId;
         });
-        if (slotData) return lecture;
+        if (lectureSlot) return lecture;
     }
 
     // No matching lecture found, create a new lecture
@@ -227,7 +227,7 @@ type CreateLectureWithSlotDataArgs = {
     slotId: number;
 };
 /**
- * Create a new lecture with slotData.
+ * Create a new lecture with lectureSlot.
  * It does not create lectureSubdivision and lectureClassroom entries
  */
 async function createLectureWithSlotData({
@@ -242,7 +242,7 @@ async function createLectureWithSlotData({
         },
     });
 
-    await prisma.slotData.create({
+    await prisma.lectureSlot.create({
         data: {
             slotId,
             lectureId: lecture.id,

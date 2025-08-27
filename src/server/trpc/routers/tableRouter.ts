@@ -53,7 +53,7 @@ export const tableRouter = {
     .query(async ({ input }) => {
       const slots = await prisma.slot.findMany({
         where: {
-          slotDatas: {
+          lectureSlots: {
             every: {
               lecture: {
                 lectureSubdivisions: {
@@ -69,7 +69,7 @@ export const tableRouter = {
           timetableId: input.timetableId,
         },
         include: {
-          slotDatas: {
+          lectureSlots: {
             include: {
               lecture: {
                 include: {

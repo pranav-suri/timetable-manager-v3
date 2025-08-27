@@ -22,9 +22,7 @@ model Slot {
   teacherUnavailables     TeacherUnavailable[]
   subdivisionUnavailables SubdivisionUnavailable[]
   classroomUnavailables   ClassroomUnavailable[]
-  slotDatas               SlotData[]
+  lectureSlots            LectureSlot[]
 
   @@unique([day, number, timetableId])
 }
-
-

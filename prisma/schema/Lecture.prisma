@@ -8,7 +8,7 @@ model Lecture {
   createdAt           DateTime             @default(now())
   lectureSubdivisions LectureSubdivision[]
   lectureClassrooms   LectureClassroom[]
-  slotDatas           SlotData[]
+  lectureSlots        LectureSlot[]
 }
 
 model LectureSubdivision {

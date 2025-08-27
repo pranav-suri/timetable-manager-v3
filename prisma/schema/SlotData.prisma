@@ -1,4 +1,4 @@
-model SlotData {
+model LectureSlot {
   id        Int     @id @default(autoincrement())
   slotId    Int
   lectureId Int
