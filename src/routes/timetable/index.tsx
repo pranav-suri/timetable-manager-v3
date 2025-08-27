@@ -9,6 +9,14 @@ import { NavBar } from '@/components/Navbar'
 
 export const Route = createFileRoute('/timetable/')({
   component: TimetableCombined,
+  loader: async ({ context }) => {
+    await context.queryClient.prefetchQuery(
+      context.trpc.timetable.queryOptions({
+        timetableId: TIMETABLE_ID,
+        subdivsionIds: [4, 5, 6],
+      }),
+    )
+  },
 })
 
 const Main = styled('main', {
