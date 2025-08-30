@@ -12,7 +12,7 @@ export const Route = createFileRoute("/timetable/")({
   component: TimetableCombined,
   loader: async ({ context }) => {
     await context.queryClient.prefetchQuery(
-      context.trpc.timetable.queryOptions({
+      context.trpc.timetable.get.queryOptions({
         timetableId: TIMETABLE_ID,
         subdivsionIds: [4, 5, 6],
       }),
@@ -51,7 +51,7 @@ const Main = styled("main", {
 export default function TimetableCombined() {
   const trpc = useTRPC();
   const { data: timetable } = useQuery(
-    trpc.timetable.queryOptions({
+    trpc.timetable.get.queryOptions({
       timetableId: TIMETABLE_ID,
       subdivsionIds: [4, 5, 6],
     }),

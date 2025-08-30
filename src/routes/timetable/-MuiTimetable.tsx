@@ -16,7 +16,7 @@ import type { RouterOutput } from "@/integrations/trpc";
 import getColor from "@/utils/getColor";
 import { ThemeModeContext } from "@/context/ThemeModeContext";
 
-type Timetable = RouterOutput["timetable"];
+type Timetable = RouterOutput["timetable"]["get"];
 type Slot = Timetable["slots"][0];
 type SlotData = Slot["lectureSlots"][0];
 type Lecture = SlotData["lecture"];
@@ -111,7 +111,7 @@ function Row({
   handleDrawerOpen,
   setSelectedSlotIndex,
 }: {
-  timetable: RouterOutput["timetable"];
+  timetable: Timetable;
   day: number;
   slotNumbers: Set<number>;
   viewAllData: boolean;

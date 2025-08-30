@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { publicProcedure } from "../init";
+import { publicProcedure } from "../../init";
 import type { TRPCRouterRecord } from "@trpc/server";
 
 const todos = [
