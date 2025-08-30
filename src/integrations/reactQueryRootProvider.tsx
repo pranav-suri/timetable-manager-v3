@@ -1,3 +1,6 @@
+/**
+ * This code was part of the React Query and TRPC integration.
+ */
 import { QueryClient } from "@tanstack/react-query";
 import superjson from "superjson";
 import { createTRPCClient, httpBatchStreamLink } from "@trpc/client";

@@ -4,7 +4,8 @@ import { styled } from "@mui/material/styles";
 import { Box } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import MuiTimetable from "./-MuiTimetable";
-import { TIMETABLE_ID, useTRPC } from "@/integrations/trpc";
+import { useTRPC } from "@/integrations/trpc";
+import { TIMETABLE_ID } from "@/utils/constants";
 import { NavBar } from "@/components/Navbar";
 
 export const Route = createFileRoute("/timetable/")({
@@ -56,7 +57,7 @@ export default function TimetableCombined() {
     }),
   );
   const [drawerState, setDrawerState] = useState(false);
-  const [selectedSlotIndex, setSelectedSlotIndex] = useState<number | null>(
+  const [_selectedSlotIndex, setSelectedSlotIndex] = useState<number | null>(
     null,
   );
 
@@ -66,9 +67,9 @@ export default function TimetableCombined() {
     setDrawerState(true);
   };
 
-  const handleDrawerClose = () => {
-    setDrawerState(false);
-  };
+  // const handleDrawerClose = () => {
+  //   setDrawerState(false);
+  // };
 
   return (
     <Box sx={{ display: "flex" }}>

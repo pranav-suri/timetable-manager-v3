@@ -3,9 +3,9 @@ model Lecture {
   teacherId           Int
   subjectId           Int
   count               Int                  @default(1)
+  createdAt           DateTime             @default(now())
   teacher             Teacher              @relation(fields: [teacherId], references: [id])
   subject             Subject              @relation(fields: [subjectId], references: [id])
-  createdAt           DateTime             @default(now())
   lectureSubdivisions LectureSubdivision[]
   lectureClassrooms   LectureClassroom[]
   lectureSlots        LectureSlot[]

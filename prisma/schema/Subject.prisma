@@ -10,11 +10,11 @@ model Group {
 }
 
 model Subject {
-  id                Int                    @id @default(autoincrement())
+  id                Int                @id @default(autoincrement())
   name              String
   duration          Int
   groupId           Int
-  group             Group                  @relation(fields: [groupId], references: [id])
+  group             Group              @relation(fields: [groupId], references: [id])
   lectures          Lecture[]
   teaches           Teach[]
   subjectClassrooms SubjectClassroom[]

@@ -1,3 +1,6 @@
+/**
+ * The code was part of the MCP (Model Context Protocol) integration.
+ */
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { getEvent } from "@tanstack/react-start/server";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";

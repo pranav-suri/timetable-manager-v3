@@ -20,7 +20,7 @@
     "@mui/icons-material": "^7.3.1",
     "@mui/material": "^7.3.1",
     "@prisma/client": "^6.14.0",
-    "@t3-oss/env-core": "^0.12.0",
+    "@t3-oss/env-core": "^0.13.8",
     "@tailwindcss/vite": "^4.0.6",
     "@tanstack/react-devtools": "^0.2.2",
     "@tanstack/react-query": "^5.66.5",
@@ -38,9 +38,10 @@
     "react-dom": "^19.0.0",
     "superjson": "^2.2.2",
     "tailwindcss": "^4.0.6",
+    "trpc-to-openapi": "^3.0.1",
     "uniqolor": "^1.1.1",
     "vite-tsconfig-paths": "^5.1.4",
-    "zod": "^3.24.2",
+    "zod": "^4.1.5",
     "zustand": "^5.0.8"
   },
   "devDependencies": {

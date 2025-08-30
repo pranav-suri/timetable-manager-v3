@@ -1,17 +1,3 @@
-model Timetable {
-  id           Int           @id @default(autoincrement())
-  name         String
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  slots        Slot[]
-  groups       Group[]
-  subdivisions Subdivision[]
-  teachers     Teacher[]
-  classrooms   Classroom[]
-
-  @@unique([name])
-}
-
 model Slot {
   id                      Int                      @id @default(autoincrement())
   day                     Int
