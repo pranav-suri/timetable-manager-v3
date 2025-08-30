@@ -20,7 +20,7 @@ export const teachersRouter = {
       z.object({
         timetableId: z.number(),
         name: z.string(),
-        email: z.string().email(),
+        email: z.email(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -33,6 +33,38 @@ export const teachersRouter = {
           name,
           email,
         },
+      });
+      return { teacher };
+    }),
+  update: authedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        timetableId: z.number(),
+        name: z.string(),
+        email: z.email(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { prisma } = ctx;
+      const { id, timetableId, name, email } = input;
+      const teacher = await prisma.teacher.update({
+        where: { id },
+        data: {
+          timetableId,
+          name,
+          email,
+        },
+      });
+      return { teacher };
+    }),
+  delete: authedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const { prisma } = ctx;
+      const { id } = input;
+      const teacher = await prisma.teacher.delete({
+        where: { id },
       });
       return { teacher };
     }),

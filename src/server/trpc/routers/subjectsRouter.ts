@@ -42,4 +42,36 @@ export const subjectsRouter = {
       });
       return { subject };
     }),
+  update: authedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        name: z.string(),
+        duration: z.number(),
+        groupId: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { prisma } = ctx;
+      const { id, name, duration, groupId } = input;
+      const subject = await prisma.subject.update({
+        where: { id },
+        data: {
+          name,
+          duration,
+          groupId,
+        },
+      });
+      return { subject };
+    }),
+  delete: authedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const { prisma } = ctx;
+      const { id } = input;
+      const subject = await prisma.subject.delete({
+        where: { id },
+      });
+      return { subject };
+    }),
 } satisfies TRPCRouterRecord;

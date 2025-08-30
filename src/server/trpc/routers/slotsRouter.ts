@@ -2,60 +2,55 @@ import { z } from "zod";
 import { authedProcedure } from "../init";
 import type { TRPCRouterRecord } from "@trpc/server";
 
-export const subdivisionsRouter = {
+export const slotsRouter = {
   list: authedProcedure
     .input(z.object({ timetableId: z.number() }))
     .query(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { timetableId } = input;
-
-      const subdivisions = await prisma.subdivision.findMany({
-        where: { timetableId },
-      });
-      return { subdivisions };
+      const slots = await prisma.slot.findMany({ where: { timetableId } });
+      return { slots };
     }),
   add: authedProcedure
-    .input(z.object({ timetableId: z.number(), name: z.string() }))
+    .input(
+      z.object({
+        timetableId: z.number(),
+        day: z.number(),
+        number: z.number(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
-      const { timetableId, name } = input;
-
-      const subdivision = await prisma.subdivision.create({
-        data: {
-          timetableId,
-          name,
-        },
+      const { timetableId, day, number } = input;
+      const slot = await prisma.slot.create({
+        data: { timetableId, day, number },
       });
-      return { subdivision };
+      return { slot };
     }),
   update: authedProcedure
     .input(
       z.object({
         id: z.number(),
         timetableId: z.number(),
-        name: z.string(),
+        day: z.number(),
+        number: z.number(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
-      const { id, timetableId, name } = input;
-      const subdivision = await prisma.subdivision.update({
+      const { id, timetableId, day, number } = input;
+      const slot = await prisma.slot.update({
         where: { id },
-        data: {
-          timetableId,
-          name,
-        },
+        data: { timetableId, day, number },
       });
-      return { subdivision };
+      return { slot };
     }),
   delete: authedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { id } = input;
-      const subdivision = await prisma.subdivision.delete({
-        where: { id },
-      });
-      return { subdivision };
+      const slot = await prisma.slot.delete({ where: { id } });
+      return { slot };
     }),
 } satisfies TRPCRouterRecord;
