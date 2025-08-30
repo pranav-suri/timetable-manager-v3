@@ -1,10 +1,21 @@
 import { Prisma, PrismaClient } from "__generated__/prisma/client";
-
 import sampleDataUpload from "./controllers/sampleData";
 
-export const prisma = new PrismaClient({
-  // log: ['query', 'info', 'warn', 'error'],
-});
+// Declaring prisma as global to prevent multiple instances during hot reload
+declare global {
+  var prisma: PrismaClient | undefined;
+}
+
+// prevent multiple instances in dev / hot-reload
+export const prisma =
+  globalThis.prisma ??
+  new PrismaClient({
+    // log: ["query", "info", "warn", "error"],
+  });
+
+if (process.env.NODE_ENV !== "production") {
+  globalThis.prisma = prisma;
+}
 
 async function main() {
   // Create a new timetable if it doesn't exist

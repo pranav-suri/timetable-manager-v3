@@ -1,31 +1,10 @@
 /**
  * This code was part of the React Query and TRPC integration.
  */
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import superjson from "superjson";
-import { createTRPCClient, httpBatchStreamLink } from "@trpc/client";
 import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";
-
-import type { TRPCRouter } from "@/server/trpc/router";
-
-import { TRPCProvider } from "@/integrations/trpc";
-
-function getUrl() {
-  const base = (() => {
-    if (typeof window !== "undefined") return "";
-    return `http://localhost:${process.env.PORT ?? 3000}`;
-  })();
-  return `${base}/api/trpc`;
-}
-
-export const trpcClient = createTRPCClient<TRPCRouter>({
-  links: [
-    httpBatchStreamLink({
-      transformer: superjson,
-      url: getUrl(),
-    }),
-  ],
-});
+import { TRPCProvider, trpcClient } from "@/integrations/trpc";
 
 export function getContext() {
   const queryClient = new QueryClient({
@@ -53,8 +32,10 @@ export function Provider({
   queryClient: QueryClient;
 }) {
   return (
-    <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
-      {children}
-    </TRPCProvider>
+    <QueryClientProvider client={queryClient}>
+      <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
+        {children}
+      </TRPCProvider>
+    </QueryClientProvider>
   );
 }

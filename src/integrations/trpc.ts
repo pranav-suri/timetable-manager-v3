@@ -1,6 +1,25 @@
 import { createTRPCContext } from "@trpc/tanstack-react-query";
-import type { TRPCRouter } from "@/server/trpc/router";
+import superjson from "superjson";
+import { createTRPCClient, httpBatchStreamLink } from "@trpc/client";
+import type { TRPCRouter } from "@/server/trpc/routers";
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
+
+function getUrl() {
+  const base = (() => {
+    if (typeof window !== "undefined") return "";
+    return `http://localhost:${process.env.PORT ?? 3000}`;
+  })();
+  return `${base}/api/trpc`;
+}
+
+export const trpcClient = createTRPCClient<TRPCRouter>({
+  links: [
+    httpBatchStreamLink({
+      transformer: superjson,
+      url: getUrl(),
+    }),
+  ],
+});
 
 export const { TRPCProvider, useTRPC } = createTRPCContext<TRPCRouter>();
 export type RouterInput = inferRouterInputs<TRPCRouter>;

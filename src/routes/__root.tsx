@@ -16,7 +16,7 @@ import appCss from "../styles.css?url";
 import type { QueryClient } from "@tanstack/react-query";
 
 import type { TRPCOptionsProxy } from "@trpc/tanstack-react-query";
-import type { TRPCRouter } from "@/server/trpc/router";
+import type { TRPCRouter } from "@/server/trpc/routers";
 import { ThemeModeContextProvider } from "@/context/ThemeModeContext";
 
 import "@fontsource/roboto/300.css";
@@ -41,7 +41,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "TanStack Start Starter",
+        title: "Timetable Manager",
       },
     ],
     links: [
