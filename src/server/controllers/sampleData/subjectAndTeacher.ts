@@ -32,15 +32,13 @@ async function uploadTeacherData(
   parsedCsv: ParseResult<SubjectAndTeacherData>,
   timetableId: string,
 ) {
-  let teacherCreate: Prisma.TeacherCreateManyInput[] = parsedCsv.data.map(
-    (row) => {
-      return {
-        name: row.teacher_name,
-        email: row.teacher_email,
-        timetableId: timetableId,
-      };
-    },
-  );
+  let teacherCreate = parsedCsv.data.map((row) => {
+    return {
+      name: row.teacher_name,
+      email: row.teacher_email,
+      timetableId: timetableId,
+    } satisfies Prisma.TeacherCreateManyInput;
+  });
   const emailNameMapping: Record<string, string> = {};
   for (const row of parsedCsv.data) {
     if (!emailNameMapping[row.teacher_email])
@@ -63,12 +61,12 @@ async function uploadGroupData(
   parsedCsv: ParseResult<SubjectAndTeacherData>,
   timetableId: string,
 ) {
-  let groupCreate: Prisma.GroupCreateManyInput[] = parsedCsv.data.map((row) => {
+  let groupCreate = parsedCsv.data.map((row) => {
     return {
       name: row.group_name,
       allowSimultaneous: Number(row.group_allow_simultaneous) ? true : false,
       timetableId,
-    };
+    } satisfies Prisma.GroupCreateManyInput;
   });
   groupCreate = removeDuplicates(groupCreate);
   await prisma.group.createMany({
@@ -84,24 +82,19 @@ async function uploadSubjectData(
   const groups = await prisma.group.findMany({
     where: { timetableId },
   });
-  let subjectCreate: Prisma.SubjectCreateManyInput[] = parsedCsv.data.map(
-    (row) => {
-      const group = groups.find((group) =>
-        areEqual(group.name, row.group_name),
+  let subjectCreate = parsedCsv.data.map((row) => {
+    const group = groups.find((group) => areEqual(group.name, row.group_name));
+
+    if (!group)
+      throw new Error(
+        `Group ${row.group_name} not found with timetableId ${timetableId}`,
       );
 
-      if (!group)
-        throw new Error(
-          `Group ${row.group_name} not found with timetableId ${timetableId}`,
-        );
-
-      return {
-        name: row.subject_name,
-        groupId: group.id,
-        duration: row.is_lab ? 2 : 1,
-      };
-    },
-  );
+    return {
+      name: row.subject_name,
+      groupId: group.id,
+    } satisfies Prisma.SubjectCreateManyInput;
+  });
   subjectCreate = removeDuplicates(subjectCreate);
   await prisma.subject.createMany({
     data: subjectCreate,
@@ -125,30 +118,28 @@ async function uploadTeachData(
     where: { groupId: { in: groupIds } },
   });
 
-  let teachCreate: Prisma.SubjectTeacherCreateManyInput[] = parsedCsv.data.map(
-    (row) => {
-      const subject = subjects.find((subject) =>
-        areEqual(subject.name, row.subject_name),
+  let teachCreate = parsedCsv.data.map((row) => {
+    const subject = subjects.find((subject) =>
+      areEqual(subject.name, row.subject_name),
+    );
+    if (!subject)
+      throw new Error(
+        `Subject ${row.subject_name} not found with groupId in ${groupIds}`,
       );
-      if (!subject)
-        throw new Error(
-          `Subject ${row.subject_name} not found with groupId in ${groupIds}`,
-        );
 
-      const teacher = teachers.find((teacher) =>
-        areEqual(teacher.name, row.teacher_name),
+    const teacher = teachers.find((teacher) =>
+      areEqual(teacher.name, row.teacher_name),
+    );
+    if (!teacher)
+      throw new Error(
+        `Teacher ${row.teacher_name} not found with timetableId ${timetableId}`,
       );
-      if (!teacher)
-        throw new Error(
-          `Teacher ${row.teacher_name} not found with timetableId ${timetableId}`,
-        );
 
-      return {
-        teacherId: teacher.id,
-        subjectId: subject.id,
-      };
-    },
-  );
+    return {
+      teacherId: teacher.id,
+      subjectId: subject.id,
+    } satisfies Prisma.SubjectTeacherCreateManyInput;
+  });
   teachCreate = removeDuplicates(teachCreate);
   await prisma.subjectTeacher.createMany({
     data: teachCreate,

@@ -23,13 +23,12 @@ export const subjectsRouter = {
       z.object({
         timetableId: zodIdSchema,
         name: z.string(),
-        duration: z.number(),
         groupId: zodIdSchema,
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
-      const { timetableId, name, duration, groupId } = input;
+      const { timetableId, name, groupId } = input;
 
       const group = await prisma.group.findUniqueOrThrow({
         where: { id: groupId, timetableId },
@@ -37,7 +36,6 @@ export const subjectsRouter = {
       const subject = await prisma.subject.create({
         data: {
           name,
-          duration,
           groupId: group.id,
         },
       });
@@ -48,18 +46,16 @@ export const subjectsRouter = {
       z.object({
         id: zodIdSchema,
         name: z.string(),
-        duration: z.number(),
         groupId: zodIdSchema,
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
-      const { id, name, duration, groupId } = input;
+      const { id, name, groupId } = input;
       const subject = await prisma.subject.update({
         where: { id },
         data: {
           name,
-          duration,
           groupId,
         },
       });

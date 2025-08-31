@@ -8,6 +8,7 @@ model Timetable {
   subdivisions Subdivision[]
   teachers     Teacher[]
   classrooms   Classroom[]
+  lectures     Lecture[]
 
   @@unique([name])
 }

@@ -4,5 +4,5 @@ model SubjectTeacher {
   teacher   Teacher @relation(fields: [teacherId], references: [id])
   subject   Subject @relation(fields: [subjectId], references: [id])
 
-  @@id([teacherId, subjectId])
+  @@id([subjectId, teacherId])
 }

@@ -21,6 +21,9 @@ export async function uploadTimetableData(
       teacherId: teacher.id,
       subjectId: subject.id,
       slotId: slot.id,
+      timetableId: timetableId,
+      duration: 1,
+      count: 1,
     });
 
     // Step 3: Create LectureSubdivision and LectureClassroom entries
@@ -189,6 +192,9 @@ async function findOrCreateLectureWithSlotData({
   teacherId,
   subjectId,
   slotId,
+  timetableId,
+  duration,
+  count,
 }: CreateLectureWithSlotDataArgs) {
   const lectures = await prisma.lecture.findMany({
     where: {
@@ -215,6 +221,9 @@ async function findOrCreateLectureWithSlotData({
     teacherId,
     subjectId,
     slotId,
+    timetableId,
+    duration,
+    count,
   });
 }
 
@@ -222,6 +231,9 @@ type CreateLectureWithSlotDataArgs = {
   teacherId: string;
   subjectId: string;
   slotId: string;
+  timetableId: string;
+  duration: number;
+  count: number;
 };
 /**
  * Create a new lecture with lectureSlot.
@@ -231,11 +243,17 @@ async function createLectureWithSlotData({
   teacherId,
   subjectId,
   slotId,
+  timetableId,
+  duration,
+  count,
 }: CreateLectureWithSlotDataArgs) {
   const lecture = await prisma.lecture.create({
     data: {
       teacherId,
       subjectId,
+      timetableId,
+      duration,
+      count,
     },
   });
 
@@ -263,7 +281,7 @@ async function upsertLectureSubdivisionAndClassroom({
 }) {
   await prisma.lectureSubdivision.upsert({
     where: {
-      subdivisionId_lectureId: {
+      lectureId_subdivisionId: {
         lectureId,
         subdivisionId,
       },
@@ -276,7 +294,7 @@ async function upsertLectureSubdivisionAndClassroom({
   });
   await prisma.lectureClassroom.upsert({
     where: {
-      classroomId_lectureId: {
+      lectureId_classroomId: {
         lectureId,
         classroomId,
       },
