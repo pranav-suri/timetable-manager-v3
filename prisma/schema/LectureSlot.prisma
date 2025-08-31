@@ -1,7 +1,7 @@
 model LectureSlot {
-  id        Int     @id @default(autoincrement())
-  slotId    Int
-  lectureId Int
+  id        String  @id @default(nanoid(4))
+  slotId    String
+  lectureId String
   isLocked  Boolean @default(false)
   slot      Slot    @relation(fields: [slotId], references: [id])
   lecture   Lecture @relation(fields: [lectureId], references: [id])

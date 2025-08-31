@@ -1,10 +1,11 @@
 import { z } from "zod";
 import { authedProcedure } from "../init";
 import type { TRPCRouterRecord } from "@trpc/server";
+import { zodIdSchema } from "@/server/utils/zodIdSchema";
 
 export const teachersRouter = {
   list: authedProcedure
-    .input(z.object({ timetableId: z.number() }))
+    .input(z.object({ timetableId: zodIdSchema }))
     .query(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { timetableId } = input;
@@ -18,7 +19,7 @@ export const teachersRouter = {
   add: authedProcedure
     .input(
       z.object({
-        timetableId: z.number(),
+        timetableId: zodIdSchema,
         name: z.string(),
         email: z.email(),
       }),
@@ -39,8 +40,8 @@ export const teachersRouter = {
   update: authedProcedure
     .input(
       z.object({
-        id: z.number(),
-        timetableId: z.number(),
+        id: zodIdSchema,
+        timetableId: zodIdSchema,
         name: z.string(),
         email: z.email(),
       }),
@@ -59,7 +60,7 @@ export const teachersRouter = {
       return { teacher };
     }),
   delete: authedProcedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: zodIdSchema }))
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { id } = input;

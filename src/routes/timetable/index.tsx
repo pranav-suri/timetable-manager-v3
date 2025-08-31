@@ -5,17 +5,13 @@ import { Box } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import MuiTimetable from "./-MuiTimetable";
 import { useTRPC } from "@/integrations/trpc";
-import { TIMETABLE_ID } from "@/utils/constants";
 import { NavBar } from "@/components/Navbar";
 
 export const Route = createFileRoute("/timetable/")({
   component: TimetableCombined,
   loader: async ({ context }) => {
     await context.queryClient.prefetchQuery(
-      context.trpc.timetable.get.queryOptions({
-        timetableId: TIMETABLE_ID,
-        subdivsionIds: [4, 5, 6],
-      }),
+      context.trpc.timetable.getAny.queryOptions(),
     );
   },
 });
@@ -50,16 +46,13 @@ const Main = styled("main", {
 
 export default function TimetableCombined() {
   const trpc = useTRPC();
-  const { data: timetable } = useQuery(
-    trpc.timetable.get.queryOptions({
-      timetableId: TIMETABLE_ID,
-      subdivsionIds: [4, 5, 6],
-    }),
-  );
+  const { data: timetable } = useQuery(trpc.timetable.getAny.queryOptions());
   const [drawerState, setDrawerState] = useState(false);
   const [_selectedSlotIndex, setSelectedSlotIndex] = useState<number | null>(
     null,
   );
+
+  // if (timetable) console.log("Timetable data:", timetable);
 
   const drawerwidth = 300;
 

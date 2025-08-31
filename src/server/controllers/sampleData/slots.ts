@@ -3,7 +3,7 @@ import type { SlotInfo } from "./csvHeaders";
 import type { Prisma } from "__generated__/prisma/client";
 import { prisma } from "@/server/prisma";
 
-export async function uploadSlotsData(csvData: string, timetableId: number) {
+export async function uploadSlotsData(csvData: string, timetableId: string) {
   const parsedCsv = await parseCsvData<SlotInfo>(csvData);
   if (!validateCsvData(parsedCsv, "slot")) {
     return false;

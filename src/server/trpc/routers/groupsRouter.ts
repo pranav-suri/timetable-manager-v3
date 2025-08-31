@@ -1,12 +1,13 @@
 import { z } from "zod";
 import { authedProcedure } from "../init";
 import type { TRPCRouterRecord } from "@trpc/server";
+import { zodIdSchema } from "@/server/utils/zodIdSchema";
 
 export const groupsRouter = {
   list: authedProcedure
     .input(
       z.object({
-        timetableId: z.number(),
+        timetableId: zodIdSchema,
         allowSimultaneous: z.boolean(),
       }),
     )
@@ -22,7 +23,7 @@ export const groupsRouter = {
   add: authedProcedure
     .input(
       z.object({
-        timetableId: z.number(),
+        timetableId: zodIdSchema,
         name: z.string(),
         allowSimultaneous: z.boolean(),
       }),
@@ -43,8 +44,8 @@ export const groupsRouter = {
   update: authedProcedure
     .input(
       z.object({
-        id: z.number(),
-        timetableId: z.number(),
+        id: zodIdSchema,
+        timetableId: zodIdSchema,
         name: z.string(),
         allowSimultaneous: z.boolean(),
       }),
@@ -63,7 +64,7 @@ export const groupsRouter = {
       return { group };
     }),
   delete: authedProcedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: zodIdSchema }))
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { id } = input;

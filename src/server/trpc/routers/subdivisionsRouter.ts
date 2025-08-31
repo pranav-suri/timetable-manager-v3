@@ -1,10 +1,11 @@
 import { z } from "zod";
 import { authedProcedure } from "../init";
 import type { TRPCRouterRecord } from "@trpc/server";
+import { zodIdSchema } from "@/server/utils/zodIdSchema";
 
 export const subdivisionsRouter = {
   list: authedProcedure
-    .input(z.object({ timetableId: z.number() }))
+    .input(z.object({ timetableId: zodIdSchema }))
     .query(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { timetableId } = input;
@@ -15,7 +16,7 @@ export const subdivisionsRouter = {
       return { subdivisions };
     }),
   add: authedProcedure
-    .input(z.object({ timetableId: z.number(), name: z.string() }))
+    .input(z.object({ timetableId: zodIdSchema, name: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { timetableId, name } = input;
@@ -31,8 +32,8 @@ export const subdivisionsRouter = {
   update: authedProcedure
     .input(
       z.object({
-        id: z.number(),
-        timetableId: z.number(),
+        id: zodIdSchema,
+        timetableId: zodIdSchema,
         name: z.string(),
       }),
     )
@@ -49,7 +50,7 @@ export const subdivisionsRouter = {
       return { subdivision };
     }),
   delete: authedProcedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: zodIdSchema }))
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { id } = input;

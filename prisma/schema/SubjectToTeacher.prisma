@@ -1,6 +1,6 @@
-model Teach {
-  teacherId Int
-  subjectId Int
+model SubjectTeacher {
+  teacherId String
+  subjectId String
   teacher   Teacher @relation(fields: [teacherId], references: [id])
   subject   Subject @relation(fields: [subjectId], references: [id])
 

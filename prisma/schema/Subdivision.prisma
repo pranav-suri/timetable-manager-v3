@@ -1,7 +1,7 @@
 model Subdivision {
-  id                     Int                      @id @default(autoincrement())
+  id                     String                   @id @default(nanoid(4))
   name                   String
-  timetableId            Int
+  timetableId            String
   timetable              Timetable                @relation(fields: [timetableId], references: [id])
   subdivsionUnavailables SubdivisionUnavailable[]
   lectureSubdivisions    LectureSubdivision[]
@@ -10,12 +10,11 @@ model Subdivision {
 }
 
 model SubdivisionUnavailable {
-  slotId        Int
-  subdivisionId Int
+  slotId        String
+  subdivisionId String
   slot          Slot        @relation(fields: [slotId], references: [id])
   subdivision   Subdivision @relation(fields: [subdivisionId], references: [id])
-  timetableId   Int?
+  timetableId   String?
 
   @@id([slotId, subdivisionId])
 }
-

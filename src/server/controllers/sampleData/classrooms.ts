@@ -5,7 +5,7 @@ import { prisma } from "@/server/prisma";
 
 export async function uploadClassroomData(
   csvData: string,
-  timetableId: number,
+  timetableId: string,
 ) {
   const parsedCsv = await parseCsvData<ClassroomData>(csvData);
   if (!validateCsvData(parsedCsv, "classroom")) {

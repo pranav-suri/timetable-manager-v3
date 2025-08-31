@@ -8,7 +8,7 @@ export function createContext() {
   };
 }
 
-type TrpcContext = Awaited<ReturnType<typeof createContext>> & {
+export type TrpcContext = Awaited<ReturnType<typeof createContext>> & {
   session?: string;
 };
 

@@ -22,12 +22,12 @@ async function main() {
 
   await prisma.timetable.upsert({
     create: {
-      id: 1,
+      id: 'abcde',
       name: "Timetable 1",
     },
     update: {},
     where: {
-      id: 1,
+      id: 'abcde',
     },
   });
 

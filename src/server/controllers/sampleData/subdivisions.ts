@@ -10,7 +10,7 @@ import { prisma } from "@/server/prisma";
 
 export async function uploadSubdivsionData(
   csvData: string,
-  timetableId: number,
+  timetableId: string,
 ) {
   const parsedCsv = await parseCsvData<BatchAndSubdivisionData>(csvData);
   if (!validateCsvData(parsedCsv, "batchAndSubdivision")) return false;
@@ -43,7 +43,7 @@ export async function uploadSubdivsionData(
   });
   return true;
 }
-export async function getSubdivisionsByTimetable(timetableId: number) {
+export async function getSubdivisionsByTimetable(timetableId: string) {
   const subdivisions = await prisma.subdivision.findMany({
     where: { timetableId },
   });

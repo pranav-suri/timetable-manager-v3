@@ -4,7 +4,7 @@ import { prisma } from "@/server/prisma";
 
 export async function uploadTimetableData(
   csvData: string,
-  timetableId: number,
+  timetableId: string,
 ) {
   const parsedCsv = await parseCsvData<TimetableData>(csvData);
 
@@ -39,7 +39,7 @@ export async function uploadTimetableData(
  * If two lectures have the same teacher, subject, classrooms, and subdivisions,
  * then they are duplicates and the lectureSlot will be updated to point to the original lecture
  */
-async function combineDuplicateLectures(timetableId: number) {
+async function combineDuplicateLectures(timetableId: string) {
   const slotIds = (
     await prisma.slot.findMany({
       where: { timetableId },
@@ -62,7 +62,7 @@ async function combineDuplicateLectures(timetableId: number) {
     },
   });
 
-  const uniqueLectures: Record<string, number> = {};
+  const uniqueLectures: Record<string, string> = {};
 
   for (const lecture of lectures) {
     const classroomIds = lecture.lectureClassrooms
@@ -114,7 +114,7 @@ async function combineDuplicateLectures(timetableId: number) {
 /**
  * Fetch related information for the row
  */
-async function fetchInformation(row: TimetableData, timetableId: number) {
+async function fetchInformation(row: TimetableData, timetableId: string) {
   const {
     day,
     slot_number: slotNumber,
@@ -219,9 +219,9 @@ async function findOrCreateLectureWithSlotData({
 }
 
 type CreateLectureWithSlotDataArgs = {
-  teacherId: number;
-  subjectId: number;
-  slotId: number;
+  teacherId: string;
+  subjectId: string;
+  slotId: string;
 };
 /**
  * Create a new lecture with lectureSlot.
@@ -257,9 +257,9 @@ async function upsertLectureSubdivisionAndClassroom({
   subdivisionId,
   classroomId,
 }: {
-  lectureId: number;
-  subdivisionId: number;
-  classroomId: number;
+  lectureId: string;
+  subdivisionId: string;
+  classroomId: string;
 }) {
   await prisma.lectureSubdivision.upsert({
     where: {

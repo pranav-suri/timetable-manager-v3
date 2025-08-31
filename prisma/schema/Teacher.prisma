@@ -1,19 +1,19 @@
 model Teacher {
-  id          Int                  @id @default(autoincrement())
-  name        String
-  email       String
-  timetableId Int
-  timetable   Timetable            @relation(fields: [timetableId], references: [id])
-  slots       TeacherUnavailable[]
-  lectures    Lecture[]
-  teaches     Teach[]
+  id              String               @id @default(nanoid(4))
+  name            String
+  email           String
+  timetableId     String
+  timetable       Timetable            @relation(fields: [timetableId], references: [id])
+  slots           TeacherUnavailable[]
+  lectures        Lecture[]
+  subjectTeachers SubjectTeacher[]
 
   @@unique([email, timetableId])
 }
 
 model TeacherUnavailable {
-  slotId    Int
-  teacherId Int
+  slotId    String
+  teacherId String
   slot      Slot    @relation(fields: [slotId], references: [id])
   teacher   Teacher @relation(fields: [teacherId], references: [id])
 

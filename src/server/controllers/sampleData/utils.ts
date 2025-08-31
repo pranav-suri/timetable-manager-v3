@@ -1,18 +1,19 @@
 import Papa from "papaparse";
 import {
-  BatchAndSubdivisionData,
-  ClassroomData,
-  SubjectAndTeacherData,
-  UnavailabilityData,
-  SlotInfo,
-  TimetableData,
   batchAndSubdivisionData,
   classroomData,
-  subjectAndTeacherData,
-  unavailabilityData,
   slotInfo,
+  subjectAndTeacherData,
   timetableData,
+  unavailabilityData,
 } from "./csvHeaders";
+import type {
+  BatchAndSubdivisionData,
+  ClassroomData,
+  SlotInfo,
+  SubjectAndTeacherData,
+  TimetableData,
+  UnavailabilityData} from "./csvHeaders";
 
 export type Maybe<T> = T | undefined;
 
@@ -29,7 +30,7 @@ export function areEqual(a: Maybe<string>, b: Maybe<string>) {
   return a.trim().toLowerCase() === b.trim().toLowerCase();
 }
 
-export async function parseCsvData<T>(csvData: string) {
+export function parseCsvData<T>(csvData: string) {
   const parsedCsv = Papa.parse<T>(csvData, {
     header: true,
     skipEmptyLines: true,
