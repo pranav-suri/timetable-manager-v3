@@ -4,7 +4,7 @@ model Slot {
   number                  Int
   timetableId             String
   createdAt               DateTime                 @default(now())
-  timetable               Timetable                @relation(fields: [timetableId], references: [id])
+  timetable               Timetable                @relation(fields: [timetableId], references: [id], onDelete: Cascade)
   teacherUnavailables     TeacherUnavailable[]
   subdivisionUnavailables SubdivisionUnavailable[]
   classroomUnavailables   ClassroomUnavailable[]

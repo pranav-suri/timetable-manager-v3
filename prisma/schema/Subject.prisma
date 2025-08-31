@@ -3,7 +3,7 @@ model Group {
   name              String
   allowSimultaneous Boolean
   timetableId       String
-  timetable         Timetable @relation(fields: [timetableId], references: [id])
+  timetable         Timetable @relation(fields: [timetableId], references: [id], onDelete: Cascade)
   subjects          Subject[]
 
   @@unique([name, timetableId])
@@ -13,7 +13,7 @@ model Subject {
   id                String             @id @default(nanoid(4))
   name              String
   groupId           String
-  group             Group              @relation(fields: [groupId], references: [id])
+  group             Group              @relation(fields: [groupId], references: [id], onDelete: Cascade)
   lectures          Lecture[]
   subjectTeachers   SubjectTeacher[]
   subjectClassrooms SubjectClassroom[]
@@ -24,8 +24,8 @@ model Subject {
 model SubjectClassroom {
   classroomId String
   subjectId   String
-  classroom   Classroom @relation(fields: [classroomId], references: [id])
-  subject     Subject   @relation(fields: [subjectId], references: [id])
+  classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  subject     Subject   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
 
   @@id([classroomId, subjectId])
 }

@@ -2,7 +2,7 @@ model Subdivision {
   id                     String                   @id @default(nanoid(4))
   name                   String
   timetableId            String
-  timetable              Timetable                @relation(fields: [timetableId], references: [id])
+  timetable              Timetable                @relation(fields: [timetableId], references: [id], onDelete: Cascade)
   subdivsionUnavailables SubdivisionUnavailable[]
   lectureSubdivisions    LectureSubdivision[]
 
@@ -12,8 +12,8 @@ model Subdivision {
 model SubdivisionUnavailable {
   slotId        String
   subdivisionId String
-  slot          Slot        @relation(fields: [slotId], references: [id])
-  subdivision   Subdivision @relation(fields: [subdivisionId], references: [id])
+  slot          Slot        @relation(fields: [slotId], references: [id], onDelete: Cascade)
+  subdivision   Subdivision @relation(fields: [subdivisionId], references: [id], onDelete: Cascade)
   timetableId   String?
 
   @@id([slotId, subdivisionId])

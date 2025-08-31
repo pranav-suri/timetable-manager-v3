@@ -6,9 +6,9 @@ model Lecture {
   count               Int
   duration            Int
   createdAt           DateTime             @default(now())
-  timetable           Timetable            @relation(fields: [timetableId], references: [id])
-  teacher             Teacher              @relation(fields: [teacherId], references: [id])
-  subject             Subject              @relation(fields: [subjectId], references: [id])
+  timetable           Timetable            @relation(fields: [timetableId], references: [id], onDelete: Cascade)
+  teacher             Teacher              @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  subject             Subject              @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   lectureSubdivisions LectureSubdivision[]
   lectureClassrooms   LectureClassroom[]
   lectureSlots        LectureSlot[]
@@ -17,7 +17,7 @@ model Lecture {
 model LectureSubdivision {
   subdivisionId String
   lectureId     String
-  subdivision   Subdivision @relation(fields: [subdivisionId], references: [id])
+  subdivision   Subdivision @relation(fields: [subdivisionId], references: [id], onDelete: Cascade)
   lecture       Lecture     @relation(fields: [lectureId], references: [id], onDelete: Cascade)
 
   @@id([lectureId, subdivisionId])
@@ -26,7 +26,7 @@ model LectureSubdivision {
 model LectureClassroom {
   classroomId String
   lectureId   String
-  classroom   Classroom @relation(fields: [classroomId], references: [id])
+  classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
   lecture     Lecture   @relation(fields: [lectureId], references: [id], onDelete: Cascade)
 
   @@id([lectureId, classroomId])
@@ -37,7 +37,7 @@ model LectureSlot {
   slotId    String
   lectureId String
   isLocked  Boolean @default(false)
-  slot      Slot    @relation(fields: [slotId], references: [id])
+  slot      Slot    @relation(fields: [slotId], references: [id], onDelete: Cascade)
   lecture   Lecture @relation(fields: [lectureId], references: [id], onDelete: Cascade)
 
   @@unique([lectureId, slotId])
