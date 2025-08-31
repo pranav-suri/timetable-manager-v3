@@ -15,12 +15,18 @@ export const classroomsRouter = {
       return { classrooms };
     }),
   add: authedProcedure
-    .input(z.object({ timetableId: zodIdSchema, name: z.string() }))
+    .input(
+      z.object({
+        id: zodIdSchema.optional(),
+        timetableId: zodIdSchema,
+        name: z.string(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
-      const { timetableId, name } = input;
+      const { id, timetableId, name } = input;
       const classroom = await prisma.classroom.create({
-        data: { timetableId, name },
+        data: { id, timetableId, name },
       });
       return { classroom };
     }),

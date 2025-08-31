@@ -16,13 +16,20 @@ export const subdivisionsRouter = {
       return { subdivisions };
     }),
   add: authedProcedure
-    .input(z.object({ timetableId: zodIdSchema, name: z.string() }))
+    .input(
+      z.object({
+        id: zodIdSchema.optional(),
+        timetableId: zodIdSchema,
+        name: z.string(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
-      const { timetableId, name } = input;
+      const { id, timetableId, name } = input;
 
       const subdivision = await prisma.subdivision.create({
         data: {
+          id,
           timetableId,
           name,
         },

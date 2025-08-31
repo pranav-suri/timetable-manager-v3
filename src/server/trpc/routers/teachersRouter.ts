@@ -19,6 +19,7 @@ export const teachersRouter = {
   add: authedProcedure
     .input(
       z.object({
+        id: zodIdSchema.optional(),
         timetableId: zodIdSchema,
         name: z.string(),
         email: z.email(),
@@ -26,10 +27,11 @@ export const teachersRouter = {
     )
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
-      const { timetableId, name, email } = input;
+      const { timetableId, name, email, id } = input;
 
       const teacher = await prisma.teacher.create({
         data: {
+          id,
           timetableId,
           name,
           email,
@@ -41,18 +43,16 @@ export const teachersRouter = {
     .input(
       z.object({
         id: zodIdSchema,
-        timetableId: zodIdSchema,
         name: z.string(),
         email: z.email(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
-      const { id, timetableId, name, email } = input;
+      const { id, name, email } = input;
       const teacher = await prisma.teacher.update({
         where: { id },
         data: {
-          timetableId,
           name,
           email,
         },

@@ -21,6 +21,7 @@ export const subjectsRouter = {
   add: authedProcedure
     .input(
       z.object({
+        id: zodIdSchema.optional(),
         timetableId: zodIdSchema,
         name: z.string(),
         groupId: zodIdSchema,
@@ -28,13 +29,14 @@ export const subjectsRouter = {
     )
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
-      const { timetableId, name, groupId } = input;
+      const { id, timetableId, name, groupId } = input;
 
       const group = await prisma.group.findUniqueOrThrow({
         where: { id: groupId, timetableId },
       });
       const subject = await prisma.subject.create({
         data: {
+          id,
           name,
           groupId: group.id,
         },

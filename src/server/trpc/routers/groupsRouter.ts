@@ -23,6 +23,7 @@ export const groupsRouter = {
   add: authedProcedure
     .input(
       z.object({
+        id: zodIdSchema.optional(),
         timetableId: zodIdSchema,
         name: z.string(),
         allowSimultaneous: z.boolean(),
@@ -30,10 +31,11 @@ export const groupsRouter = {
     )
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
-      const { timetableId, name, allowSimultaneous } = input;
+      const { id, timetableId, name, allowSimultaneous } = input;
 
       const group = await prisma.group.create({
         data: {
+          id,
           timetableId,
           name,
           allowSimultaneous,

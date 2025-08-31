@@ -28,6 +28,7 @@ export const lecturesRouter = {
   add: authedProcedure
     .input(
       z.object({
+        id: zodIdSchema.optional(),
         teacherId: zodIdSchema,
         subjectId: zodIdSchema,
         timetableId: zodIdSchema,
@@ -41,6 +42,7 @@ export const lecturesRouter = {
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const {
+        id,
         teacherId,
         subjectId,
         count,
@@ -52,7 +54,7 @@ export const lecturesRouter = {
       } = input;
 
       const lecture = await prisma.lecture.create({
-        data: { teacherId, subjectId, count, timetableId, duration },
+        data: { id, teacherId, subjectId, count, timetableId, duration },
       });
 
       if (classroomIds?.length) {

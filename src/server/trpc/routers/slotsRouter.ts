@@ -15,6 +15,7 @@ export const slotsRouter = {
   add: authedProcedure
     .input(
       z.object({
+        id: zodIdSchema.optional(),
         timetableId: zodIdSchema,
         day: z.number(),
         number: z.number(),
@@ -22,9 +23,9 @@ export const slotsRouter = {
     )
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
-      const { timetableId, day, number } = input;
+      const { id, timetableId, day, number } = input;
       const slot = await prisma.slot.create({
-        data: { timetableId, day, number },
+        data: { id, timetableId, day, number },
       });
       return { slot };
     }),
