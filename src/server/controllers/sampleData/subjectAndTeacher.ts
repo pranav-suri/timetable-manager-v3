@@ -6,7 +6,7 @@ import {
 } from "./utils";
 import type { ParseResult } from "papaparse";
 import type { SubjectAndTeacherData } from "./csvHeaders";
-import type { Prisma } from "__generated__/prisma/client";
+import type { Prisma } from "generated/prisma/client";
 import { prisma } from "@/server/prisma";
 
 export async function uploadSubjectAndTeacherData(

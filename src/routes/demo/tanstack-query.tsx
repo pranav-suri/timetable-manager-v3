@@ -12,7 +12,7 @@ type Todo = {
 };
 
 function TanStackQueryDemo() {
-  const { data, refetch } = useQuery<Array<Todo>>({
+  const { data, refetch } = useQuery<Todo[]>({
     queryKey: ["todos"],
     queryFn: () => fetch("/api/demo-tq-todos").then((res) => res.json()),
     initialData: [],

@@ -60,13 +60,13 @@ export default function TimetableCombined() {
     setDrawerState(true);
   };
 
-  // const handleDrawerClose = () => {
-  //   setDrawerState(false);
-  // };
+  const handleDrawerClose = () => {
+    setDrawerState(false);
+  };
 
   return (
     <Box sx={{ display: "flex" }}>
-      <NavBar />
+      <NavBar handleDrawerClose={handleDrawerClose} />
       <Main
         drawerState={drawerState}
         drawerwidth={drawerwidth}

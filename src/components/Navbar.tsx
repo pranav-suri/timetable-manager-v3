@@ -6,7 +6,11 @@ import {
   DarkMode as DarkModeSwitch,
 } from "@/components/Buttons";
 
-export const NavBar = () => {
+type NavbarProps = {
+  handleDrawerClose: () => void;
+};
+
+export const NavBar = ({ handleDrawerClose }: NavbarProps) => {
   // TODO: #7 @MatricalDefunkt Implement the ability to select an academic year, batch, division and thus a timetable
   // TODO: #8 @MatricalDefunkt Add the feature to remove selected values if a previous value is changed
   const { themeMode } = useContext(ThemeModeContext);
@@ -21,6 +25,7 @@ export const NavBar = () => {
       color="transparent"
     >
       <Toolbar>
+        <button onClick={handleDrawerClose}>Close Drawer</button>
         {/* <TimetableTypeButton />
                 <AcademicYearButton />
                 <TeacherButton />

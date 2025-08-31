@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from "__generated__/prisma/client";
+import { Prisma, PrismaClient } from "generated/prisma/client";
 import sampleDataUpload from "./controllers/sampleData";
 
 // Declaring prisma as global to prevent multiple instances during hot reload
@@ -22,12 +22,12 @@ async function main() {
 
   await prisma.timetable.upsert({
     create: {
-      id: 'abcde',
+      id: "abcde",
       name: "Timetable 1",
     },
     update: {},
     where: {
-      id: 'abcde',
+      id: "abcde",
     },
   });
 

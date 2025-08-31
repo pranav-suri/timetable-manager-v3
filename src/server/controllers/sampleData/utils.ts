@@ -13,7 +13,8 @@ import type {
   SlotInfo,
   SubjectAndTeacherData,
   TimetableData,
-  UnavailabilityData} from "./csvHeaders";
+  UnavailabilityData,
+} from "./csvHeaders";
 
 export type Maybe<T> = T | undefined;
 

@@ -1,5 +1,5 @@
 import { parseCsvData, removeDuplicates, validateCsvData } from "./utils";
-import type { Prisma } from "__generated__/prisma/client";
+import type { Prisma } from "generated/prisma/client";
 import type { ClassroomData } from "./csvHeaders";
 import { prisma } from "@/server/prisma";
 
