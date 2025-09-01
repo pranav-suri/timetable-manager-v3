@@ -9,12 +9,16 @@ import { subjectsRouter } from "./subjectsRouter";
 import { subdivisionsRouter } from "./subdivisionsRouter";
 import { teachersRouter } from "./teachersRouter";
 import { timetableRouter } from "./timetableRouter";
+import { lectureClassroomsRouter } from "./lectureClassroomsRouter";
+import { lectureSubdivisionsRouter } from "./lectureSubdivisionsRouter";
 
 export const trpcRouter = createTRPCRouter({
   classrooms: classroomsRouter,
   groups: groupsRouter,
   lectureSlots: lectureSlotsRouter,
   lectures: lecturesRouter,
+  lectureClassrooms: lectureClassroomsRouter,
+  lectureSubdivisions: lectureSubdivisionsRouter,
   slots: slotsRouter,
   subjects: subjectsRouter,
   subdivisions: subdivisionsRouter,

@@ -3,7 +3,7 @@ import { authedProcedure } from "../init";
 import type { TRPCRouterRecord } from "@trpc/server";
 import { zodIdSchema } from "@/server/utils/zodIdSchema";
 
-export const groupsRouter = {
+export const lectureSlotsRouter = {
   list: authedProcedure
     .input(
       z.object({
@@ -13,65 +13,54 @@ export const groupsRouter = {
     .query(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { timetableId } = input;
-
-      const groups = await prisma.group.findMany({
-        where: { timetableId },
+      const lectureSlots = await prisma.lectureSlot.findMany({
+        where: {
+          slot: { timetableId },
+        },
       });
-      return { groups };
+      return { lectureSlots };
     }),
   add: authedProcedure
     .input(
       z.object({
         id: zodIdSchema.optional(),
-        timetableId: zodIdSchema,
-        name: z.string(),
-        allowSimultaneous: z.boolean(),
+        slotId: zodIdSchema,
+        lectureId: zodIdSchema,
+        isLocked: z.boolean().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
-      const { id, timetableId, name, allowSimultaneous } = input;
-
-      const group = await prisma.group.create({
-        data: {
-          id,
-          timetableId,
-          name,
-          allowSimultaneous,
-        },
+      const { id, slotId, lectureId, isLocked } = input;
+      const lectureSlot = await prisma.lectureSlot.create({
+        data: { id, slotId, lectureId, isLocked },
       });
-      return { group };
+      return { lectureSlot };
     }),
   update: authedProcedure
     .input(
       z.object({
         id: zodIdSchema,
-        timetableId: zodIdSchema,
-        name: z.string(),
-        allowSimultaneous: z.boolean(),
+        slotId: zodIdSchema,
+        lectureId: zodIdSchema,
+        isLocked: z.boolean(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
-      const { id, timetableId, name, allowSimultaneous } = input;
-      const group = await prisma.group.update({
+      const { id, slotId, lectureId, isLocked } = input;
+      const lectureSlot = await prisma.lectureSlot.update({
         where: { id },
-        data: {
-          timetableId,
-          name,
-          allowSimultaneous,
-        },
+        data: { slotId, lectureId, isLocked },
       });
-      return { group };
+      return { lectureSlot };
     }),
   delete: authedProcedure
     .input(z.object({ id: zodIdSchema }))
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { id } = input;
-      const group = await prisma.group.delete({
-        where: { id },
-      });
-      return { group };
+      const lectureSlot = await prisma.lectureSlot.delete({ where: { id } });
+      return { lectureSlot };
     }),
 } satisfies TRPCRouterRecord;

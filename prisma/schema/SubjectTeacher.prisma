@@ -1,8 +1,9 @@
 model SubjectTeacher {
+  id        String  @id @default(nanoid(4))
   teacherId String
   subjectId String
   teacher   Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
 
-  @@id([subjectId, teacherId])
+  @@unique([subjectId, teacherId])
 }

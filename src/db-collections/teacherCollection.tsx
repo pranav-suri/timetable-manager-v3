@@ -1,0 +1,45 @@
+import { queryCollectionOptions } from "@tanstack/query-db-collection";
+import { createCollection } from "@tanstack/db";
+import type { CollectionInput } from "./providers/CollectionProvider";
+
+export function getTeacherCollection({
+  timetableId,
+  queryClient,
+  trpcClient,
+  trpc,
+}: CollectionInput) {
+  const teacherCollection = createCollection(
+    queryCollectionOptions({
+      queryKey: trpc.teachers.list.queryKey({ timetableId }),
+      queryFn: async () => {
+        const { teachers } = await trpcClient.teachers.list.query({
+          timetableId,
+        });
+        return teachers;
+      },
+      queryClient,
+      getKey: (item) => item.id,
+
+      onInsert: async ({ transaction }) => {
+        const { modified } = transaction.mutations[0];
+        await trpcClient.teachers.add.mutate(modified);
+        return { refetch: false };
+      },
+
+      onUpdate: async ({ transaction }) => {
+        const { modified } = transaction.mutations[0];
+        await trpcClient.teachers.update.mutate(modified);
+        return { refetch: false };
+      },
+      onDelete: async ({ transaction }) => {
+        const { original } = transaction.mutations[0];
+        await trpcClient.teachers.delete.mutate({
+          id: original.id,
+        });
+        return { refetch: false };
+      },
+    }),
+  );
+
+  return teacherCollection;
+}

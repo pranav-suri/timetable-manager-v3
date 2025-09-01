@@ -15,21 +15,23 @@ model Lecture {
 }
 
 model LectureSubdivision {
+  id            String      @id @default(nanoid(4))
   subdivisionId String
   lectureId     String
   subdivision   Subdivision @relation(fields: [subdivisionId], references: [id], onDelete: Cascade)
   lecture       Lecture     @relation(fields: [lectureId], references: [id], onDelete: Cascade)
 
-  @@id([lectureId, subdivisionId])
+  @@unique([lectureId, subdivisionId])
 }
 
 model LectureClassroom {
+  id          String  @id @default(nanoid(4))
   classroomId String
   lectureId   String
   classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
   lecture     Lecture   @relation(fields: [lectureId], references: [id], onDelete: Cascade)
 
-  @@id([lectureId, classroomId])
+  @@unique([lectureId, classroomId])
 }
 
 model LectureSlot {

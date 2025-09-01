@@ -11,10 +11,11 @@ model Classroom {
 }
 
 model ClassroomUnavailable {
+  id          String    @id @default(nanoid(4))
   slotId      String
   classroomId String
   slot        Slot      @relation(fields: [slotId], references: [id], onDelete: Cascade)
   classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
 
-  @@id([slotId, classroomId])
+  @@unique([slotId, classroomId])
 }

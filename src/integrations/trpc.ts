@@ -21,6 +21,7 @@ export const trpcClient = createTRPCClient<TRPCRouter>({
   ],
 });
 
-export const { TRPCProvider, useTRPC } = createTRPCContext<TRPCRouter>();
+export const { TRPCProvider, useTRPC, useTRPCClient } =
+  createTRPCContext<TRPCRouter>();
 export type RouterInput = inferRouterInputs<TRPCRouter>;
 export type RouterOutput = inferRouterOutputs<TRPCRouter>;

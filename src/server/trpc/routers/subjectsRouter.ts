@@ -9,12 +9,8 @@ export const subjectsRouter = {
     .query(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { timetableId } = input;
-
-      const groups = await prisma.group.findMany({
-        where: { timetableId },
-      });
       const subjects = await prisma.subject.findMany({
-        where: { groupId: { in: groups.map((group) => group.id) } },
+        where: { group: { timetableId } },
       });
       return { subjects };
     }),
@@ -31,9 +27,11 @@ export const subjectsRouter = {
       const { prisma } = ctx;
       const { id, timetableId, name, groupId } = input;
 
+      // To confirm if group is part of timetable.
       const group = await prisma.group.findUniqueOrThrow({
         where: { id: groupId, timetableId },
       });
+
       const subject = await prisma.subject.create({
         data: {
           id,

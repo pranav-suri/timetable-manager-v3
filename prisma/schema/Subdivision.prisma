@@ -10,11 +10,12 @@ model Subdivision {
 }
 
 model SubdivisionUnavailable {
+  id            String      @id @default(nanoid(4))
   slotId        String
   subdivisionId String
   slot          Slot        @relation(fields: [slotId], references: [id], onDelete: Cascade)
   subdivision   Subdivision @relation(fields: [subdivisionId], references: [id], onDelete: Cascade)
   timetableId   String?
 
-  @@id([slotId, subdivisionId])
+  @@unique([slotId, subdivisionId])
 }

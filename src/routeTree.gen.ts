@@ -16,6 +16,8 @@ import { Route as TimetableIndexRouteImport } from './routes/timetable/index'
 import { Route as DemoTrpcTodoRouteImport } from './routes/demo/trpc-todo'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
 import { Route as DemoMcpTodosRouteImport } from './routes/demo/mcp-todos'
+import { Route as TimetableTimetableIdRouteRouteImport } from './routes/timetable/$timetableId/route'
+import { Route as TimetableTimetableIdIndexRouteImport } from './routes/timetable/$timetableId/index'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
 import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
 import { ServerRoute as McpServerRouteImport } from './routes/mcp'
@@ -51,6 +53,18 @@ const DemoMcpTodosRoute = DemoMcpTodosRouteImport.update({
   path: '/demo/mcp-todos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TimetableTimetableIdRouteRoute =
+  TimetableTimetableIdRouteRouteImport.update({
+    id: '/timetable/$timetableId',
+    path: '/timetable/$timetableId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const TimetableTimetableIdIndexRoute =
+  TimetableTimetableIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => TimetableTimetableIdRouteRoute,
+  } as any)
 const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
   id: '/demo/start/server-funcs',
   path: '/demo/start/server-funcs',
@@ -89,12 +103,14 @@ const ApiTrpcSplatServerRoute = ApiTrpcSplatServerRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/timetable/$timetableId': typeof TimetableTimetableIdRouteRouteWithChildren
   '/demo/mcp-todos': typeof DemoMcpTodosRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/demo/trpc-todo': typeof DemoTrpcTodoRoute
   '/timetable': typeof TimetableIndexRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/timetable/$timetableId/': typeof TimetableTimetableIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -104,27 +120,32 @@ export interface FileRoutesByTo {
   '/timetable': typeof TimetableIndexRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/timetable/$timetableId': typeof TimetableTimetableIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/timetable/$timetableId': typeof TimetableTimetableIdRouteRouteWithChildren
   '/demo/mcp-todos': typeof DemoMcpTodosRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/demo/trpc-todo': typeof DemoTrpcTodoRoute
   '/timetable/': typeof TimetableIndexRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/timetable/$timetableId/': typeof TimetableTimetableIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/timetable/$timetableId'
     | '/demo/mcp-todos'
     | '/demo/tanstack-query'
     | '/demo/trpc-todo'
     | '/timetable'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/timetable/$timetableId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -134,19 +155,23 @@ export interface FileRouteTypes {
     | '/timetable'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/timetable/$timetableId'
   id:
     | '__root__'
     | '/'
+    | '/timetable/$timetableId'
     | '/demo/mcp-todos'
     | '/demo/tanstack-query'
     | '/demo/trpc-todo'
     | '/timetable/'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/timetable/$timetableId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  TimetableTimetableIdRouteRoute: typeof TimetableTimetableIdRouteRouteWithChildren
   DemoMcpTodosRoute: typeof DemoMcpTodosRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   DemoTrpcTodoRoute: typeof DemoTrpcTodoRoute
@@ -245,6 +270,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoMcpTodosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/timetable/$timetableId': {
+      id: '/timetable/$timetableId'
+      path: '/timetable/$timetableId'
+      fullPath: '/timetable/$timetableId'
+      preLoaderRoute: typeof TimetableTimetableIdRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/timetable/$timetableId/': {
+      id: '/timetable/$timetableId/'
+      path: '/'
+      fullPath: '/timetable/$timetableId/'
+      preLoaderRoute: typeof TimetableTimetableIdIndexRouteImport
+      parentRoute: typeof TimetableTimetableIdRouteRoute
+    }
     '/demo/start/server-funcs': {
       id: '/demo/start/server-funcs'
       path: '/demo/start/server-funcs'
@@ -301,8 +340,23 @@ declare module '@tanstack/react-start/server' {
   }
 }
 
+interface TimetableTimetableIdRouteRouteChildren {
+  TimetableTimetableIdIndexRoute: typeof TimetableTimetableIdIndexRoute
+}
+
+const TimetableTimetableIdRouteRouteChildren: TimetableTimetableIdRouteRouteChildren =
+  {
+    TimetableTimetableIdIndexRoute: TimetableTimetableIdIndexRoute,
+  }
+
+const TimetableTimetableIdRouteRouteWithChildren =
+  TimetableTimetableIdRouteRoute._addFileChildren(
+    TimetableTimetableIdRouteRouteChildren,
+  )
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  TimetableTimetableIdRouteRoute: TimetableTimetableIdRouteRouteWithChildren,
   DemoMcpTodosRoute: DemoMcpTodosRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   DemoTrpcTodoRoute: DemoTrpcTodoRoute,
