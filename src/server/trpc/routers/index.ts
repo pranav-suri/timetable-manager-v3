@@ -11,9 +11,15 @@ import { teachersRouter } from "./teachersRouter";
 import { timetableRouter } from "./timetableRouter";
 import { lectureClassroomsRouter } from "./lectureClassroomsRouter";
 import { lectureSubdivisionsRouter } from "./lectureSubdivisionsRouter";
+import { subjectClassroomsRouter } from "./subjectClassroomsRouter";
+import { subjectTeachersRouter } from "./subjectTeachersRouter";
+import { classroomUnavailabilitiesRouter } from "./classroomUnavailabilitiesRouter";
+import { teacherUnavailabilitiesRouter } from "./teacherUnavailabilitiesRouter";
+import { subdivisionUnavailabilitiesRouter } from "./subdivisionUnavailabilitiesRouter";
 
 export const trpcRouter = createTRPCRouter({
   classrooms: classroomsRouter,
+  classroomUnavailabilities: classroomUnavailabilitiesRouter,
   groups: groupsRouter,
   lectureSlots: lectureSlotsRouter,
   lectures: lecturesRouter,
@@ -21,8 +27,12 @@ export const trpcRouter = createTRPCRouter({
   lectureSubdivisions: lectureSubdivisionsRouter,
   slots: slotsRouter,
   subjects: subjectsRouter,
+  subjectClassrooms: subjectClassroomsRouter,
+  subjectTeachers: subjectTeachersRouter,
   subdivisions: subdivisionsRouter,
+  subdivisionUnavailabilities: subdivisionUnavailabilitiesRouter,
   teachers: teachersRouter,
+  teacherUnavailabilities: teacherUnavailabilitiesRouter,
   timetable: timetableRouter,
   todos: todosRouter,
 });

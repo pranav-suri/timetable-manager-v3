@@ -5,6 +5,51 @@ import type { TrpcContext } from "../init";
 import { zodIdSchema } from "@/server/utils/zodIdSchema";
 
 export const timetableRouter = {
+  list: authedProcedure
+    .query(async ({ ctx }) => {
+      const { prisma } = ctx;
+      const timetables = await prisma.timetable.findMany();
+      return { timetables };
+    }),
+  add: authedProcedure
+    .input(
+      z.object({
+        id: zodIdSchema.optional(),
+        name: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { prisma } = ctx;
+      const { id, name } = input;
+      const timetable = await prisma.timetable.create({
+        data: { id, name },
+      });
+      return { timetable };
+    }),
+  update: authedProcedure
+    .input(
+      z.object({
+        id: zodIdSchema,
+        name: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { prisma } = ctx;
+      const { id, name } = input;
+      const timetable = await prisma.timetable.update({
+        where: { id },
+        data: { name },
+      });
+      return { timetable };
+    }),
+  delete: authedProcedure
+    .input(z.object({ id: zodIdSchema }))
+    .mutation(async ({ ctx, input }) => {
+      const { prisma } = ctx;
+      const { id } = input;
+      const timetable = await prisma.timetable.delete({ where: { id } });
+      return { timetable };
+    }),
   get: authedProcedure
     .input(
       z.object({
