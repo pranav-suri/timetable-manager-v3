@@ -24,14 +24,14 @@ export function getLectureSubdivisionCollection({
       onInsert: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
         await trpcClient.lectureSubdivisions.add.mutate(modified);
-        return { refetch: false };
+        // return { refetch: false };
       },
       onDelete: async ({ transaction }) => {
         const { original } = transaction.mutations[0];
         await trpcClient.lectureSubdivisions.delete.mutate({
           id: original.id,
         });
-        return { refetch: false };
+        // return { refetch: false };
       },
     }),
   );

@@ -12,9 +12,10 @@ export function getClassroomUnavailableCollection({
     queryCollectionOptions({
       queryKey: trpc.classroomUnavailabilities.list.queryKey({ timetableId }),
       queryFn: async () => {
-        const { classroomUnavailables } = await trpcClient.classroomUnavailabilities.list.query({
-          timetableId,
-        });
+        const { classroomUnavailables } =
+          await trpcClient.classroomUnavailabilities.list.query({
+            timetableId,
+          });
         return classroomUnavailables;
       },
       queryClient,
@@ -23,7 +24,7 @@ export function getClassroomUnavailableCollection({
       onInsert: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
         await trpcClient.classroomUnavailabilities.add.mutate(modified);
-        return { refetch: false };
+        // return { refetch: false };
       },
 
       onDelete: async ({ transaction }) => {
@@ -31,7 +32,7 @@ export function getClassroomUnavailableCollection({
         await trpcClient.classroomUnavailabilities.delete.mutate({
           id: original.id,
         });
-        return { refetch: false };
+        // return { refetch: false };
       },
     }),
   );

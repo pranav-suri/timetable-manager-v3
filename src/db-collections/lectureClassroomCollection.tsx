@@ -20,17 +20,18 @@ export function getLectureClassroomCollection({
       },
       queryClient,
       getKey: (item) => item.id,
+
       onInsert: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
         await trpcClient.lectureClassrooms.add.mutate(modified);
-        return { refetch: false };
+        // return { refetch: false };
       },
       onDelete: async ({ transaction }) => {
         const { original } = transaction.mutations[0];
         await trpcClient.lectureClassrooms.delete.mutate({
           id: original.id,
         });
-        return { refetch: false };
+        // return { refetch: false };
       },
     }),
   );

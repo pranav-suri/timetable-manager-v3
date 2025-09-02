@@ -23,20 +23,20 @@ export function getSlotCollection({
       onInsert: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
         await trpcClient.slots.add.mutate(modified);
-        return { refetch: false };
+        // return { refetch: false };
       },
 
       onUpdate: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
         await trpcClient.slots.update.mutate(modified);
-        return { refetch: false };
+        // return { refetch: false };
       },
       onDelete: async ({ transaction }) => {
         const { original } = transaction.mutations[0];
         await trpcClient.slots.delete.mutate({
           id: original.id,
         });
-        return { refetch: false };
+        // return { refetch: false };
       },
     }),
   );

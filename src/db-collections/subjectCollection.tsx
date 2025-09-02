@@ -23,20 +23,20 @@ export function getSubjectCollection({
       onInsert: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
         await trpcClient.subjects.add.mutate({ ...modified, timetableId });
-        return { refetch: false };
+        // return { refetch: false };
       },
 
       onUpdate: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
         await trpcClient.subjects.update.mutate(modified);
-        return { refetch: false };
+        // return { refetch: false };
       },
       onDelete: async ({ transaction }) => {
         const { original } = transaction.mutations[0];
         await trpcClient.subjects.delete.mutate({
           id: original.id,
         });
-        return { refetch: false };
+        // return { refetch: false };
       },
     }),
   );

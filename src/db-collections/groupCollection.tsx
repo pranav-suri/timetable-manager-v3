@@ -23,20 +23,20 @@ export function getGroupCollection({
       onInsert: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
         await trpcClient.groups.add.mutate(modified);
-        return { refetch: false };
+        // return { refetch: false };
       },
 
       onUpdate: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
         await trpcClient.groups.update.mutate(modified);
-        return { refetch: false };
+        // return { refetch: false };
       },
       onDelete: async ({ transaction }) => {
         const { original } = transaction.mutations[0];
         await trpcClient.groups.delete.mutate({
           id: original.id,
         });
-        return { refetch: false };
+        // return { refetch: false };
       },
     }),
   );

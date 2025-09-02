@@ -12,9 +12,10 @@ export function getSubdivisionUnavailableCollection({
     queryCollectionOptions({
       queryKey: trpc.subdivisionUnavailabilities.list.queryKey({ timetableId }),
       queryFn: async () => {
-        const { subdivisionUnavailables } = await trpcClient.subdivisionUnavailabilities.list.query({
-          timetableId,
-        });
+        const { subdivisionUnavailables } =
+          await trpcClient.subdivisionUnavailabilities.list.query({
+            timetableId,
+          });
         return subdivisionUnavailables;
       },
       queryClient,
@@ -23,7 +24,7 @@ export function getSubdivisionUnavailableCollection({
       onInsert: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
         await trpcClient.subdivisionUnavailabilities.add.mutate(modified);
-        return { refetch: false };
+        // return { refetch: false };
       },
 
       onDelete: async ({ transaction }) => {
@@ -31,7 +32,7 @@ export function getSubdivisionUnavailableCollection({
         await trpcClient.subdivisionUnavailabilities.delete.mutate({
           id: original.id,
         });
-        return { refetch: false };
+        // return { refetch: false };
       },
     }),
   );

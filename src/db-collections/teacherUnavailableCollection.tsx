@@ -12,9 +12,10 @@ export function getTeacherUnavailableCollection({
     queryCollectionOptions({
       queryKey: trpc.teacherUnavailabilities.list.queryKey({ timetableId }),
       queryFn: async () => {
-        const { teacherUnavailables } = await trpcClient.teacherUnavailabilities.list.query({
-          timetableId,
-        });
+        const { teacherUnavailables } =
+          await trpcClient.teacherUnavailabilities.list.query({
+            timetableId,
+          });
         return teacherUnavailables;
       },
       queryClient,
@@ -23,7 +24,7 @@ export function getTeacherUnavailableCollection({
       onInsert: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
         await trpcClient.teacherUnavailabilities.add.mutate(modified);
-        return { refetch: false };
+        // return { refetch: false };
       },
 
       onDelete: async ({ transaction }) => {
@@ -31,7 +32,7 @@ export function getTeacherUnavailableCollection({
         await trpcClient.teacherUnavailabilities.delete.mutate({
           id: original.id,
         });
-        return { refetch: false };
+        // return { refetch: false };
       },
     }),
   );

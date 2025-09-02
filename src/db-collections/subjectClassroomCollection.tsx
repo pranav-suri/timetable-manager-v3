@@ -12,9 +12,10 @@ export function getSubjectClassroomCollection({
     queryCollectionOptions({
       queryKey: trpc.subjectClassrooms.list.queryKey({ timetableId }),
       queryFn: async () => {
-        const { subjectClassrooms } = await trpcClient.subjectClassrooms.list.query({
-          timetableId,
-        });
+        const { subjectClassrooms } =
+          await trpcClient.subjectClassrooms.list.query({
+            timetableId,
+          });
         return subjectClassrooms;
       },
       queryClient,
@@ -23,7 +24,7 @@ export function getSubjectClassroomCollection({
       onInsert: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
         await trpcClient.subjectClassrooms.add.mutate(modified);
-        return { refetch: false };
+        // return { refetch: false };
       },
 
       onDelete: async ({ transaction }) => {
@@ -31,7 +32,7 @@ export function getSubjectClassroomCollection({
         await trpcClient.subjectClassrooms.delete.mutate({
           id: original.id,
         });
-        return { refetch: false };
+        // return { refetch: false };
       },
     }),
   );

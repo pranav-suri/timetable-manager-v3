@@ -1,4 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { useRef } from "react";
 import { getTeacherCollection } from "../teacherCollection";
 import { getSubjectCollection } from "../subjectCollection";
 import { getGroupCollection } from "../groupCollection";
@@ -16,8 +17,8 @@ import { getClassroomUnavailableCollection } from "../classroomUnavailableCollec
 import { getTeacherUnavailableCollection } from "../teacherUnavailableCollection";
 import { getSubdivisionUnavailableCollection } from "../subdivisionUnavailableCollection";
 import { CollectionsContext } from "./CollectionsContext";
-import type { QueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
+import type { QueryClient } from "@tanstack/react-query";
 import { useTRPC, useTRPCClient } from "@/integrations/trpc";
 import { Route as TimetableRoute } from "@/routes/timetable/$timetableId/route";
 
@@ -59,7 +60,8 @@ function getCollections() {
     lectureSubdivisionCollection: getLectureSubdivisionCollection(input),
     slotCollection: getSlotCollection(input),
     subdivisionCollection: getSubdivisionCollection(input),
-    subdivisionUnavailableCollection: getSubdivisionUnavailableCollection(input),
+    subdivisionUnavailableCollection:
+      getSubdivisionUnavailableCollection(input),
     subjectCollection: getSubjectCollection(input),
     subjectClassroomCollection: getSubjectClassroomCollection(input),
     subjectTeacherCollection: getSubjectTeacherCollection(input),
@@ -77,8 +79,12 @@ function getCollections() {
 }
 
 export function CollectionsProvider({ children }: { children: ReactNode }) {
+  const ref = useRef<CollectionsContextType>(null);
+
+  if (!ref.current) ref.current = getCollections();
+
   return (
-    <CollectionsContext.Provider value={getCollections()}>
+    <CollectionsContext.Provider value={ref.current}>
       {children}
     </CollectionsContext.Provider>
   );
