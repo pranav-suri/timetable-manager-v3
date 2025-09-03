@@ -19,7 +19,11 @@ const config = defineConfig({
       //   enabled: true, // This turns off SSR
       // },
     }),
-    viteReact(),
+    viteReact({
+      // babel: {
+      //   plugins: [["babel-plugin-react-compiler", {}]],
+      // },
+    }),
   ],
 });
 
