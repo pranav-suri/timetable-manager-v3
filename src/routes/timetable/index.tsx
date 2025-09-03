@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { styled } from "@mui/material/styles";
 import { Box } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
@@ -44,6 +44,8 @@ const Main = styled("main", {
   position: "relative",
 }));
 
+const MuiTimetableMemoized = memo(MuiTimetable);
+
 export default function TimetableCombined() {
   const trpc = useTRPC();
   const { data: timetable } = useQuery(trpc.timetable.getAny.queryOptions());
@@ -56,13 +58,13 @@ export default function TimetableCombined() {
 
   const drawerwidth = 300;
 
-  const handleDrawerOpen = () => {
+  const handleDrawerOpen = useCallback(() => {
     setDrawerState(true);
-  };
+  }, []);
 
-  const handleDrawerClose = () => {
+  const handleDrawerClose = useCallback(() => {
     setDrawerState(false);
-  };
+  }, []);
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -73,7 +75,7 @@ export default function TimetableCombined() {
         className="main"
       >
         {timetable && (
-          <MuiTimetable
+          <MuiTimetableMemoized
             timetableData={timetable}
             handleDrawerOpen={handleDrawerOpen}
             setSelectedSlotIndex={setSelectedSlotIndex}

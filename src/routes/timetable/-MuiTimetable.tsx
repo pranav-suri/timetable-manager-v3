@@ -195,6 +195,8 @@ export default function MuiTimetable({
     slotDays.add(slot.day);
   });
 
+  console.log("MUI Rendered")
+
   return (
     <TableContainer component={Paper} className="printable">
       <Table size="small">
