@@ -9,6 +9,7 @@ export function getTimetableCollection({
 }: Omit<CollectionInput, "timetableId">) {
   const timetableCollection = createCollection(
     queryCollectionOptions({
+      startSync: true,
       queryKey: trpc.timetable.list.queryKey(),
       queryFn: async () => {
         const { timetables } = await trpcClient.timetable.list.query();

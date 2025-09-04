@@ -10,6 +10,7 @@ export function getLectureClassroomCollection({
 }: CollectionInput) {
   const lectureClassroomCollection = createCollection(
     queryCollectionOptions({
+      startSync: true,
       queryKey: trpc.lectureClassrooms.list.queryKey({ timetableId }),
       queryFn: async () => {
         const { lectureClassrooms } =

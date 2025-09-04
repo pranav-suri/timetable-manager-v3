@@ -7,8 +7,10 @@ export const Route = createFileRoute("/timetable/$timetableId")({
 });
 
 function RouteComponent() {
+  const { timetableId } = Route.useParams();
+
   return (
-    <CollectionsProvider>
+    <CollectionsProvider timetableId={timetableId}>
       <div>Hello "/timetable/$timetableId"!</div>
       <Outlet />
       <div>Hello "/timetable/$timetableId/blah blah"!</div>

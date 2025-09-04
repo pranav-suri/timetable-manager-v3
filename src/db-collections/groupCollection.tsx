@@ -10,6 +10,7 @@ export function getGroupCollection({
 }: CollectionInput) {
   const groupCollection = createCollection(
     queryCollectionOptions({
+      startSync: true,
       queryKey: trpc.groups.list.queryKey({ timetableId }),
       queryFn: async () => {
         const { groups } = await trpcClient.groups.list.query({
@@ -25,7 +26,6 @@ export function getGroupCollection({
         await trpcClient.groups.add.mutate(modified);
         // return { refetch: false };
       },
-
       onUpdate: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
         await trpcClient.groups.update.mutate(modified);

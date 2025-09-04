@@ -10,6 +10,7 @@ export function getLectureSlotCollection({
 }: CollectionInput) {
   const lectureSlotCollection = createCollection(
     queryCollectionOptions({
+      startSync: true,
       queryKey: trpc.lectureSlots.list.queryKey({ timetableId }),
       queryFn: async () => {
         const { lectureSlots } = await trpcClient.lectureSlots.list.query({

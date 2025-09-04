@@ -10,6 +10,7 @@ export function getSubdivisionUnavailableCollection({
 }: CollectionInput) {
   const subdivisionUnavailableCollection = createCollection(
     queryCollectionOptions({
+      startSync: true,
       queryKey: trpc.subdivisionUnavailabilities.list.queryKey({ timetableId }),
       queryFn: async () => {
         const { subdivisionUnavailables } =

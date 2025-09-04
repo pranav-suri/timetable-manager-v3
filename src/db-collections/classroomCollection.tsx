@@ -10,6 +10,7 @@ export function getClassroomCollection({
 }: CollectionInput) {
   const classroomCollection = createCollection(
     queryCollectionOptions({
+      startSync: true,
       queryKey: trpc.classrooms.list.queryKey({ timetableId }),
       queryFn: async () => {
         const { classrooms } = await trpcClient.classrooms.list.query({
@@ -19,13 +20,11 @@ export function getClassroomCollection({
       },
       queryClient,
       getKey: (item) => item.id,
-
       onInsert: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
         await trpcClient.classrooms.add.mutate(modified);
         // return { refetch: false };
       },
-
       onUpdate: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
         await trpcClient.classrooms.update.mutate(modified);

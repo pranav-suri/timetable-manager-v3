@@ -20,7 +20,6 @@ import { CollectionsContext } from "./CollectionsContext";
 import type { ReactNode } from "react";
 import type { QueryClient } from "@tanstack/react-query";
 import { useTRPC, useTRPCClient } from "@/integrations/trpc";
-import { Route as TimetableRoute } from "@/routes/timetable/$timetableId/route";
 
 export type CollectionInput = {
   timetableId: string;
@@ -31,24 +30,8 @@ export type CollectionInput = {
 
 export type CollectionsContextType = ReturnType<typeof getCollections>;
 
-function useTimetableId() {
-  const { timetableId } = TimetableRoute.useParams();
-  return timetableId;
-}
-
-function getCollections() {
-  const trpc = useTRPC();
-  const trpcClient = useTRPCClient();
-  const queryClient = useQueryClient();
-  const timetableId = useTimetableId();
-
-  const input = {
-    timetableId,
-    queryClient,
-    trpcClient,
-    trpc,
-  } satisfies CollectionInput;
-
+function getCollections(input: CollectionInput) {
+  const { trpc, queryClient, trpcClient } = input;
   // Add more collections to this object as needed
   const collections = {
     classroomCollection: getClassroomCollection(input),
@@ -78,10 +61,25 @@ function getCollections() {
   return collections;
 }
 
-export function CollectionsProvider({ children }: { children: ReactNode }) {
+export function CollectionsProvider({
+  timetableId,
+  children,
+}: {
+  timetableId: string;
+  children: ReactNode;
+}) {
   const ref = useRef<CollectionsContextType>(null);
+  const trpc = useTRPC();
+  const trpcClient = useTRPCClient();
+  const queryClient = useQueryClient();
 
-  if (!ref.current) ref.current = getCollections();
+  if (!ref.current)
+    ref.current = getCollections({
+      trpc,
+      trpcClient,
+      queryClient,
+      timetableId,
+    });
 
   return (
     <CollectionsContext.Provider value={ref.current}>

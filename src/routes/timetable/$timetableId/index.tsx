@@ -3,16 +3,13 @@ import {
   createCollection,
   createLiveQueryCollection,
   eq,
+  not,
   useLiveQuery,
 } from "@tanstack/react-db";
 import { nanoid } from "nanoid";
-import { QueryClient } from "@tanstack/react-query";
-import { queryCollectionOptions } from "@tanstack/query-db-collection";
-import { TimetableSchema } from "generated/zod";
-import { Demo } from "./-demo";
-import { trpcClient } from "@/integrations/trpc";
-import { useCollections } from "@/db-collections/providers/useCollections";
 import { memo } from "react";
+import { Demo } from "./-demo";
+import { useCollections } from "@/db-collections/providers/useCollections";
 
 export const Route = createFileRoute("/timetable/$timetableId/")({
   component: RouteComponent,
@@ -35,15 +32,21 @@ function useSubset() {
 function RouteComponent() {
   const stableCollection = useSubset();
   const { timetableCollection, lectureCollection } = useCollections();
-  // const { data: ttJoined } = useLiveQuery((q) =>
-  //   q
-  //     .from({ tt: timetableCollection })
-  //     .leftJoin({ lecture: lectureCollection }, ({ lecture, tt }) =>
-  //       eq(lecture.timetableId, tt.id),
-  //     ),
-  // );
+  const { data: ttJoined } = useLiveQuery((q) =>
+    q
+      .from({ tt: timetableCollection })
+      .where(({ tt }) => not(eq(tt.id, "")))
+      .innerJoin({ lecture: lectureCollection }, ({ lecture, tt }) =>
+        eq(lecture.timetableId, tt.id),
+      ),
+  );
+
+  console.log(ttJoined);
   const { data: subset } = useLiveQuery((q) =>
-    q.from({ tt: timetableCollection }).orderBy(({ tt }) => tt.id, "asc").limit(100),
+    q
+      .from({ tt: timetableCollection })
+      .orderBy(({ tt }) => tt.id, "asc")
+      .limit(150),
   );
   // console.log("Teachers from collection:", teachers);
   const handleClick = () => {
@@ -62,7 +65,7 @@ function RouteComponent() {
   //   (q) => q.from({ timetableCollection }),
   // .where(({lectureClassroom}) => eq(lectureClassroom.id, "time")),
   // );
-  console.log("Timetables from collection:", subset);
+  // console.log("Timetables from collection:", subset);
   return (
     <div>
       <button onClick={handleClick}>Click me</button>
