@@ -16,10 +16,18 @@ import { Route as TimetableIndexRouteImport } from './routes/timetable/index'
 import { Route as DemoTrpcTodoRouteImport } from './routes/demo/trpc-todo'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
 import { Route as DemoMcpTodosRouteImport } from './routes/demo/mcp-todos'
+import { Route as TtTimetableIdRouteRouteImport } from './routes/tt/$timetableId/route'
 import { Route as TimetableTimetableIdRouteRouteImport } from './routes/timetable/$timetableId/route'
 import { Route as TimetableTimetableIdIndexRouteImport } from './routes/timetable/$timetableId/index'
+import { Route as TtTimetableIdTimetablesRouteImport } from './routes/tt/$timetableId/timetables'
+import { Route as TtTimetableIdTeachersRouteImport } from './routes/tt/$timetableId/teachers'
+import { Route as TtTimetableIdSubjectsRouteImport } from './routes/tt/$timetableId/subjects'
+import { Route as TtTimetableIdSubdivisionsRouteImport } from './routes/tt/$timetableId/subdivisions'
+import { Route as TtTimetableIdLecturesRouteImport } from './routes/tt/$timetableId/lectures'
+import { Route as TtTimetableIdClassroomsRouteImport } from './routes/tt/$timetableId/classrooms'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
 import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
+import { Route as TtTimetableIdEditIndexRouteImport } from './routes/tt/$timetableId/edit/index'
 import { ServerRoute as McpServerRouteImport } from './routes/mcp'
 import { ServerRoute as ApiMcpTodosServerRouteImport } from './routes/api/mcp-todos'
 import { ServerRoute as ApiDemoTqTodosServerRouteImport } from './routes/api/demo-tq-todos'
@@ -53,6 +61,11 @@ const DemoMcpTodosRoute = DemoMcpTodosRouteImport.update({
   path: '/demo/mcp-todos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TtTimetableIdRouteRoute = TtTimetableIdRouteRouteImport.update({
+  id: '/tt/$timetableId',
+  path: '/tt/$timetableId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TimetableTimetableIdRouteRoute =
   TimetableTimetableIdRouteRouteImport.update({
     id: '/timetable/$timetableId',
@@ -65,6 +78,37 @@ const TimetableTimetableIdIndexRoute =
     path: '/',
     getParentRoute: () => TimetableTimetableIdRouteRoute,
   } as any)
+const TtTimetableIdTimetablesRoute = TtTimetableIdTimetablesRouteImport.update({
+  id: '/timetables',
+  path: '/timetables',
+  getParentRoute: () => TtTimetableIdRouteRoute,
+} as any)
+const TtTimetableIdTeachersRoute = TtTimetableIdTeachersRouteImport.update({
+  id: '/teachers',
+  path: '/teachers',
+  getParentRoute: () => TtTimetableIdRouteRoute,
+} as any)
+const TtTimetableIdSubjectsRoute = TtTimetableIdSubjectsRouteImport.update({
+  id: '/subjects',
+  path: '/subjects',
+  getParentRoute: () => TtTimetableIdRouteRoute,
+} as any)
+const TtTimetableIdSubdivisionsRoute =
+  TtTimetableIdSubdivisionsRouteImport.update({
+    id: '/subdivisions',
+    path: '/subdivisions',
+    getParentRoute: () => TtTimetableIdRouteRoute,
+  } as any)
+const TtTimetableIdLecturesRoute = TtTimetableIdLecturesRouteImport.update({
+  id: '/lectures',
+  path: '/lectures',
+  getParentRoute: () => TtTimetableIdRouteRoute,
+} as any)
+const TtTimetableIdClassroomsRoute = TtTimetableIdClassroomsRouteImport.update({
+  id: '/classrooms',
+  path: '/classrooms',
+  getParentRoute: () => TtTimetableIdRouteRoute,
+} as any)
 const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
   id: '/demo/start/server-funcs',
   path: '/demo/start/server-funcs',
@@ -74,6 +118,11 @@ const DemoStartApiRequestRoute = DemoStartApiRequestRouteImport.update({
   id: '/demo/start/api-request',
   path: '/demo/start/api-request',
   getParentRoute: () => rootRouteImport,
+} as any)
+const TtTimetableIdEditIndexRoute = TtTimetableIdEditIndexRouteImport.update({
+  id: '/edit/',
+  path: '/edit/',
+  getParentRoute: () => TtTimetableIdRouteRoute,
 } as any)
 const McpServerRoute = McpServerRouteImport.update({
   id: '/mcp',
@@ -104,74 +153,123 @@ const ApiTrpcSplatServerRoute = ApiTrpcSplatServerRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/timetable/$timetableId': typeof TimetableTimetableIdRouteRouteWithChildren
+  '/tt/$timetableId': typeof TtTimetableIdRouteRouteWithChildren
   '/demo/mcp-todos': typeof DemoMcpTodosRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/demo/trpc-todo': typeof DemoTrpcTodoRoute
   '/timetable': typeof TimetableIndexRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/tt/$timetableId/classrooms': typeof TtTimetableIdClassroomsRoute
+  '/tt/$timetableId/lectures': typeof TtTimetableIdLecturesRoute
+  '/tt/$timetableId/subdivisions': typeof TtTimetableIdSubdivisionsRoute
+  '/tt/$timetableId/subjects': typeof TtTimetableIdSubjectsRoute
+  '/tt/$timetableId/teachers': typeof TtTimetableIdTeachersRoute
+  '/tt/$timetableId/timetables': typeof TtTimetableIdTimetablesRoute
   '/timetable/$timetableId/': typeof TimetableTimetableIdIndexRoute
+  '/tt/$timetableId/edit': typeof TtTimetableIdEditIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/tt/$timetableId': typeof TtTimetableIdRouteRouteWithChildren
   '/demo/mcp-todos': typeof DemoMcpTodosRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/demo/trpc-todo': typeof DemoTrpcTodoRoute
   '/timetable': typeof TimetableIndexRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/tt/$timetableId/classrooms': typeof TtTimetableIdClassroomsRoute
+  '/tt/$timetableId/lectures': typeof TtTimetableIdLecturesRoute
+  '/tt/$timetableId/subdivisions': typeof TtTimetableIdSubdivisionsRoute
+  '/tt/$timetableId/subjects': typeof TtTimetableIdSubjectsRoute
+  '/tt/$timetableId/teachers': typeof TtTimetableIdTeachersRoute
+  '/tt/$timetableId/timetables': typeof TtTimetableIdTimetablesRoute
   '/timetable/$timetableId': typeof TimetableTimetableIdIndexRoute
+  '/tt/$timetableId/edit': typeof TtTimetableIdEditIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/timetable/$timetableId': typeof TimetableTimetableIdRouteRouteWithChildren
+  '/tt/$timetableId': typeof TtTimetableIdRouteRouteWithChildren
   '/demo/mcp-todos': typeof DemoMcpTodosRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/demo/trpc-todo': typeof DemoTrpcTodoRoute
   '/timetable/': typeof TimetableIndexRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/tt/$timetableId/classrooms': typeof TtTimetableIdClassroomsRoute
+  '/tt/$timetableId/lectures': typeof TtTimetableIdLecturesRoute
+  '/tt/$timetableId/subdivisions': typeof TtTimetableIdSubdivisionsRoute
+  '/tt/$timetableId/subjects': typeof TtTimetableIdSubjectsRoute
+  '/tt/$timetableId/teachers': typeof TtTimetableIdTeachersRoute
+  '/tt/$timetableId/timetables': typeof TtTimetableIdTimetablesRoute
   '/timetable/$timetableId/': typeof TimetableTimetableIdIndexRoute
+  '/tt/$timetableId/edit/': typeof TtTimetableIdEditIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/timetable/$timetableId'
+    | '/tt/$timetableId'
     | '/demo/mcp-todos'
     | '/demo/tanstack-query'
     | '/demo/trpc-todo'
     | '/timetable'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/tt/$timetableId/classrooms'
+    | '/tt/$timetableId/lectures'
+    | '/tt/$timetableId/subdivisions'
+    | '/tt/$timetableId/subjects'
+    | '/tt/$timetableId/teachers'
+    | '/tt/$timetableId/timetables'
     | '/timetable/$timetableId/'
+    | '/tt/$timetableId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/tt/$timetableId'
     | '/demo/mcp-todos'
     | '/demo/tanstack-query'
     | '/demo/trpc-todo'
     | '/timetable'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/tt/$timetableId/classrooms'
+    | '/tt/$timetableId/lectures'
+    | '/tt/$timetableId/subdivisions'
+    | '/tt/$timetableId/subjects'
+    | '/tt/$timetableId/teachers'
+    | '/tt/$timetableId/timetables'
     | '/timetable/$timetableId'
+    | '/tt/$timetableId/edit'
   id:
     | '__root__'
     | '/'
     | '/timetable/$timetableId'
+    | '/tt/$timetableId'
     | '/demo/mcp-todos'
     | '/demo/tanstack-query'
     | '/demo/trpc-todo'
     | '/timetable/'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/tt/$timetableId/classrooms'
+    | '/tt/$timetableId/lectures'
+    | '/tt/$timetableId/subdivisions'
+    | '/tt/$timetableId/subjects'
+    | '/tt/$timetableId/teachers'
+    | '/tt/$timetableId/timetables'
     | '/timetable/$timetableId/'
+    | '/tt/$timetableId/edit/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   TimetableTimetableIdRouteRoute: typeof TimetableTimetableIdRouteRouteWithChildren
+  TtTimetableIdRouteRoute: typeof TtTimetableIdRouteRouteWithChildren
   DemoMcpTodosRoute: typeof DemoMcpTodosRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   DemoTrpcTodoRoute: typeof DemoTrpcTodoRoute
@@ -270,6 +368,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoMcpTodosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tt/$timetableId': {
+      id: '/tt/$timetableId'
+      path: '/tt/$timetableId'
+      fullPath: '/tt/$timetableId'
+      preLoaderRoute: typeof TtTimetableIdRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/timetable/$timetableId': {
       id: '/timetable/$timetableId'
       path: '/timetable/$timetableId'
@@ -284,6 +389,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TimetableTimetableIdIndexRouteImport
       parentRoute: typeof TimetableTimetableIdRouteRoute
     }
+    '/tt/$timetableId/timetables': {
+      id: '/tt/$timetableId/timetables'
+      path: '/timetables'
+      fullPath: '/tt/$timetableId/timetables'
+      preLoaderRoute: typeof TtTimetableIdTimetablesRouteImport
+      parentRoute: typeof TtTimetableIdRouteRoute
+    }
+    '/tt/$timetableId/teachers': {
+      id: '/tt/$timetableId/teachers'
+      path: '/teachers'
+      fullPath: '/tt/$timetableId/teachers'
+      preLoaderRoute: typeof TtTimetableIdTeachersRouteImport
+      parentRoute: typeof TtTimetableIdRouteRoute
+    }
+    '/tt/$timetableId/subjects': {
+      id: '/tt/$timetableId/subjects'
+      path: '/subjects'
+      fullPath: '/tt/$timetableId/subjects'
+      preLoaderRoute: typeof TtTimetableIdSubjectsRouteImport
+      parentRoute: typeof TtTimetableIdRouteRoute
+    }
+    '/tt/$timetableId/subdivisions': {
+      id: '/tt/$timetableId/subdivisions'
+      path: '/subdivisions'
+      fullPath: '/tt/$timetableId/subdivisions'
+      preLoaderRoute: typeof TtTimetableIdSubdivisionsRouteImport
+      parentRoute: typeof TtTimetableIdRouteRoute
+    }
+    '/tt/$timetableId/lectures': {
+      id: '/tt/$timetableId/lectures'
+      path: '/lectures'
+      fullPath: '/tt/$timetableId/lectures'
+      preLoaderRoute: typeof TtTimetableIdLecturesRouteImport
+      parentRoute: typeof TtTimetableIdRouteRoute
+    }
+    '/tt/$timetableId/classrooms': {
+      id: '/tt/$timetableId/classrooms'
+      path: '/classrooms'
+      fullPath: '/tt/$timetableId/classrooms'
+      preLoaderRoute: typeof TtTimetableIdClassroomsRouteImport
+      parentRoute: typeof TtTimetableIdRouteRoute
+    }
     '/demo/start/server-funcs': {
       id: '/demo/start/server-funcs'
       path: '/demo/start/server-funcs'
@@ -297,6 +444,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/demo/start/api-request'
       preLoaderRoute: typeof DemoStartApiRequestRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/tt/$timetableId/edit/': {
+      id: '/tt/$timetableId/edit/'
+      path: '/edit'
+      fullPath: '/tt/$timetableId/edit'
+      preLoaderRoute: typeof TtTimetableIdEditIndexRouteImport
+      parentRoute: typeof TtTimetableIdRouteRoute
     }
   }
 }
@@ -354,9 +508,33 @@ const TimetableTimetableIdRouteRouteWithChildren =
     TimetableTimetableIdRouteRouteChildren,
   )
 
+interface TtTimetableIdRouteRouteChildren {
+  TtTimetableIdClassroomsRoute: typeof TtTimetableIdClassroomsRoute
+  TtTimetableIdLecturesRoute: typeof TtTimetableIdLecturesRoute
+  TtTimetableIdSubdivisionsRoute: typeof TtTimetableIdSubdivisionsRoute
+  TtTimetableIdSubjectsRoute: typeof TtTimetableIdSubjectsRoute
+  TtTimetableIdTeachersRoute: typeof TtTimetableIdTeachersRoute
+  TtTimetableIdTimetablesRoute: typeof TtTimetableIdTimetablesRoute
+  TtTimetableIdEditIndexRoute: typeof TtTimetableIdEditIndexRoute
+}
+
+const TtTimetableIdRouteRouteChildren: TtTimetableIdRouteRouteChildren = {
+  TtTimetableIdClassroomsRoute: TtTimetableIdClassroomsRoute,
+  TtTimetableIdLecturesRoute: TtTimetableIdLecturesRoute,
+  TtTimetableIdSubdivisionsRoute: TtTimetableIdSubdivisionsRoute,
+  TtTimetableIdSubjectsRoute: TtTimetableIdSubjectsRoute,
+  TtTimetableIdTeachersRoute: TtTimetableIdTeachersRoute,
+  TtTimetableIdTimetablesRoute: TtTimetableIdTimetablesRoute,
+  TtTimetableIdEditIndexRoute: TtTimetableIdEditIndexRoute,
+}
+
+const TtTimetableIdRouteRouteWithChildren =
+  TtTimetableIdRouteRoute._addFileChildren(TtTimetableIdRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   TimetableTimetableIdRouteRoute: TimetableTimetableIdRouteRouteWithChildren,
+  TtTimetableIdRouteRoute: TtTimetableIdRouteRouteWithChildren,
   DemoMcpTodosRoute: DemoMcpTodosRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   DemoTrpcTodoRoute: DemoTrpcTodoRoute,

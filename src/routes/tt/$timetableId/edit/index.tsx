@@ -5,7 +5,7 @@ import { Box } from "@mui/material";
 import MuiTimetable from "./-MuiTimetable";
 import { NavBar } from "@/components/Navbar";
 
-export const Route = createFileRoute("/tt/$timetableId/edit")({
+export const Route = createFileRoute("/tt/$timetableId/edit/")({
   component: RouteComponent,
 });
 
