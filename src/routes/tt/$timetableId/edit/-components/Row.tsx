@@ -39,6 +39,8 @@ function Row({
       <TableCell>{DAYS[day - 1]}</TableCell>
 
       {slotsOfDay.map((slot) => {
+        // TODO: Move this hook out of the loop, 
+        // this is ok for now because slots remain stable and always renders the same amount of times
         const { setNodeRef, isOver } = useDroppable({
           id: slot.id,
         });

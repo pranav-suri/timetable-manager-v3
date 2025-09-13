@@ -20,6 +20,7 @@ import { CollectionsContext } from "./CollectionsContext";
 import type { ReactNode } from "react";
 import type { QueryClient } from "@tanstack/react-query";
 import { useTRPC, useTRPCClient } from "@/integrations/trpc";
+import { getLiveCollections } from "../liveCollections";
 
 export type CollectionInput = {
   timetableId: string;
@@ -57,8 +58,17 @@ function getCollections(input: CollectionInput) {
     }),
   };
 
+  const liveCollections = getLiveCollections({
+    groupCollection: collections.groupCollection,
+    lectureCollection: collections.lectureCollection,
+    lectureSlotCollection: collections.lectureSlotCollection,
+    subjectCollection: collections.subjectCollection,
+    lectureClassroomCollection: collections.lectureClassroomCollection,
+    lectureSubdivisionCollection: collections.lectureSubdivisionCollection,
+  });
+
   console.log("Collection Objects Created");
-  return collections;
+  return { ...collections, ...liveCollections };
 }
 
 export function CollectionsProvider({

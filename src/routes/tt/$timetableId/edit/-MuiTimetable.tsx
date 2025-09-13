@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Paper,
   Table,
@@ -7,7 +7,7 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { useLiveQuery } from "@tanstack/react-db";
+import { eq, useLiveQuery } from "@tanstack/react-db";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
 import Row from "./-components/Row";
 import Headers from "./-components/Headers";
@@ -24,6 +24,15 @@ export default function MuiTimetable({
   const [{ viewAllData }] = useState({ viewAllData: true });
   const [activeId, setActiveId] = useState<string | null>(null); // activeId contains lectureSlotId
   const { slotCollection, lectureSlotCollection } = useCollections();
+  const busySlotsByTeacher = useBusySlotsByTeacher(activeId);
+  const busySlotsByClassroom = useBusySlotsByClassroom(activeId);
+  const busySlotsBySubdivision = useBusySlotsBySubdivision(activeId);
+
+  console.log(busySlotsByClassroom);
+  console.log(busySlotsByTeacher);
+  console.log(busySlotsBySubdivision);
+  console.log("===========")
+
   const { data: slotDays } = useLiveQuery((q) =>
     q
       .from({ slot: slotCollection })
@@ -40,19 +49,6 @@ export default function MuiTimetable({
       .orderBy(({ slot }) => slot.number),
   );
 
-  // const { data: availableSlots } = useLiveQuery((q) => {
-
-  // });
-
-  // const sensors = useSensors(
-  //   useSensor(PointerSensor, {
-  //     activationConstraint: {
-  //       distance: 0,
-  //     },
-  //   }),
-  //   useSensor(KeyboardSensor),
-  // );
-
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id.toString()); // This will contain lectureSlotId
   };
@@ -65,9 +61,9 @@ export default function MuiTimetable({
         lectureSlotCollection.update(active.id, (draft) => {
           draft.slotId = over.id.toString(); // over.id contains the slotId
         });
-        console.log(
-          `Successfully moved lectureSlot ${active.id} to slot ${over.id}`,
-        );
+        // console.log(
+        //   `Successfully moved lectureSlot ${active.id} to slot ${over.id}`,
+        // );
       } catch (error) {
         console.error("Failed to update lectureSlot:", error);
       }
@@ -82,11 +78,10 @@ export default function MuiTimetable({
 
   return (
     <DndContext
-      // sensors={sensors}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
-      autoScroll={true}
+      // autoScroll={true}
     >
       <TableContainer component={Paper} className="printable">
         <Table size="small">
@@ -117,4 +112,157 @@ export default function MuiTimetable({
       </DragOverlay>
     </DndContext>
   );
+}
+
+function useBusySlotsByTeacher(lectureSlotId: string | null) {
+  const { lectureSlotCollection, lectureCollection } = useCollections();
+  // Get all lectureSlots
+  const { data: allLectureSlots, collection: allLectureSlotCollection } =
+    useLiveQuery((q) => q.from({ lectureSlot: lectureSlotCollection }));
+
+  // Get all lectures
+  const { data: allLectures, collection: allLectureCollection } = useLiveQuery(
+    (q) => q.from({ lecture: lectureCollection }),
+  );
+
+  if (!lectureSlotId) {
+    return new Set<string>();
+  }
+
+  // Get lectureId from lectureSlot
+  const lectureSlot = allLectureSlotCollection.get(lectureSlotId);
+  if (!lectureSlot) return new Set<string>();
+
+  // Get teacherId from lecture
+  const lecture = allLectureCollection.get(lectureSlot.lectureId);
+  if (!lecture) return new Set<string>();
+
+  // Get all lectures for the teacher
+  const teacherLectures = allLectures.filter(
+    (l) => l.teacherId === lecture.teacherId,
+  );
+
+  // Get all lectureSlots for these lectures
+  const busyLectureSlots = allLectureSlots.filter((ls) =>
+    teacherLectures.some((tl) => tl.id === ls.lectureId),
+  );
+
+  // Extract slotIds
+  return new Set(busyLectureSlots.map((ls) => ls.slotId));
+}
+
+function useBusySlotsByClassroom(lectureSlotId: string | null) {
+  const {
+    lectureSlotCollection,
+    lectureCollection,
+    lectureClassroomCollection,
+  } = useCollections();
+  // Get all lectureSlots
+  const { data: allLectureSlots, collection: allLectureSlotCollection } =
+    useLiveQuery((q) => q.from({ lectureSlot: lectureSlotCollection }));
+
+  // Get all lectures
+  const { collection: allLectureCollection } = useLiveQuery((q) =>
+    q.from({ lecture: lectureCollection }),
+  );
+
+  // Get all lectureClassrooms
+  const { data: allLectureClassrooms } = useLiveQuery((q) =>
+    q.from({ lectureClassroom: lectureClassroomCollection }),
+  );
+
+  if (!lectureSlotId) return new Set<string>();
+
+  // Get lectureId from lectureSlot
+  const lectureSlot = allLectureSlotCollection.get(lectureSlotId);
+  if (!lectureSlot) return new Set<string>();
+
+  // Get lecture
+  const lecture = allLectureCollection.get(lectureSlot.lectureId);
+  if (!lecture) return new Set<string>();
+
+  // Find all classrooms for the initial lecture
+  const lectureClassroomsForInitialLecture = allLectureClassrooms.filter(
+    (lc) => lc.lectureId === lecture.id,
+  );
+
+  // Create a Set of classroomIds for efficient lookup
+  const classroomIdsForInitialLecture = new Set(
+    lectureClassroomsForInitialLecture.map((lc) => lc.classroomId),
+  );
+
+  // Find all other lectureClassrooms that share a classroom
+  const busyLectureClassrooms = allLectureClassrooms.filter((lc) =>
+    classroomIdsForInitialLecture.has(lc.classroomId),
+  );
+
+  // Extract all unique lecture IDs from the busy lectureClassrooms
+  const busyLectureIds = new Set(busyLectureClassrooms.map((l) => l.lectureId));
+
+  // Find all lectureSlots associated with these busy lecture IDs
+  const busyLectureSlots = allLectureSlots.filter((ls) =>
+    busyLectureIds.has(ls.lectureId),
+  );
+
+  // Extract slotIds
+  return new Set(busyLectureSlots.map((ls) => ls.slotId));
+}
+
+function useBusySlotsBySubdivision(lectureSlotId: string | null) {
+  const {
+    lectureSlotCollection,
+    lectureCollection,
+    lectureSubdivisionCollection,
+  } = useCollections();
+  // Get all lectureSlots
+  const { data: allLectureSlots, collection: allLectureSlotCollection } =
+    useLiveQuery((q) => q.from({ lectureSlot: lectureSlotCollection }));
+
+  // Get all lectures
+  const { collection: allLectureCollection } = useLiveQuery((q) =>
+    q.from({ lecture: lectureCollection }),
+  );
+
+  // Get all lectureSubdivisions
+  const { data: allLectureSubdivisions } = useLiveQuery((q) =>
+    q.from({ lectureSubdivision: lectureSubdivisionCollection }),
+  );
+
+  if (!lectureSlotId) return new Set<string>();
+
+  // Get lectureId from lectureSlot
+  const lectureSlot = allLectureSlotCollection.get(lectureSlotId);
+  if (!lectureSlot) return new Set<string>();
+
+  // Get lecture
+  const lecture = allLectureCollection.get(lectureSlot.lectureId);
+  if (!lecture) return new Set<string>();
+
+  // Find all subdivisions for the initial lecture
+  const lectureSubdivisionsForInitialLecture = allLectureSubdivisions.filter(
+    (lc) => lc.lectureId === lecture.id,
+  );
+
+  // Create a Set of subdivisionIds for efficient lookup
+  const subdivisionIdsForInitialLecture = new Set(
+    lectureSubdivisionsForInitialLecture.map((lc) => lc.subdivisionId),
+  );
+
+  // Find all other lectureSubdivisions that share a subdivision
+  const busyLectureSubdivisions = allLectureSubdivisions.filter((lc) =>
+    subdivisionIdsForInitialLecture.has(lc.subdivisionId),
+  );
+
+  // Extract all unique lecture IDs from the busy lectureSubdivisions
+  const busyLectureIds = new Set(
+    busyLectureSubdivisions.map((l) => l.lectureId),
+  );
+
+  // Find all lectureSlots associated with these busy lecture IDs
+  const busyLectureSlots = allLectureSlots.filter((ls) =>
+    busyLectureIds.has(ls.lectureId),
+  );
+
+  // Extract slotIds
+  return new Set(busyLectureSlots.map((ls) => ls.slotId));
 }

@@ -31,7 +31,8 @@ function useSubset() {
 
 function RouteComponent() {
   const stableCollection = useSubset();
-  const { timetableCollection, lectureCollection } = useCollections();
+  const { timetableCollection, lectureCollection, lectureWithSubdivisionCollection } =
+    useCollections();
   const { data: ttJoined } = useLiveQuery((q) =>
     q
       .from({ tt: timetableCollection })
@@ -41,12 +42,12 @@ function RouteComponent() {
       ),
   );
 
-  console.log(ttJoined);
+  // console.log(ttJoined);
   const { data: subset } = useLiveQuery((q) =>
     q
       .from({ tt: timetableCollection })
       .orderBy(({ tt }) => tt.id, "asc")
-      .limit(150),
+      .limit(1),
   );
   // console.log("Teachers from collection:", teachers);
   const handleClick = () => {
@@ -58,6 +59,12 @@ function RouteComponent() {
       updatedAt: new Date(),
     });
   };
+
+  const { data: liveTtDemo } = useLiveQuery((q) =>
+    q.from({ tt: lectureWithSubdivisionCollection }),
+  );
+
+  console.log(lectureWithSubdivisionCollection);
 
   console.log("rendered");
   // console.log("Collection", timetableCollection);

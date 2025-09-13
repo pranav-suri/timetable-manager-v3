@@ -37,31 +37,29 @@ const Main = styled("main", {
   position: "relative",
 }));
 
-const MuiTimetableMemoized = memo(MuiTimetable);
-
 function RouteComponent() {
   const [drawerState, setDrawerState] = useState(false);
   const [_selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
 
   const drawerwidth = 300;
 
-  const handleDrawerOpen = useCallback(() => {
+  const handleDrawerOpen = () => {
     setDrawerState(true);
-  }, []);
+  };
 
-  const handleDrawerClose = useCallback(() => {
+  const handleDrawerClose = () => {
     setDrawerState(false);
-  }, []);
+  };
 
   return (
     <Box sx={{ display: "flex" }}>
-      {/* <NavBar handleDrawerClose={handleDrawerClose} /> */}
+      <NavBar handleDrawerClose={handleDrawerClose} />
       <Main
         drawerState={drawerState}
         drawerwidth={drawerwidth}
         className="main"
       >
-        <MuiTimetableMemoized
+        <MuiTimetable
           handleDrawerOpen={handleDrawerOpen}
           setSelectedSlotId={setSelectedSlotId}
         />
