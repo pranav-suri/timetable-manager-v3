@@ -133,7 +133,115 @@ export function useBusySlotsByClassroom(lectureSlotId: string | null) {
   // Extract slotIds
   return new Set(busyLectureSlots.map((ls) => ls.slotId));
 }
+
+// TODO: This is not functional for electives
 export function useBusySlotsBySubdivision(lectureSlotId: string | null) {
+  const { lectureWithSubdivisionCollection, completeLectureOnlyCollection } =
+    useCollections();
+
+  const { data: lectureWithSubdivisions } = useLiveQuery((q) =>
+    q.from({ lectureWithSubdivisionCollection }),
+  );
+
+  if (!lectureSlotId) return new Set<string>();
+
+  // Get lectureId from lectureSlot
+  const completeLectureSlot = completeLectureOnlyCollection.get(lectureSlotId);
+  if (!completeLectureSlot) return new Set<string>();
+
+  // Find all subdivisions for the initial lecture
+  const lectureSubdivisionsForInitialLecture = lectureWithSubdivisions.filter(
+    (LwS) =>
+      LwS.completeLectureOnly.lectureId === completeLectureSlot.lectureId,
+  );
+
+  // Create a Set of subdivisionIds for efficient lookup
+  const subdivisionIdsForInitialLecture = new Set(
+    lectureSubdivisionsForInitialLecture.map(
+      (LwS) => LwS.lectureSubdivision?.subdivisionId ?? "",
+    ),
+  );
+  // Find all other lectureWithSubdivisions that share a subdivision
+  const busyLectureWithSubdivisions = lectureWithSubdivisions.filter((LwS) => {
+    if (LwS.lectureSubdivision) {
+      return subdivisionIdsForInitialLecture.has(
+        LwS.lectureSubdivision.subdivisionId,
+      );
+    }
+  });
+
+  const grouped: {
+    [slotId: string]: {
+      [subdivisionId: string]: {
+        // If there are more than one in false array, there is a conflict
+        false: string[]; // lectureSlotId
+        true: {
+          // Subdivision can be in multiple lectureSlots within the same group.
+          // Check if there are multiple groups, then there is a conflict
+          [groupId: string]: string[]; // lectureSlotId}
+        };
+      };
+    };
+  } = {};
+
+  for (const row of busyLectureWithSubdivisions) {
+    const slotId = row.completeLectureOnly.slotId;
+    const rowLectureSlotId = row.completeLectureOnly.lectureSlotId;
+    const subdivisionId = row.lectureSubdivision?.subdivisionId;
+    const allowSimultaneous = row.completeLectureOnly.allowSimultaneous;
+    const groupId = row.completeLectureOnly.groupId;
+
+    if (!subdivisionId) continue;
+
+    grouped[slotId] ??= {};
+    const slotEntry = grouped[slotId];
+    slotEntry[subdivisionId] ??= { false: [], true: {} };
+
+    if (allowSimultaneous) {
+      slotEntry[subdivisionId].true[groupId] ??= [];
+      slotEntry[subdivisionId].true[groupId].push(rowLectureSlotId);
+    } else {
+      slotEntry[subdivisionId].false.push(rowLectureSlotId);
+    }
+  }
+
+  for (const slotId in grouped) {
+    for (const subdivisionId in grouped[slotId]) {
+      const obj = grouped[slotId][subdivisionId];
+      if (!obj) continue;
+
+      const isNonElectiveBusy = obj.false.length > 0;
+
+      const groupIds = Object.keys(obj.true);
+      let isElectiveBusy = false;
+      if (
+        // slot is not busy if it doesn't contains lectureSlots if the group is same the current picked up group.
+        (groupIds.length == 1 &&
+          groupIds.includes(completeLectureSlot.groupId)) ||
+        groupIds.length == 0
+      ) {
+        isElectiveBusy = false;
+      } else {
+        isElectiveBusy = true;
+      }
+
+      if (!isNonElectiveBusy && !isElectiveBusy) {
+        delete grouped[slotId][subdivisionId];
+      }
+    }
+    if (Object.keys(grouped[slotId] ?? {}).length === 0) {
+      delete grouped[slotId]; // remove empty slots
+    }
+  }
+
+  // Extract slotIds
+  const slotIds = new Set(Object.keys(grouped));
+
+  return slotIds;
+}
+
+// TODO: This is not functional for electives
+export function useBusySlotsBySubdivisionOld(lectureSlotId: string | null) {
   const {
     lectureSlotCollection,
     lectureCollection,

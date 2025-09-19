@@ -14,6 +14,7 @@ import Headers from "./-components/Headers";
 import {
   useBusySlotsByClassroom,
   useBusySlotsBySubdivision,
+  useBusySlotsBySubdivisionOld,
   useBusySlotsByTeacher,
   useBusySlotsByTeacherNew,
 } from "./-hooks";
@@ -35,11 +36,13 @@ export default function MuiTimetable({
 
   const busySlotsByClassroom = useBusySlotsByClassroom(activeId);
   const busySlotsBySubdivision = useBusySlotsBySubdivision(activeId);
+  const busySlotsBySubdivisionOld = useBusySlotsBySubdivisionOld(activeId);
 
   console.log("busySlotsByTeacher", busySlotsByTeacher);
   console.log("busySlotsByTeacherNew", busySlotsByTeacherNew);
   console.log("busySlotsByClassroom", busySlotsByClassroom);
   console.log("busySlotsBySubdivision", busySlotsBySubdivision);
+  console.log("busySlotsBySubdivisionOld", busySlotsBySubdivisionOld);
   console.log("===========");
 
   const { data: slotDays } = useLiveQuery((q) =>

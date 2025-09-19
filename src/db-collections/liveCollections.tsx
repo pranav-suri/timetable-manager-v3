@@ -62,6 +62,7 @@ export function getLiveCollections({
 
         return completeLecture;
       },
+      getKey: (item) => item.lectureSlotId,
     }),
   );
 

@@ -1,7 +1,12 @@
 import React from "react";
 import { TableCell, TableRow } from "@mui/material";
 import { eq, useLiveQuery } from "@tanstack/react-db";
-import { useDroppable } from "@dnd-kit/core";
+import { useDndContext, useDroppable } from "@dnd-kit/core";
+import {
+  useBusySlotsByClassroom,
+  useBusySlotsBySubdivision,
+  useBusySlotsByTeacher,
+} from "../-hooks";
 import Slot from "./Slot";
 import { useCollections } from "@/db-collections/providers/useCollections";
 
@@ -73,6 +78,19 @@ export function DroppableCell({
     setSelectedSlotId(slotId);
   };
 
+  const { active } = useDndContext();
+  const activeLectureSlotId = active?.id.toString() ?? "";
+
+  // TODO: Get these as props/zustand, these hooks are being called in every slot separately
+  const busySlotsByTeacher = useBusySlotsByTeacher(activeLectureSlotId);
+  const busySlotsByClassroom = useBusySlotsByClassroom(activeLectureSlotId);
+  const busySlotsBySubdivision = useBusySlotsBySubdivision(activeLectureSlotId);
+
+  const isBusy =
+    busySlotsByTeacher.has(slotId) ||
+    busySlotsBySubdivision.has(slotId) ||
+    busySlotsByClassroom.has(slotId);
+
   return (
     <TableCell
       key={slotId}
@@ -83,7 +101,9 @@ export function DroppableCell({
         transition: "background-color 0.2s ease",
       }}
     >
-      <Slot slotId={slotId} viewAllData={viewAllData} />
+      <div className={isBusy ? "border-2 border-red-500 rounded-lg" : ""}>
+        <Slot slotId={slotId} viewAllData={viewAllData} />
+      </div>
     </TableCell>
   );
 }

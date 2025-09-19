@@ -176,7 +176,7 @@ export function useGroupedClassroomsBySlot() {
 export function useGroupedSubdivisionsBySlot() {
   const { lectureWithSubdivisionCollection } = useCollections();
 
-  const { data = [] } = useLiveQuery((q) =>
+  const { data } = useLiveQuery((q) =>
     q.from({ lectureWithSubdivisionCollection }),
   );
 
