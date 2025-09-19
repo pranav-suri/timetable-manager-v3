@@ -6,7 +6,6 @@ import {
   useLiveQuery,
 } from "@tanstack/react-db";
 import { nanoid } from "nanoid";
-import { memo } from "react";
 import { Demo } from "./-demo";
 import { useCollections } from "@/db-collections/providers/useCollections";
 
@@ -14,28 +13,9 @@ export const Route = createFileRoute("/timetable/$timetableId/")({
   component: RouteComponent,
 });
 
-function useSubset() {
-  const { timetableCollection } = useCollections();
-
-  const stableCollection = createLiveQueryCollection((q) =>
-    q
-      .from({ tt: timetableCollection })
-      .orderBy(({ tt }) => tt.createdAt, "asc")
-      .limit(10),
-  );
-
-  return stableCollection;
-}
-
 function RouteComponent() {
   const stableCollection = useSubset();
-  const {
-    timetableCollection,
-    lectureCollection,
-    lectureWithSubdivisionCollection,
-    lectureWithClassroomCollection,
-    completeLectureOnlyCollection,
-  } = useCollections();
+  const { timetableCollection, lectureCollection } = useCollections();
   const { data: ttJoined } = useLiveQuery((q) =>
     q
       .from({ tt: timetableCollection })
@@ -63,120 +43,15 @@ function RouteComponent() {
     });
   };
 
-  const { data: completeLecturesOnly } = useLiveQuery((q) =>
-    q.from({ completeLectureOnlyCollection }),
-  );
+  const groupedTeachersBySlot = useGroupedTeachersBySlot();
+  const groupedClassroomsBySlot = useGroupedClassroomsBySlot();
+  const groupedSubdivisionsBySlot = useGroupedSubdivisionsBySlot();
+  const groupedSubdivisionsWithElectiveBySlot =
+    useGroupedSubdivisionsWithElectiveBySlot();
 
-  const { data: lectureWithSubdivision } = useLiveQuery((q) =>
-    q.from({ lectureWithSubdivisionCollection }),
-  );
-
-  const { data: lectureWithClassroom } = useLiveQuery((q) =>
-    q.from({ lectureWithClassroomCollection }),
-  );
-
-  const groupedTeachersBySlot: {
-    [slotId: string]: {
-      [teacherId: string]: string[]; // lectureSlotId
-    };
-  } = {};
-  for (const row of completeLecturesOnly) {
-    const slotId = row.slotId;
-    const teacherId = row.teacherId;
-    const lectureSlotId = row.lectureSlotId;
-
-    // Ensure the slotId key exists in the top-level object
-    groupedTeachersBySlot[slotId] ??= {};
-
-    // Ensure the teacherId key exists within the slotId object
-    groupedTeachersBySlot[slotId][teacherId] ??= [];
-
-    // Push the lectureSlotId into the corresponding array
-    groupedTeachersBySlot[slotId][teacherId].push(lectureSlotId);
-  }
   console.log("Grouped Teachers: ", groupedTeachersBySlot);
-
-  const groupedClassroomsBySlot: {
-    [slotId: string]: {
-      [classroomId: string]: string[]; // lectureSlotId
-    };
-  } = {};
-  for (const row of lectureWithClassroom) {
-    const slotId = row.completeLectureOnly.slotId;
-    const lectureSlotId = row.completeLectureOnly.lectureSlotId;
-    const classroomId = row.lectureClassroom?.classroomId;
-    if (!classroomId) continue;
-
-    // Ensure the slotId key exists in the top-level object
-    groupedClassroomsBySlot[slotId] ??= {};
-
-    // Ensure the classroomId key exists within the slotId object
-    groupedClassroomsBySlot[slotId][classroomId] ??= [];
-
-    // Push the lectureSlotId into the corresponding array
-    groupedClassroomsBySlot[slotId][classroomId].push(lectureSlotId);
-  }
   console.log("Grouped Classrooms: ", groupedClassroomsBySlot);
-
-  const groupedSubdivisionsBySlot: {
-    [slotId: string]: {
-      [subdivisionId: string]: string[]; // lectureSlotId
-    };
-  } = {};
-  for (const row of lectureWithSubdivision) {
-    const slotId = row.completeLectureOnly.slotId;
-    const lectureSlotId = row.completeLectureOnly.lectureSlotId;
-    const subdivisionId = row.lectureSubdivision?.subdivisionId;
-    if (!subdivisionId) continue;
-
-    // Ensure the slotId key exists in the top-level object
-    groupedSubdivisionsBySlot[slotId] ??= {};
-
-    // Ensure the subdivisionId key exists within the slotId object
-    groupedSubdivisionsBySlot[slotId][subdivisionId] ??= [];
-
-    // Push the lectureSlotId into the corresponding array
-    groupedSubdivisionsBySlot[slotId][subdivisionId].push(lectureSlotId);
-  }
   console.log("Grouped Subdivisions: ", groupedSubdivisionsBySlot);
-
-  const groupedSubdivisionsWithElectiveBySlot: {
-    [slotId: string]: {
-      [subdivisionId: string]: {
-        // If there are more than one in false array, there is a conflict
-        false: string[]; // lectureSlotId
-        true: {
-          // Subdivision can be in multiple lectureSlots within the same group.
-          // Check if there are multiple groups
-          [groupId: string]: string[]; // lectureSlotId}
-        };
-      };
-    };
-  } = {};
-  for (const row of lectureWithSubdivision) {
-    const slotId = row.completeLectureOnly.slotId;
-    const lectureSlotId = row.completeLectureOnly.lectureSlotId;
-    const subdivisionId = row.lectureSubdivision?.subdivisionId;
-    const allowSimultaneous = row.completeLectureOnly.allowSimultaneous;
-    const groupId = row.completeLectureOnly.groupId;
-
-    if (!subdivisionId) continue;
-
-    // Ensure the slotId key exists in the top-level object
-    groupedSubdivisionsWithElectiveBySlot[slotId] ??= {};
-
-    const slotEntry = groupedSubdivisionsWithElectiveBySlot[slotId];
-
-    // Ensure the subdivisionId key exists within the slotId object
-    slotEntry[subdivisionId] ??= { false: [], true: {} };
-
-    if (allowSimultaneous) {
-      slotEntry[subdivisionId].true[groupId] ??= [];
-      slotEntry[subdivisionId].true[groupId].push(lectureSlotId);
-    } else {
-      slotEntry[subdivisionId].false.push(lectureSlotId);
-    }
-  }
   console.log(
     "Grouped Subdivisions with Elective: ",
     groupedSubdivisionsWithElectiveBySlot,
@@ -202,4 +77,139 @@ function RouteComponent() {
       <Demo input={lastItem.id} />
     </div>
   );
+}
+
+function useSubset() {
+  const { timetableCollection } = useCollections();
+
+  const stableCollection = createLiveQueryCollection((q) =>
+    q
+      .from({ tt: timetableCollection })
+      .orderBy(({ tt }) => tt.createdAt, "asc")
+      .limit(10),
+  );
+
+  return stableCollection;
+}
+
+export function useGroupedTeachersBySlot() {
+  const { completeLectureOnlyCollection } = useCollections();
+
+  const { data = [] } = useLiveQuery((q) =>
+    q.from({ completeLectureOnlyCollection }),
+  );
+
+  const grouped: {
+    [slotId: string]: {
+      [teacherId: string]: string[]; // lectureSlotId
+    };
+  } = {};
+
+  for (const row of data) {
+    const slotId = row.slotId;
+    const teacherId = row.teacherId;
+    const lectureSlotId = row.lectureSlotId;
+
+    grouped[slotId] ??= {};
+    grouped[slotId][teacherId] ??= [];
+    grouped[slotId][teacherId].push(lectureSlotId);
+  }
+
+  return grouped;
+}
+
+export function useGroupedClassroomsBySlot() {
+  const { lectureWithClassroomCollection } = useCollections();
+
+  const { data = [] } = useLiveQuery((q) =>
+    q.from({ lectureWithClassroomCollection }),
+  );
+
+  const grouped: {
+    [slotId: string]: {
+      [classroomId: string]: string[]; // lectureSlotId
+    };
+  } = {};
+
+  for (const row of data) {
+    const slotId = row.completeLectureOnly.slotId;
+    const lectureSlotId = row.completeLectureOnly.lectureSlotId;
+    const classroomId = row.lectureClassroom?.classroomId;
+    if (!classroomId) continue;
+
+    grouped[slotId] ??= {};
+    grouped[slotId][classroomId] ??= [];
+    grouped[slotId][classroomId].push(lectureSlotId);
+  }
+
+  return grouped;
+}
+
+export function useGroupedSubdivisionsBySlot() {
+  const { lectureWithSubdivisionCollection } = useCollections();
+
+  const { data = [] } = useLiveQuery((q) =>
+    q.from({ lectureWithSubdivisionCollection }),
+  );
+
+  const grouped: {
+    [slotId: string]: {
+      [subdivisionId: string]: string[]; // lectureSlotId
+    };
+  } = {};
+
+  for (const row of data) {
+    const slotId = row.completeLectureOnly.slotId;
+    const lectureSlotId = row.completeLectureOnly.lectureSlotId;
+    const subdivisionId = row.lectureSubdivision?.subdivisionId;
+    if (!subdivisionId) continue;
+
+    grouped[slotId] ??= {};
+    grouped[slotId][subdivisionId] ??= [];
+    grouped[slotId][subdivisionId].push(lectureSlotId);
+  }
+
+  return grouped;
+}
+
+export function useGroupedSubdivisionsWithElectiveBySlot() {
+  const { lectureWithSubdivisionCollection } = useCollections();
+
+  const { data = [] } = useLiveQuery((q) =>
+    q.from({ lectureWithSubdivisionCollection }),
+  );
+
+  const grouped: {
+    [slotId: string]: {
+      [subdivisionId: string]: {
+        false: string[]; // lectureSlotId
+        true: {
+          [groupId: string]: string[]; // lectureSlotId
+        };
+      };
+    };
+  } = {};
+
+  for (const row of data) {
+    const slotId = row.completeLectureOnly.slotId;
+    const lectureSlotId = row.completeLectureOnly.lectureSlotId;
+    const subdivisionId = row.lectureSubdivision?.subdivisionId;
+    const allowSimultaneous = row.completeLectureOnly.allowSimultaneous;
+    const groupId = row.completeLectureOnly.groupId;
+
+    if (!subdivisionId) continue;
+
+    grouped[slotId] ??= {};
+    const slotEntry = grouped[slotId];
+    slotEntry[subdivisionId] ??= { false: [], true: {} };
+
+    if (allowSimultaneous) {
+      slotEntry[subdivisionId].true[groupId] ??= [];
+      slotEntry[subdivisionId].true[groupId].push(lectureSlotId);
+    } else {
+      slotEntry[subdivisionId].false.push(lectureSlotId);
+    }
+  }
+
+  return grouped;
 }

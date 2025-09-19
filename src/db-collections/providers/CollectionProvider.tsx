@@ -16,11 +16,11 @@ import { getTimetableCollection } from "../timetableCollection";
 import { getClassroomUnavailableCollection } from "../classroomUnavailableCollection";
 import { getTeacherUnavailableCollection } from "../teacherUnavailableCollection";
 import { getSubdivisionUnavailableCollection } from "../subdivisionUnavailableCollection";
+import { getLiveCollections } from "../liveCollections";
 import { CollectionsContext } from "./CollectionsContext";
 import type { ReactNode } from "react";
 import type { QueryClient } from "@tanstack/react-query";
 import { useTRPC, useTRPCClient } from "@/integrations/trpc";
-import { getLiveCollections } from "../liveCollections";
 
 export type CollectionInput = {
   timetableId: string;

@@ -38,31 +38,53 @@ function Row({
     <TableRow>
       <TableCell>{DAYS[day - 1]}</TableCell>
 
-      {slotsOfDay.map((slot) => {
-        // TODO: Move this hook out of the loop, 
-        // this is ok for now because slots remain stable and always renders the same amount of times
-        const { setNodeRef, isOver } = useDroppable({
-          id: slot.id,
-        });
-
-        return (
-          <TableCell
-            key={slot.id}
-            ref={setNodeRef}
-            onClick={() => {
-              handleDrawerOpen();
-              setSelectedSlotId(slot.id);
-            }}
-            sx={{
-              backgroundColor: isOver ? "rgba(0, 0, 0, 0.1)" : "transparent",
-              transition: "background-color 0.2s ease",
-            }}
-          >
-            <Slot slotId={slot.id} viewAllData={viewAllData} />
-          </TableCell>
-        );
-      })}
+      {slotsOfDay.map((slot) => (
+        <DroppableCell
+          key={slot.id}
+          slotId={slot.id}
+          viewAllData={viewAllData}
+          handleDrawerOpen={handleDrawerOpen}
+          setSelectedSlotId={setSelectedSlotId}
+        />
+      ))}
     </TableRow>
+  );
+}
+
+interface DroppableCellProps {
+  slotId: string;
+  viewAllData: boolean;
+  handleDrawerOpen: () => void;
+  setSelectedSlotId: React.Dispatch<React.SetStateAction<string | null>>;
+}
+
+export function DroppableCell({
+  slotId,
+  viewAllData,
+  handleDrawerOpen,
+  setSelectedSlotId,
+}: DroppableCellProps) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: slotId,
+  });
+
+  const handleClick = () => {
+    handleDrawerOpen();
+    setSelectedSlotId(slotId);
+  };
+
+  return (
+    <TableCell
+      key={slotId}
+      ref={setNodeRef}
+      onClick={handleClick}
+      sx={{
+        backgroundColor: isOver ? "rgba(0, 0, 0, 0.1)" : "transparent",
+        transition: "background-color 0.2s ease",
+      }}
+    >
+      <Slot slotId={slotId} viewAllData={viewAllData} />
+    </TableCell>
   );
 }
 

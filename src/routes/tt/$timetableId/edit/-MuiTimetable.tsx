@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import {
   Paper,
   Table,
@@ -7,7 +7,7 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { eq, useLiveQuery } from "@tanstack/react-db";
+import { useLiveQuery } from "@tanstack/react-db";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
 import Row from "./-components/Row";
 import Headers from "./-components/Headers";
@@ -31,7 +31,7 @@ export default function MuiTimetable({
   console.log(busySlotsByClassroom);
   console.log(busySlotsByTeacher);
   console.log(busySlotsBySubdivision);
-  console.log("===========")
+  console.log("===========");
 
   const { data: slotDays } = useLiveQuery((q) =>
     q
@@ -61,9 +61,7 @@ export default function MuiTimetable({
         lectureSlotCollection.update(active.id, (draft) => {
           draft.slotId = over.id.toString(); // over.id contains the slotId
         });
-        // console.log(
-        //   `Successfully moved lectureSlot ${active.id} to slot ${over.id}`,
-        // );
+        console.log(`Moved lectureSlot ${active.id} to slot ${over.id}`);
       } catch (error) {
         console.error("Failed to update lectureSlot:", error);
       }
