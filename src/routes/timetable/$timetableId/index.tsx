@@ -50,16 +50,16 @@ function RouteComponent() {
   const groupedSubdivisionsBySlot = useGroupedSubdivisionsBySlot();
   const groupedSubdivisionsWithElectiveBySlot =
     useGroupedSubdivisionsWithElectiveBySlot();
-  const dbBasedGroupedTeachersBySlot = useDbBasedGroupedTeachersBySlot();
+  // const dbBasedGroupedTeachersBySlot = useDbBasedGroupedTeachersBySlot();
 
   console.log("Grouped Teachers: ", groupedTeachersBySlot);
-  // console.log("Grouped Classrooms: ", groupedClassroomsBySlot);
-  // console.log("Grouped Subdivisions: ", groupedSubdivisionsBySlot);
-  // console.log(
-  //   "Grouped Subdivisions with Elective: ",
-  //   groupedSubdivisionsWithElectiveBySlot,
-  // );
-  console.log("DB Based Teacher Groups: ", dbBasedGroupedTeachersBySlot);
+  console.log("Grouped Classrooms: ", groupedClassroomsBySlot);
+  console.log("Grouped Subdivisions: ", groupedSubdivisionsBySlot);
+  console.log(
+    "Grouped Subdivisions with Elective: ",
+    groupedSubdivisionsWithElectiveBySlot,
+  );
+  // console.log("DB Based Teacher Groups: ", dbBasedGroupedTeachersBySlot);
 
   console.log("rendered");
   // console.log("Collection", timetableCollection);
@@ -119,6 +119,18 @@ export function useGroupedTeachersBySlot() {
     grouped[slotId][teacherId].push(lectureSlotId);
   }
 
+  // keep only teachers with conflicts (length > 1)
+  for (const slotId in grouped) {
+    for (const teacherId in grouped[slotId]) {
+      if ((grouped[slotId][teacherId]?.length ?? 0) <= 1) {
+        delete grouped[slotId][teacherId];
+      }
+    }
+    if (Object.keys(grouped[slotId] ?? {}).length === 0) {
+      delete grouped[slotId]; // remove empty slots
+    }
+  }
+
   return grouped;
 }
 
@@ -144,6 +156,18 @@ export function useGroupedClassroomsBySlot() {
     grouped[slotId] ??= {};
     grouped[slotId][classroomId] ??= [];
     grouped[slotId][classroomId].push(lectureSlotId);
+  }
+
+  // keep only classrooms with conflicts (length > 1)
+  for (const slotId in grouped) {
+    for (const classroomId in grouped[slotId]) {
+      if ((grouped[slotId][classroomId]?.length ?? 0) <= 1) {
+        delete grouped[slotId][classroomId];
+      }
+    }
+    if (Object.keys(grouped[slotId] ?? {}).length === 0) {
+      delete grouped[slotId]; // remove empty slots
+    }
   }
 
   return grouped;
@@ -173,6 +197,18 @@ export function useGroupedSubdivisionsBySlot() {
     grouped[slotId][subdivisionId].push(lectureSlotId);
   }
 
+  // keep only subdivisions with conflicts (length > 1)
+  for (const slotId in grouped) {
+    for (const subdivisionId in grouped[slotId]) {
+      if ((grouped[slotId][subdivisionId]?.length ?? 0) <= 1) {
+        delete grouped[slotId][subdivisionId];
+      }
+    }
+    if (Object.keys(grouped[slotId] ?? {}).length === 0) {
+      delete grouped[slotId]; // remove empty slots
+    }
+  }
+
   return grouped;
 }
 
@@ -186,9 +222,12 @@ export function useGroupedSubdivisionsWithElectiveBySlot() {
   const grouped: {
     [slotId: string]: {
       [subdivisionId: string]: {
+        // If there are more than one in false array, there is a conflict
         false: string[]; // lectureSlotId
         true: {
-          [groupId: string]: string[]; // lectureSlotId
+          // Subdivision can be in multiple lectureSlots within the same group.
+          // Check if there are multiple groups, then there is a conflict
+          [groupId: string]: string[]; // lectureSlotId}
         };
       };
     };
@@ -212,6 +251,27 @@ export function useGroupedSubdivisionsWithElectiveBySlot() {
       slotEntry[subdivisionId].true[groupId].push(lectureSlotId);
     } else {
       slotEntry[subdivisionId].false.push(lectureSlotId);
+    }
+  }
+
+  for (const slotId in grouped) {
+    for (const subdivisionId in grouped[slotId]) {
+      const entry = grouped[slotId][subdivisionId];
+      if (!entry) continue;
+
+      // for non electives: two cannot be in the same slot
+      const hasNonElectiveConflict = entry.false.length > 1;
+
+      // for electives: if there is more than one elective group
+      const electiveGroups = Object.values(entry.true);
+      const hasElectiveConflict = electiveGroups.length > 1;
+
+      if (!hasNonElectiveConflict && !hasElectiveConflict) {
+        delete grouped[slotId][subdivisionId];
+      }
+    }
+    if (Object.keys(grouped[slotId] ?? {}).length === 0) {
+      delete grouped[slotId];
     }
   }
 
