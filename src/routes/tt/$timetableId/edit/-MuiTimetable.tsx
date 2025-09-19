@@ -7,7 +7,7 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { useLiveQuery } from "@tanstack/react-db";
+import { eq, useLiveQuery } from "@tanstack/react-db";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
 import Row from "./-components/Row";
 import Headers from "./-components/Headers";
@@ -25,12 +25,15 @@ export default function MuiTimetable({
   const [activeId, setActiveId] = useState<string | null>(null); // activeId contains lectureSlotId
   const { slotCollection, lectureSlotCollection } = useCollections();
   const busySlotsByTeacher = useBusySlotsByTeacher(activeId);
+  const busySlotsByTeacherNew = useBusySlotsByTeacherNew(activeId);
+
   const busySlotsByClassroom = useBusySlotsByClassroom(activeId);
   const busySlotsBySubdivision = useBusySlotsBySubdivision(activeId);
 
-  console.log(busySlotsByClassroom);
-  console.log(busySlotsByTeacher);
-  console.log(busySlotsBySubdivision);
+  console.log("busySlotsByTeacher", busySlotsByTeacher);
+  console.log("busySlotsByTeacherNew", busySlotsByTeacherNew);
+  console.log("busySlotsByClassroom", busySlotsByClassroom);
+  console.log("busySlotsBySubdivision", busySlotsBySubdivision);
   console.log("===========");
 
   const { data: slotDays } = useLiveQuery((q) =>
@@ -147,6 +150,47 @@ function useBusySlotsByTeacher(lectureSlotId: string | null) {
 
   // Extract slotIds
   return new Set(busyLectureSlots.map((ls) => ls.slotId));
+}
+
+function useBusySlotsByTeacherNew(lectureSlotId: string | null) {
+  const {
+    lectureSlotCollection,
+    lectureCollection,
+    completeLectureOnlyCollection,
+  } = useCollections();
+
+  let teacherId = "";
+
+  // Get all lectureSlots
+  const { collection: allLectureSlotCollection } = useLiveQuery((q) =>
+    q.from({ lectureSlot: lectureSlotCollection }),
+  );
+
+  // Get all lectures
+  const { collection: allLectureCollection } = useLiveQuery((q) =>
+    q.from({ lecture: lectureCollection }),
+  );
+
+  // Get lectureId from lectureSlot
+  const lectureSlot = allLectureSlotCollection.get(lectureSlotId ?? "");
+
+  // Get teacherId from lecture
+  const lecture = allLectureCollection.get(lectureSlot?.lectureId ?? "");
+
+  teacherId = lecture?.teacherId ?? "";
+
+  // Get busy lectureSlots
+  const { data: busyLectureSlots } = useLiveQuery(
+    (q) =>
+      q
+        .from({ comp: completeLectureOnlyCollection })
+        .where(({ comp }) => eq(comp.teacherId, teacherId)),
+    [teacherId],
+  );
+
+  // Extract slotIds
+  const slotIds = new Set(busyLectureSlots.map((ls) => ls.slotId));
+  return slotIds;
 }
 
 function useBusySlotsByClassroom(lectureSlotId: string | null) {
