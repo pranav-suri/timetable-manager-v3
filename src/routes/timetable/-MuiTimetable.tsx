@@ -153,6 +153,7 @@ function Row({
               }}
             >
               <Slot
+                // @ts-expect-error Error came up when noUncheckedIndexCheck was enabled
                 lectureSlots={timetable.slots[slotIndex].lectureSlots}
                 viewAllData={viewAllData}
               />
@@ -195,7 +196,7 @@ export default function MuiTimetable({
     slotDays.add(slot.day);
   });
 
-  console.log("MUI Rendered")
+  console.log("MUI Rendered");
 
   return (
     <TableContainer component={Paper} className="printable">

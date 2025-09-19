@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { memo, useCallback, useState } from "react";
+import { useState } from "react";
 import { styled } from "@mui/material/styles";
 import { Box } from "@mui/material";
 import MuiTimetable from "./-MuiTimetable";
