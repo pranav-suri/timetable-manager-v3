@@ -1,7 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
+  concat,
+  count,
   createLiveQueryCollection,
   eq,
+  gt,
   not,
   useLiveQuery,
 } from "@tanstack/react-db";
@@ -42,20 +45,21 @@ function RouteComponent() {
       updatedAt: new Date(),
     });
   };
-
   const groupedTeachersBySlot = useGroupedTeachersBySlot();
   const groupedClassroomsBySlot = useGroupedClassroomsBySlot();
   const groupedSubdivisionsBySlot = useGroupedSubdivisionsBySlot();
   const groupedSubdivisionsWithElectiveBySlot =
     useGroupedSubdivisionsWithElectiveBySlot();
+  const dbBasedGroupedTeachersBySlot = useDbBasedGroupedTeachersBySlot();
 
   console.log("Grouped Teachers: ", groupedTeachersBySlot);
-  console.log("Grouped Classrooms: ", groupedClassroomsBySlot);
-  console.log("Grouped Subdivisions: ", groupedSubdivisionsBySlot);
-  console.log(
-    "Grouped Subdivisions with Elective: ",
-    groupedSubdivisionsWithElectiveBySlot,
-  );
+  // console.log("Grouped Classrooms: ", groupedClassroomsBySlot);
+  // console.log("Grouped Subdivisions: ", groupedSubdivisionsBySlot);
+  // console.log(
+  //   "Grouped Subdivisions with Elective: ",
+  //   groupedSubdivisionsWithElectiveBySlot,
+  // );
+  console.log("DB Based Teacher Groups: ", dbBasedGroupedTeachersBySlot);
 
   console.log("rendered");
   // console.log("Collection", timetableCollection);
@@ -209,6 +213,54 @@ export function useGroupedSubdivisionsWithElectiveBySlot() {
     } else {
       slotEntry[subdivisionId].false.push(lectureSlotId);
     }
+  }
+
+  return grouped;
+}
+
+export function useDbBasedGroupedTeachersBySlot() {
+  const { completeLectureOnlyCollection } = useCollections();
+
+  const { data } = useLiveQuery((q) => {
+    const conflicted = q
+      .from({ comp: completeLectureOnlyCollection })
+      .groupBy(({ comp }) => [
+        comp.slotId,
+        comp.teacherId,
+        concat(comp.slotId, ":", comp.teacherId),
+      ])
+      .select(({ comp }) => ({
+        slotId: comp.slotId,
+        teacherId: comp.teacherId,
+        key: concat(comp.slotId, ":", comp.teacherId), // composite join key
+        lectureSlotCount: count(comp.lectureSlotId),
+      }))
+      .having(({ comp }) => gt(count(comp.lectureSlotId), 1));
+
+    return q
+      .from({ comp: completeLectureOnlyCollection })
+      .innerJoin({ conflicted }, ({ comp, conflicted: conf }) =>
+        eq(conf.key, concat(comp.slotId, ":", comp.teacherId)),
+      )
+      .select(({ comp }) => ({ ...comp })); // NOTE: This needs to be spread, otherwise returns empty object
+  });
+
+  // console.log(data);
+
+  const grouped: {
+    [slotId: string]: {
+      [teacherId: string]: string[]; // lectureSlotId
+    };
+  } = {};
+
+  for (const row of data) {
+    const slotId = row.slotId;
+    const teacherId = row.teacherId;
+    const lectureSlotId = row.lectureSlotId;
+
+    grouped[slotId] ??= {};
+    grouped[slotId][teacherId] ??= [];
+    grouped[slotId][teacherId].push(lectureSlotId);
   }
 
   return grouped;
