@@ -1,5 +1,5 @@
 import { eq, useLiveQuery } from "@tanstack/react-db";
-import Cell from "./Cell";
+import LectureSlot from "./LectureSlot";
 import { useCollections } from "@/db-collections/providers/useCollections";
 
 function Slot({
@@ -57,7 +57,7 @@ function Slot({
   return (
     <div>
       {lectureSlots.map((lectureSlot) => (
-        <Cell
+        <LectureSlot
           key={lectureSlot.id}
           lectureSlotId={lectureSlot.id}
           lectureId={lectureSlot.lectureId}

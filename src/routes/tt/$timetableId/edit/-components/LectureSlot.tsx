@@ -7,7 +7,7 @@ import getColor from "@/utils/getColor";
 import { ThemeModeContext } from "@/context/ThemeModeContext";
 import { useCollections } from "@/db-collections/providers/useCollections";
 
-function Cell({
+function LectureSlot({
   lectureSlotId,
   lectureId,
   teacherName,
@@ -99,4 +99,4 @@ function Cell({
   );
 }
 
-export default Cell;
+export default LectureSlot;
