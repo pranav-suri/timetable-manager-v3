@@ -5,6 +5,7 @@ import {
   ChevronRight as ChevronRightIcon,
 } from "@mui/icons-material";
 import React from "react";
+import { ConflictList } from "@/routes/tt/$timetableId/edit/-conflictList/ConflictList";
 
 export const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -55,6 +56,7 @@ export function DrawerRight({
           )}
         </IconButton>
       </DrawerHeader>
+      <ConflictList />
     </Drawer>
   );
 }

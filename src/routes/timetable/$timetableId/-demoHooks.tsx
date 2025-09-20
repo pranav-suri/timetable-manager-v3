@@ -24,7 +24,7 @@ export function useSubset() {
 export function useGroupedTeachersBySlot() {
   const { completeLectureOnlyCollection } = useCollections();
 
-  const { data = [] } = useLiveQuery((q) =>
+  const { data } = useLiveQuery((q) =>
     q.from({ completeLectureOnlyCollection }),
   );
 

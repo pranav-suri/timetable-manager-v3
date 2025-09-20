@@ -62,7 +62,8 @@ export function getLiveCollections({
 
         return completeLecture;
       },
-      getKey: (item) => item.lectureSlotId,
+      // DO NOT USE, this causes liveQuery to not update properly when moving lectureSlots
+      // getKey: (item) => item.lectureSlotId,
     }),
   );
 

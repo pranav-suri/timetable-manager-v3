@@ -143,10 +143,18 @@ export function useBusySlotsBySubdivision(lectureSlotId: string | null) {
     q.from({ lectureWithSubdivisionCollection }),
   );
 
+  const { data: completeLectureSlotMaybe } = useLiveQuery((q) =>
+    q
+      .from({ comp: completeLectureOnlyCollection })
+      .where(({ comp }) => eq(comp.lectureSlotId, lectureSlotId)),
+  );
+
   if (!lectureSlotId) return new Set<string>();
 
   // Get lectureId from lectureSlot
-  const completeLectureSlot = completeLectureOnlyCollection.get(lectureSlotId);
+  const completeLectureSlot = completeLectureSlotMaybe.find(
+    (comp) => comp.lectureSlotId === lectureSlotId,
+  );
   if (!completeLectureSlot) return new Set<string>();
 
   // Find all subdivisions for the initial lecture
