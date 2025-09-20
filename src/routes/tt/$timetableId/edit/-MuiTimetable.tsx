@@ -29,22 +29,8 @@ export default function MuiTimetable({
   setSelectedSlotId: React.Dispatch<React.SetStateAction<string | null>>;
 }) {
   const [{ viewAllData }] = useState({ viewAllData: true });
-  const [activeId, setActiveId] = useState<string | null>(null); // activeId contains lectureSlotId
+  const [activeLectureSlotId, setActiveId] = useState<string | null>(null);
   const { slotCollection, lectureSlotCollection } = useCollections();
-  const busySlotsByTeacher = useBusySlotsByTeacher(activeId);
-  const busySlotsByTeacherNew = useBusySlotsByTeacherNew(activeId);
-
-  const busySlotsByClassroom = useBusySlotsByClassroom(activeId);
-  const busySlotsBySubdivision = useBusySlotsBySubdivision(activeId);
-  const busySlotsBySubdivisionOld = useBusySlotsBySubdivisionOld(activeId);
-
-  console.log("busySlotsByTeacher", busySlotsByTeacher);
-  console.log("busySlotsByTeacherNew", busySlotsByTeacherNew);
-  console.log("busySlotsByClassroom", busySlotsByClassroom);
-  console.log("busySlotsBySubdivision", busySlotsBySubdivision);
-  console.log("busySlotsBySubdivisionOld", busySlotsBySubdivisionOld);
-  console.log("===========");
-
   const { data: slotDays } = useLiveQuery((q) =>
     q
       .from({ slot: slotCollection })
@@ -114,7 +100,7 @@ export default function MuiTimetable({
         </Table>
       </TableContainer>
       <DragOverlay>
-        {activeId ? (
+        {activeLectureSlotId ? (
           <div style={{ transform: "rotate(5deg)" }}>
             {/* TODO: Use this to display why a component cannot be dropped at that slot. */}
           </div>

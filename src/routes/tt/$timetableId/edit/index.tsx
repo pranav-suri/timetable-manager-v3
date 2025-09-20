@@ -4,6 +4,7 @@ import { styled } from "@mui/material/styles";
 import { Box } from "@mui/material";
 import MuiTimetable from "./-MuiTimetable";
 import { NavBar } from "@/components/Navbar";
+import { DrawerHeader, DrawerRight } from "@/components/Drawer";
 
 export const Route = createFileRoute("/tt/$timetableId/edit/")({
   component: RouteComponent,
@@ -16,17 +17,18 @@ const Main = styled("main", {
   drawerwidth: number;
 }>(({ theme, drawerState, drawerwidth }) => ({
   flexGrow: 1,
+  padding: theme.spacing(3),
   transition: theme.transitions.create("margin", {
     easing: theme.transitions.easing.easeInOut,
     duration: theme.transitions.duration.leavingScreen,
   }),
-  // marginRight: drawerwidth,
+  marginRight: -drawerwidth,
   ...(drawerState && {
     transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.easeInOut,
       duration: theme.transitions.duration.enteringScreen,
     }),
-    marginRight: drawerwidth,
+    marginRight: 0,
   }),
   /**
    * This is necessary to enable the selection of content. In the DOM, the stacking order is determined
@@ -59,11 +61,18 @@ function RouteComponent() {
         drawerwidth={drawerwidth}
         className="main"
       >
+        <DrawerHeader />
         <MuiTimetable
           handleDrawerOpen={handleDrawerOpen}
           setSelectedSlotId={setSelectedSlotId}
         />
       </Main>
+      <DrawerRight
+        drawerwidth={drawerwidth}
+        handleDrawerClose={handleDrawerClose}
+        drawerState={drawerState}
+        setSelectedSlotId={setSelectedSlotId}
+      />
     </Box>
   );
 }
