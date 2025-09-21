@@ -11,13 +11,6 @@ import { useLiveQuery } from "@tanstack/react-db";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
 import Row from "./-components/Row";
 import Headers from "./-components/Headers";
-import {
-  useBusySlotsByClassroom,
-  useBusySlotsBySubdivision,
-  useBusySlotsBySubdivisionOld,
-  useBusySlotsByTeacher,
-  useBusySlotsByTeacherNew,
-} from "./-hooks";
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 import { useCollections } from "@/db-collections/providers/useCollections";
 

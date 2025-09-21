@@ -66,7 +66,6 @@ function RouteComponent() {
       for (const col of Object.values(collections)) {
         col.preload();
         await col.stateWhenReady();
-        // console.log(col.id, "Collections Ready");
       }
       setAllCollectionsReady(true);
     };

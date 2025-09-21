@@ -134,7 +134,6 @@ export function useBusySlotsByClassroom(lectureSlotId: string | null) {
   return new Set(busyLectureSlots.map((ls) => ls.slotId));
 }
 
-// TODO: This is not functional for electives
 export function useBusySlotsBySubdivision(lectureSlotId: string | null) {
   const { lectureWithSubdivisionCollection, completeLectureOnlyCollection } =
     useCollections();
