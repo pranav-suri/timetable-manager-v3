@@ -46,6 +46,7 @@ async function uploadTeacherData(
   }
 
   teacherCreate = teacherCreate.map((teacher) => {
+    // @ts-expect-error Error came up when noUncheckedIndexCheck was enabled
     teacher.name = emailNameMapping[teacher.email];
     return teacher;
   });

@@ -19,7 +19,7 @@ export async function fixSubjectAndTeacherFile() {
   if (!validateCsvData(parsedCsv, "subjectAndTeacher")) {
     return false;
   }
-
+  if (!parsedCsv.data[0]) throw new Error("Parsed CSV was empty");
   const emailNameMapping: Record<string, string> = {};
 
   for (const row of parsedCsv.data) {
