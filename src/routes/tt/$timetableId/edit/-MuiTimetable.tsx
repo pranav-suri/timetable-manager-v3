@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@mui/material";
 import { useLiveQuery } from "@tanstack/react-db";
-import { DndContext, DragOverlay } from "@dnd-kit/core";
+import { DndContext } from "@dnd-kit/core";
 import { Row } from "./-components/Row";
 import Headers from "./-components/Headers";
 import {
@@ -79,7 +79,7 @@ export default function MuiTimetable({
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
-      // autoScroll={true}
+      // autoScroll={false}
     >
       <TableContainer component={Paper} className="printable">
         <Table size="small">
@@ -104,13 +104,6 @@ export default function MuiTimetable({
           </TableBody>
         </Table>
       </TableContainer>
-      <DragOverlay>
-        {activeLectureSlotId ? (
-          <div style={{ transform: "rotate(5deg)" }}>
-            {/* TODO: Use this to display why a component cannot be dropped at that slot. */}
-          </div>
-        ) : null}
-      </DragOverlay>
     </DndContext>
   );
 }
