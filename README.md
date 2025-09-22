@@ -1,4 +1,4 @@
-Welcome to your new TanStack app!
+# Timetable Manager V3
 
 # Getting Started
 
