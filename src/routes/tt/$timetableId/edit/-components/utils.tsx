@@ -1,4 +1,5 @@
 import { Typography } from "@mui/material";
+import type { getLectureSlotCollection } from "@/db-collections/lectureSlotCollection";
 
 export const getInitials = (name: string) => {
   // get all initials (eg: Dr. Nilima Zade = DNZ)
@@ -19,4 +20,15 @@ export function formatNames(
       {index !== items.length - 1 && ","}
     </Typography>
   ));
+}
+
+export function moveLectureSlot(
+  lectureSlotCollection: ReturnType<typeof getLectureSlotCollection>,
+  lectureSlotId: string,
+  newSlotId: string,
+) {
+  lectureSlotCollection.update(lectureSlotId, (draft) => {
+    draft.slotId = newSlotId;
+  });
+  console.log(`Moved lectureSlot ${lectureSlotId} to slot ${newSlotId}`);
 }

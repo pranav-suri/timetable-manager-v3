@@ -1,6 +1,18 @@
 import { eq, useLiveQuery } from "@tanstack/react-db";
 import { useCollections } from "@/db-collections/providers/useCollections";
 
+export function useBusySlots(lectureSlotId: string | null) {
+  const busySlotsByTeacher = useBusySlotsByTeacher(lectureSlotId);
+  const busySlotsByClassroom = useBusySlotsByClassroom(lectureSlotId);
+  const busySlotsBySubdivision = useBusySlotsBySubdivision(lectureSlotId);
+
+  return new Set([
+    ...busySlotsByTeacher,
+    ...busySlotsByClassroom,
+    ...busySlotsBySubdivision,
+  ]);
+}
+
 export function useBusySlotsByTeacher(lectureSlotId: string | null) {
   const { lectureSlotCollection, lectureCollection } = useCollections();
   // Get all lectureSlots

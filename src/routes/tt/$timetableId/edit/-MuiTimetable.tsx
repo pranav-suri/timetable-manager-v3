@@ -11,12 +11,13 @@ import { useLiveQuery } from "@tanstack/react-db";
 import { DndContext, PointerSensor, useSensor } from "@dnd-kit/core";
 import { Row } from "./-components/Row";
 import Headers from "./-components/Headers";
-import {
-  useBusySlotsByClassroom,
-  useBusySlotsBySubdivision,
-  useBusySlotsByTeacher,
-} from "./-hooks";
-import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
+import { useBusySlots } from "./-hooks";
+import { moveLectureSlot } from "./-components/utils";
+import type {
+  DndContextProps,
+  DragEndEvent,
+  DragStartEvent,
+} from "@dnd-kit/core";
 import { useCollections } from "@/db-collections/providers/useCollections";
 
 export default function MuiTimetable({
@@ -25,66 +26,15 @@ export default function MuiTimetable({
   handleDrawerOpen: () => void;
 }) {
   const [{ viewAllData }] = useState({ viewAllData: true });
-  const [activeLectureSlotId, setActiveId] = useState<string | null>(null);
-  const { slotCollection, lectureSlotCollection } = useCollections();
-  const { data: slotDays } = useLiveQuery((q) =>
-    q
-      .from({ slot: slotCollection })
-      .select(({ slot }) => ({ day: slot.day }))
-      .distinct()
-      .orderBy(({ slot }) => slot.day),
-  );
-
-  const { data: slotNumbers } = useLiveQuery((q) =>
-    q
-      .from({ slot: slotCollection })
-      .select(({ slot }) => ({ number: slot.number }))
-      .distinct()
-      .orderBy(({ slot }) => slot.number),
-  );
-
-  const busySlotsByTeacher = useBusySlotsByTeacher(activeLectureSlotId);
-  const busySlotsByClassroom = useBusySlotsByClassroom(activeLectureSlotId);
-  const busySlotsBySubdivision = useBusySlotsBySubdivision(activeLectureSlotId);
-
-  const pointerSensor = useSensor(PointerSensor, {
-    activationConstraint: {
-      distance: 1,
-    },
-  });
-
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id.toString()); // This will contain lectureSlotId
-  };
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (over && active.id !== over.id) {
-      try {
-        lectureSlotCollection.update(active.id, (draft) => {
-          draft.slotId = over.id.toString(); // over.id contains the slotId
-        });
-        console.log(`Moved lectureSlot ${active.id} to slot ${over.id}`);
-      } catch (error) {
-        console.error("Failed to update lectureSlot:", error);
-      }
-    }
-
-    setActiveId(null);
-  };
-
-  const handleDragCancel = () => {
-    setActiveId(null);
-  };
+  const { activeLectureSlotId, sensors, handlers } = useTimetableDnD();
+  const { slotDays, slotNumbers } = useSlotDaysAndNumbers();
+  const busySlots = useBusySlots(activeLectureSlotId);
 
   return (
     <DndContext
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-      onDragCancel={handleDragCancel}
+      {...handlers}
       // autoScroll={false}
-      sensors={[pointerSensor]}
+      sensors={sensors}
     >
       <TableContainer component={Paper} className="printable">
         <Table size="small">
@@ -100,9 +50,7 @@ export default function MuiTimetable({
                 day={s.day}
                 handleDrawerOpen={handleDrawerOpen}
                 viewAllData={viewAllData}
-                busySlotsByTeacher={busySlotsByTeacher}
-                busySlotsByClassroom={busySlotsByClassroom}
-                busySlotsBySubdivision={busySlotsBySubdivision}
+                busySlots={busySlots}
               />
             ))}
           </TableBody>
@@ -110,4 +58,62 @@ export default function MuiTimetable({
       </TableContainer>
     </DndContext>
   );
+}
+
+export function useSlotDaysAndNumbers() {
+  const { slotCollection } = useCollections();
+
+  const { data: slotDays = [] } = useLiveQuery((q) =>
+    q
+      .from({ slot: slotCollection })
+      .select(({ slot }) => ({ day: slot.day }))
+      .distinct()
+      .orderBy(({ slot }) => slot.day),
+  );
+
+  const { data: slotNumbers = [] } = useLiveQuery((q) =>
+    q
+      .from({ slot: slotCollection })
+      .select(({ slot }) => ({ number: slot.number }))
+      .distinct()
+      .orderBy(({ slot }) => slot.number),
+  );
+
+  return { slotDays, slotNumbers };
+}
+
+export function useTimetableDnD() {
+  const [activeLectureSlotId, setActiveId] = useState<string | null>(null);
+  const { lectureSlotCollection } = useCollections();
+  type Handlers = Pick<
+    DndContextProps,
+    "onDragStart" | "onDragEnd" | "onDragCancel"
+  >; // Done to ensure type safety of props, add more handler to type as required
+
+  const pointerSensor = useSensor(PointerSensor, {
+    activationConstraint: { distance: 0 },
+  });
+
+  const onDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id.toString());
+  };
+
+  const onDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over) return;
+    moveLectureSlot(
+      lectureSlotCollection,
+      active.id.toString(),
+      over.id.toString(),
+    );
+    setActiveId(null);
+  };
+
+  const onDragCancel = () => setActiveId(null);
+
+  return {
+    activeLectureSlotId,
+    sensors: [pointerSensor],
+    handlers: { onDragStart, onDragEnd, onDragCancel } satisfies Handlers,
+  };
 }

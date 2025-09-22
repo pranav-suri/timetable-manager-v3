@@ -8,18 +8,14 @@ interface RowProps {
   viewAllData: boolean;
   day: number;
   handleDrawerOpen: () => void;
-  busySlotsByTeacher: Set<string>;
-  busySlotsByClassroom: Set<string>;
-  busySlotsBySubdivision: Set<string>;
+  busySlots: Set<string>;
 }
 
 export function Row({
   viewAllData,
   day,
   handleDrawerOpen,
-  busySlotsByTeacher,
-  busySlotsByClassroom,
-  busySlotsBySubdivision,
+  busySlots,
 }: RowProps) {
   const DAYS = [
     "Monday",
@@ -49,9 +45,7 @@ export function Row({
           slotId={slot.id}
           viewAllData={viewAllData}
           handleDrawerOpen={handleDrawerOpen}
-          busySlotsByTeacher={busySlotsByTeacher}
-          busySlotsByClassroom={busySlotsByClassroom}
-          busySlotsBySubdivision={busySlotsBySubdivision}
+          busySlots={busySlots}
         />
       ))}
     </TableRow>
@@ -62,18 +56,14 @@ interface DroppableCellProps {
   slotId: string;
   viewAllData: boolean;
   handleDrawerOpen: () => void;
-  busySlotsByTeacher: Set<string>;
-  busySlotsByClassroom: Set<string>;
-  busySlotsBySubdivision: Set<string>;
+  busySlots: Set<string>;
 }
 
 export function DroppableCell({
   slotId,
   viewAllData,
   handleDrawerOpen,
-  busySlotsByTeacher,
-  busySlotsByClassroom,
-  busySlotsBySubdivision,
+  busySlots,
 }: DroppableCellProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: slotId,
@@ -83,11 +73,7 @@ export function DroppableCell({
     handleDrawerOpen();
   };
 
-  const isBusy =
-    busySlotsByTeacher.has(slotId) ||
-    busySlotsBySubdivision.has(slotId) ||
-    busySlotsByClassroom.has(slotId);
-
+  const isBusy = busySlots.has(slotId);
   let bgColor: string;
 
   if (isBusy && isOver) {

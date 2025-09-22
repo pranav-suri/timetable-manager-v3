@@ -97,7 +97,7 @@ export function useGroupedClassroomsBySlot() {
   return grouped;
 }
 
-export function useGroupedSubdivisionsBySlot() {
+export function useGroupedSubdivisionsWithoutElectiveBySlot() {
   const { lectureWithSubdivisionCollection } = useCollections();
 
   const { data } = useLiveQuery((q) =>
@@ -136,7 +136,7 @@ export function useGroupedSubdivisionsBySlot() {
   return grouped;
 }
 
-export function useGroupedSubdivisionsWithElectiveBySlot() {
+export function useGroupedSubdivisionsBySlot() {
   const { lectureWithSubdivisionCollection } = useCollections();
 
   const { data = [] } = useLiveQuery((q) =>
