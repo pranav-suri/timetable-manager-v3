@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { Card, CardContent, CardHeader } from "@mui/material";
 import { eq, useLiveQuery } from "@tanstack/react-db";
 import { useDraggable } from "@dnd-kit/core";
+import { CSS } from "@dnd-kit/utilities";
 import { formatNames, getInitials } from "./utils";
 import getColor from "@/utils/getColor";
 import { ThemeModeContext } from "@/context/ThemeModeContext";
@@ -61,9 +62,7 @@ function LectureSlot({
     useDraggable({ id: lectureSlotId });
 
   const style = {
-    transform: transform
-      ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
-      : undefined,
+    transform: CSS.Translate.toString(transform),
     opacity: isDragging ? 0.5 : 1,
   };
 
