@@ -1,4 +1,3 @@
-import React from "react";
 import { TableCell, TableRow } from "@mui/material";
 import { eq, useLiveQuery } from "@tanstack/react-db";
 import { useDroppable } from "@dnd-kit/core";
@@ -9,7 +8,6 @@ interface RowProps {
   viewAllData: boolean;
   day: number;
   handleDrawerOpen: () => void;
-  setSelectedSlotId: React.Dispatch<React.SetStateAction<string | null>>;
   busySlotsByTeacher: Set<string>;
   busySlotsByClassroom: Set<string>;
   busySlotsBySubdivision: Set<string>;
@@ -19,7 +17,6 @@ export function Row({
   viewAllData,
   day,
   handleDrawerOpen,
-  setSelectedSlotId,
   busySlotsByTeacher,
   busySlotsByClassroom,
   busySlotsBySubdivision,
@@ -52,7 +49,6 @@ export function Row({
           slotId={slot.id}
           viewAllData={viewAllData}
           handleDrawerOpen={handleDrawerOpen}
-          setSelectedSlotId={setSelectedSlotId}
           busySlotsByTeacher={busySlotsByTeacher}
           busySlotsByClassroom={busySlotsByClassroom}
           busySlotsBySubdivision={busySlotsBySubdivision}
@@ -66,7 +62,6 @@ interface DroppableCellProps {
   slotId: string;
   viewAllData: boolean;
   handleDrawerOpen: () => void;
-  setSelectedSlotId: React.Dispatch<React.SetStateAction<string | null>>;
   busySlotsByTeacher: Set<string>;
   busySlotsByClassroom: Set<string>;
   busySlotsBySubdivision: Set<string>;
@@ -76,7 +71,6 @@ export function DroppableCell({
   slotId,
   viewAllData,
   handleDrawerOpen,
-  setSelectedSlotId,
   busySlotsByTeacher,
   busySlotsByClassroom,
   busySlotsBySubdivision,
@@ -87,7 +81,6 @@ export function DroppableCell({
 
   const handleClick = () => {
     handleDrawerOpen();
-    setSelectedSlotId(slotId);
   };
 
   const isBusy =

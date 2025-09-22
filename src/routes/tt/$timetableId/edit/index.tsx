@@ -42,7 +42,6 @@ const Main = styled("main", {
 
 function RouteComponent() {
   const [drawerState, setDrawerState] = useState(false);
-  const [_selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
   const [allCollectionsReady, setAllCollectionsReady] =
     useState<boolean>(false);
   const drawerwidth = 300;
@@ -83,16 +82,12 @@ function RouteComponent() {
         className="main"
       >
         <DrawerHeader />
-        <MuiTimetable
-          handleDrawerOpen={handleDrawerOpen}
-          setSelectedSlotId={setSelectedSlotId}
-        />
+        <MuiTimetable handleDrawerOpen={handleDrawerOpen} />
       </Main>
       <DrawerRight
         drawerwidth={drawerwidth}
         handleDrawerClose={handleDrawerClose}
         drawerState={drawerState}
-        setSelectedSlotId={setSelectedSlotId}
       />
     </Box>
   );

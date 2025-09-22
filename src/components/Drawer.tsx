@@ -4,7 +4,6 @@ import {
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
 } from "@mui/icons-material";
-import React from "react";
 import { ConflictList } from "@/routes/tt/$timetableId/edit/-conflictList/ConflictList";
 
 export const DrawerHeader = styled("div")(({ theme }) => ({
@@ -20,12 +19,10 @@ export function DrawerRight({
   drawerwidth,
   handleDrawerClose,
   drawerState,
-  setSelectedSlotId,
 }: {
   drawerwidth: number;
   handleDrawerClose: () => void;
   drawerState: boolean;
-  setSelectedSlotId: React.Dispatch<React.SetStateAction<string | null>>;
 }) {
   const theme = useTheme();
 
@@ -46,7 +43,6 @@ export function DrawerRight({
         <IconButton
           onClick={() => {
             handleDrawerClose();
-            setSelectedSlotId(null);
           }}
         >
           {theme.direction === "rtl" ? (

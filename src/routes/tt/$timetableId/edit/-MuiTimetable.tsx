@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Paper,
   Table,
@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@mui/material";
 import { useLiveQuery } from "@tanstack/react-db";
-import { DndContext } from "@dnd-kit/core";
+import { DndContext, PointerSensor, useSensor } from "@dnd-kit/core";
 import { Row } from "./-components/Row";
 import Headers from "./-components/Headers";
 import {
@@ -21,10 +21,8 @@ import { useCollections } from "@/db-collections/providers/useCollections";
 
 export default function MuiTimetable({
   handleDrawerOpen,
-  setSelectedSlotId,
 }: {
   handleDrawerOpen: () => void;
-  setSelectedSlotId: React.Dispatch<React.SetStateAction<string | null>>;
 }) {
   const [{ viewAllData }] = useState({ viewAllData: true });
   const [activeLectureSlotId, setActiveId] = useState<string | null>(null);
@@ -48,6 +46,12 @@ export default function MuiTimetable({
   const busySlotsByTeacher = useBusySlotsByTeacher(activeLectureSlotId);
   const busySlotsByClassroom = useBusySlotsByClassroom(activeLectureSlotId);
   const busySlotsBySubdivision = useBusySlotsBySubdivision(activeLectureSlotId);
+
+  const pointerSensor = useSensor(PointerSensor, {
+    activationConstraint: {
+      distance: 1,
+    },
+  });
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id.toString()); // This will contain lectureSlotId
@@ -80,6 +84,7 @@ export default function MuiTimetable({
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
       // autoScroll={false}
+      sensors={[pointerSensor]}
     >
       <TableContainer component={Paper} className="printable">
         <Table size="small">
@@ -94,7 +99,6 @@ export default function MuiTimetable({
                 key={s.day}
                 day={s.day}
                 handleDrawerOpen={handleDrawerOpen}
-                setSelectedSlotId={setSelectedSlotId}
                 viewAllData={viewAllData}
                 busySlotsByTeacher={busySlotsByTeacher}
                 busySlotsByClassroom={busySlotsByClassroom}
