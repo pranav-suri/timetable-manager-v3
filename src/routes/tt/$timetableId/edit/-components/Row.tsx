@@ -97,10 +97,12 @@ export function DroppableCell({
 
   let bgColor: string;
 
-  if (isBusy) {
+  if (isBusy && isOver) {
+    bgColor = "rgba(255, 0, 0, 0.2)"; // darker red when busy and hovered
+  } else if (isBusy) {
     bgColor = "rgba(255, 0, 0, 0.1)"; // light red when busy
   } else if (isOver) {
-    bgColor = "rgba(0, 0, 0, 0.1)"; // light black/grey when hovered
+    bgColor = "rgba(0, 0, 0, 0.2)"; // light black/grey when hovered
   } else {
     bgColor = "transparent"; // default
   }
