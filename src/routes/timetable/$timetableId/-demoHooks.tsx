@@ -139,7 +139,7 @@ export function useGroupedSubdivisionsWithoutElectiveBySlot() {
 export function useGroupedSubdivisionsBySlot() {
   const { lectureWithSubdivisionCollection } = useCollections();
 
-  const { data = [] } = useLiveQuery((q) =>
+  const { data } = useLiveQuery((q) =>
     q.from({ lectureWithSubdivisionCollection }),
   );
 
@@ -190,7 +190,10 @@ export function useGroupedSubdivisionsBySlot() {
       const electiveGroups = Object.values(entry.true);
       const hasElectiveConflict = electiveGroups.length > 1;
 
-      if (!hasNonElectiveConflict && !hasElectiveConflict) {
+      // both elective and non elective subject is assigned to elective
+      const hasBothConflict = entry.false.length + electiveGroups.length > 1;
+
+      if (!hasNonElectiveConflict && !hasElectiveConflict && !hasBothConflict) {
         delete grouped[slotId][subdivisionId];
       }
     }

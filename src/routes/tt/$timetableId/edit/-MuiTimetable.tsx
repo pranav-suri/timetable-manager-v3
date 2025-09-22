@@ -63,7 +63,7 @@ export default function MuiTimetable({
 export function useSlotDaysAndNumbers() {
   const { slotCollection } = useCollections();
 
-  const { data: slotDays = [] } = useLiveQuery((q) =>
+  const { data: slotDays } = useLiveQuery((q) =>
     q
       .from({ slot: slotCollection })
       .select(({ slot }) => ({ day: slot.day }))
@@ -71,7 +71,7 @@ export function useSlotDaysAndNumbers() {
       .orderBy(({ slot }) => slot.day),
   );
 
-  const { data: slotNumbers = [] } = useLiveQuery((q) =>
+  const { data: slotNumbers } = useLiveQuery((q) =>
     q
       .from({ slot: slotCollection })
       .select(({ slot }) => ({ number: slot.number }))
