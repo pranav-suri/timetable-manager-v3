@@ -66,6 +66,7 @@ async function combineDuplicateLectures(timetableId: string) {
   });
 
   const uniqueLectures: Record<string, string> = {};
+  const mergedCounts: Record<string, number> = {}; // track how many got merged into each original
 
   for (const lecture of lectures) {
     const classroomIds = lecture.lectureClassrooms
@@ -79,9 +80,13 @@ async function combineDuplicateLectures(timetableId: string) {
     if (!uniqueLectures[key]) {
       // Add this lecture as the original
       uniqueLectures[key] = lecture.id;
+      mergedCounts[lecture.id] = 0;
       continue;
     }
     const originalLectureId = uniqueLectures[key];
+
+    mergedCounts[originalLectureId] =
+      (mergedCounts[originalLectureId] ?? 0) + 1;
 
     // Update lectureSlot to point to the original lecture
     await prisma.lectureSlot.updateMany({
@@ -111,6 +116,18 @@ async function combineDuplicateLectures(timetableId: string) {
         id: lecture.id,
       },
     });
+  }
+
+  // Finally update the count field for all originals
+  for (const [originalLectureId, inc] of Object.entries(mergedCounts)) {
+    if (inc > 0) {
+      await prisma.lecture.update({
+        where: { id: originalLectureId },
+        data: {
+          count: { increment: inc },
+        },
+      });
+    }
   }
 }
 
