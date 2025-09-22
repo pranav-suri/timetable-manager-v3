@@ -35,8 +35,10 @@ export function useBusySlotsByTeacher(lectureSlotId: string | null) {
   );
 
   // Extract slotIds
-  return new Set(busyLectureSlots.map((ls) => ls.slotId));
+  const slotIds = new Set(busyLectureSlots.map((ls) => ls.slotId));
+  return slotIds;
 }
+
 export function useBusySlotsByTeacherNew(lectureSlotId: string | null) {
   const {
     lectureSlotCollection,
@@ -77,6 +79,7 @@ export function useBusySlotsByTeacherNew(lectureSlotId: string | null) {
   const slotIds = new Set(busyLectureSlots.map((ls) => ls.slotId));
   return slotIds;
 }
+
 export function useBusySlotsByClassroom(lectureSlotId: string | null) {
   const {
     lectureSlotCollection,
@@ -131,7 +134,8 @@ export function useBusySlotsByClassroom(lectureSlotId: string | null) {
   );
 
   // Extract slotIds
-  return new Set(busyLectureSlots.map((ls) => ls.slotId));
+  const slotIds = new Set(busyLectureSlots.map((ls) => ls.slotId));
+  return slotIds;
 }
 
 export function useBusySlotsBySubdivision(lectureSlotId: string | null) {
@@ -304,5 +308,6 @@ export function useBusySlotsBySubdivisionOld(lectureSlotId: string | null) {
   );
 
   // Extract slotIds
-  return new Set(busyLectureSlots.map((ls) => ls.slotId));
+  const slotIds = new Set(busyLectureSlots.map((ls) => ls.slotId));
+  return slotIds;
 }

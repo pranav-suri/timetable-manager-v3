@@ -86,7 +86,7 @@ function LectureSlot({
     >
       <CardHeader
         title={viewAllData ? subjectName : getInitials(subjectName)}
-        titleTypographyProps={{ fontWeight: "500", fontSize: "1rem" }}
+        slotProps={{ title: { fontWeight: "500", fontSize: "1rem" } }}
         sx={{ padding: 0, margin: "8px" }}
       />
       <CardContent sx={{ padding: 0, margin: "8px" }} style={{ padding: 0 }}>

@@ -1,26 +1,29 @@
 import React from "react";
 import { TableCell, TableRow } from "@mui/material";
 import { eq, useLiveQuery } from "@tanstack/react-db";
-import { useDndContext, useDroppable } from "@dnd-kit/core";
-import {
-  useBusySlotsByClassroom,
-  useBusySlotsBySubdivision,
-  useBusySlotsByTeacher,
-} from "../-hooks";
+import { useDroppable } from "@dnd-kit/core";
 import Slot from "./Slot";
 import { useCollections } from "@/db-collections/providers/useCollections";
 
-function Row({
-  viewAllData,
-  day,
-  handleDrawerOpen,
-  setSelectedSlotId,
-}: {
+interface RowProps {
   viewAllData: boolean;
   day: number;
   handleDrawerOpen: () => void;
   setSelectedSlotId: React.Dispatch<React.SetStateAction<string | null>>;
-}) {
+  busySlotsByTeacher: Set<string>;
+  busySlotsByClassroom: Set<string>;
+  busySlotsBySubdivision: Set<string>;
+}
+
+export function Row({
+  viewAllData,
+  day,
+  handleDrawerOpen,
+  setSelectedSlotId,
+  busySlotsByTeacher,
+  busySlotsByClassroom,
+  busySlotsBySubdivision,
+}: RowProps) {
   const DAYS = [
     "Monday",
     "Tuesday",
@@ -50,6 +53,9 @@ function Row({
           viewAllData={viewAllData}
           handleDrawerOpen={handleDrawerOpen}
           setSelectedSlotId={setSelectedSlotId}
+          busySlotsByTeacher={busySlotsByTeacher}
+          busySlotsByClassroom={busySlotsByClassroom}
+          busySlotsBySubdivision={busySlotsBySubdivision}
         />
       ))}
     </TableRow>
@@ -61,6 +67,9 @@ interface DroppableCellProps {
   viewAllData: boolean;
   handleDrawerOpen: () => void;
   setSelectedSlotId: React.Dispatch<React.SetStateAction<string | null>>;
+  busySlotsByTeacher: Set<string>;
+  busySlotsByClassroom: Set<string>;
+  busySlotsBySubdivision: Set<string>;
 }
 
 export function DroppableCell({
@@ -68,6 +77,9 @@ export function DroppableCell({
   viewAllData,
   handleDrawerOpen,
   setSelectedSlotId,
+  busySlotsByTeacher,
+  busySlotsByClassroom,
+  busySlotsBySubdivision,
 }: DroppableCellProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: slotId,
@@ -78,18 +90,20 @@ export function DroppableCell({
     setSelectedSlotId(slotId);
   };
 
-  const { active } = useDndContext();
-  const activeLectureSlotId = active?.id.toString() ?? "";
-
-  // TODO: Get these as props/zustand, these hooks are being called in every slot separately
-  const busySlotsByTeacher = useBusySlotsByTeacher(activeLectureSlotId);
-  const busySlotsByClassroom = useBusySlotsByClassroom(activeLectureSlotId);
-  const busySlotsBySubdivision = useBusySlotsBySubdivision(activeLectureSlotId);
-
   const isBusy =
     busySlotsByTeacher.has(slotId) ||
     busySlotsBySubdivision.has(slotId) ||
     busySlotsByClassroom.has(slotId);
+
+  let bgColor: string;
+
+  if (isBusy) {
+    bgColor = "rgba(255, 0, 0, 0.1)"; // light red when busy
+  } else if (isOver) {
+    bgColor = "rgba(0, 0, 0, 0.1)"; // light black/grey when hovered
+  } else {
+    bgColor = "transparent"; // default
+  }
 
   return (
     <TableCell
@@ -97,15 +111,11 @@ export function DroppableCell({
       ref={setNodeRef}
       onClick={handleClick}
       sx={{
-        backgroundColor: isOver ? "rgba(0, 0, 0, 0.1)" : "transparent",
+        backgroundColor: bgColor,
         transition: "background-color 0.2s ease",
       }}
     >
-      <div className={isBusy ? "border-2 border-red-500 rounded-lg" : ""}>
-        <Slot slotId={slotId} viewAllData={viewAllData} />
-      </div>
+      <Slot slotId={slotId} viewAllData={viewAllData} />
     </TableCell>
   );
 }
-
-export default Row;

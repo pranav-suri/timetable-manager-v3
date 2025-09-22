@@ -9,8 +9,13 @@ import {
 } from "@mui/material";
 import { useLiveQuery } from "@tanstack/react-db";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
-import Row from "./-components/Row";
+import { Row } from "./-components/Row";
 import Headers from "./-components/Headers";
+import {
+  useBusySlotsByClassroom,
+  useBusySlotsBySubdivision,
+  useBusySlotsByTeacher,
+} from "./-hooks";
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 import { useCollections } from "@/db-collections/providers/useCollections";
 
@@ -39,6 +44,10 @@ export default function MuiTimetable({
       .distinct()
       .orderBy(({ slot }) => slot.number),
   );
+
+  const busySlotsByTeacher = useBusySlotsByTeacher(activeLectureSlotId);
+  const busySlotsByClassroom = useBusySlotsByClassroom(activeLectureSlotId);
+  const busySlotsBySubdivision = useBusySlotsBySubdivision(activeLectureSlotId);
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id.toString()); // This will contain lectureSlotId
@@ -87,6 +96,9 @@ export default function MuiTimetable({
                 handleDrawerOpen={handleDrawerOpen}
                 setSelectedSlotId={setSelectedSlotId}
                 viewAllData={viewAllData}
+                busySlotsByTeacher={busySlotsByTeacher}
+                busySlotsByClassroom={busySlotsByClassroom}
+                busySlotsBySubdivision={busySlotsBySubdivision}
               />
             ))}
           </TableBody>
