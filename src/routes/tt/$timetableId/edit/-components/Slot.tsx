@@ -15,21 +15,22 @@ function Slot({
     completeLectureOnlyCollection,
   } = useCollections();
 
-  const { data: completeLectures } = useLiveQuery((q) =>
-    q
-      .from({ item: completeLectureOnlyCollection })
-      .where(({ item }) => eq(item.slotId, slotId))
-      .join(
-        { subject: subjectCollection },
-        ({ item, subject }) => eq(item.subjectId, subject.id),
-      )
-      .orderBy(({ subject }) => subject.name)
-      .select(({ item }) => ({ ...item })),
+  const { data: orderedCompleteLectures } = useLiveQuery(
+    (q) =>
+      q
+        .from({ item: completeLectureOnlyCollection })
+        .where(({ item }) => eq(item.slotId, slotId))
+        .join({ subject: subjectCollection }, ({ item, subject }) =>
+          eq(item.subjectId, subject.id),
+        )
+        .orderBy(({ subject }) => subject.name)
+        .select(({ item }) => ({ ...item })),
+    [slotId],
   );
 
   return (
     <div>
-      {completeLectures.map((completeLecture) => (
+      {orderedCompleteLectures.map((completeLecture) => (
         <LectureSlot
           key={completeLecture.lectureSlotId}
           lectureSlotId={completeLecture.lectureSlotId}

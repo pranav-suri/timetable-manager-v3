@@ -158,10 +158,12 @@ export function useBusySlotsBySubdivision(lectureSlotId: string | null) {
     q.from({ lectureWithSubdivisionCollection }),
   );
 
-  const { data: completeLectureSlotMaybe } = useLiveQuery((q) =>
-    q
-      .from({ comp: completeLectureOnlyCollection })
-      .where(({ comp }) => eq(comp.lectureSlotId, lectureSlotId)),
+  const { data: completeLectureSlotMaybe } = useLiveQuery(
+    (q) =>
+      q
+        .from({ comp: completeLectureOnlyCollection })
+        .where(({ comp }) => eq(comp.lectureSlotId, lectureSlotId)),
+    [lectureSlotId],
   );
 
   if (!lectureSlotId) return new Set<string>();
@@ -170,7 +172,9 @@ export function useBusySlotsBySubdivision(lectureSlotId: string | null) {
   const completeLectureSlot = completeLectureSlotMaybe.find(
     (comp) => comp.lectureSlotId === lectureSlotId,
   );
+
   if (!completeLectureSlot) return new Set<string>();
+  const currentGroupId = completeLectureSlot.groupId;
 
   // Find all subdivisions for the initial lecture
   const lectureSubdivisionsForInitialLecture = lectureWithSubdivisions.filter(
@@ -239,8 +243,7 @@ export function useBusySlotsBySubdivision(lectureSlotId: string | null) {
       let isElectiveBusy = false;
       if (
         // slot is not busy if it doesn't contains lectureSlots if the group is same the current picked up group.
-        (groupIds.length == 1 &&
-          groupIds.includes(completeLectureSlot.groupId)) ||
+        (groupIds.length == 1 && groupIds.includes(currentGroupId)) ||
         groupIds.length == 0
       ) {
         isElectiveBusy = false;
@@ -263,7 +266,7 @@ export function useBusySlotsBySubdivision(lectureSlotId: string | null) {
   return slotIds;
 }
 
-// TODO: This is not functional for electives
+// NOTE: This is not functional for electives, another hook has already been made
 export function useBusySlotsBySubdivisionOld(lectureSlotId: string | null) {
   const {
     lectureSlotCollection,

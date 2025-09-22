@@ -13,12 +13,11 @@ import {
   ClassroomInfo,
   LectureDetails,
   SlotInfo,
+  SubdivisionInfo,
   TeacherInfo,
 } from "./helpers";
 import { useCombinedConflicts } from "./useCombinedConflicts";
 import type { Conflict } from "./useCombinedConflicts";
-import { useLiveQuery } from "@tanstack/react-db";
-import { useCollections } from "@/db-collections/providers/useCollections";
 
 function ConflictCard({ conflict }: { conflict: Conflict }) {
   const handleClick = () => {
@@ -36,6 +35,9 @@ function ConflictCard({ conflict }: { conflict: Conflict }) {
         {conflict.teacherId && <TeacherInfo teacherId={conflict.teacherId} />}
         {conflict.classroomId && (
           <ClassroomInfo classroomId={conflict.classroomId} />
+        )}
+        {conflict.subdivisionId && (
+          <SubdivisionInfo subdivisionId={conflict.subdivisionId} />
         )}
         <Box mt={1}>
           <Typography variant="subtitle2">Conflicting Lectures:</Typography>
@@ -69,7 +71,7 @@ export function ConflictList() {
           <AccordionDetails>
             {conflicts.map((conflict, index) => (
               <ConflictCard
-                key={`${conflict.teacherId || conflict.classroomId}-${index}`}
+                key={`${conflict.teacherId || conflict.classroomId || conflict.subdivisionId}-${index}`}
                 conflict={conflict}
               />
             ))}

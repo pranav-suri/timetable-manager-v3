@@ -5,7 +5,7 @@ import { Demo } from "./-demo";
 import {
   useGroupedClassroomsBySlot,
   useGroupedSubdivisionsBySlot,
-  useGroupedSubdivisionsWithElectiveBySlot,
+  useGroupedSubdivisionsWithoutElectiveBySlot,
   useGroupedTeachersBySlot,
   useSubset,
 } from "./-demoHooks";
@@ -47,16 +47,16 @@ function RouteComponent() {
   const groupedTeachersBySlot = useGroupedTeachersBySlot();
   const groupedClassroomsBySlot = useGroupedClassroomsBySlot();
   const groupedSubdivisionsBySlot = useGroupedSubdivisionsBySlot();
-  const groupedSubdivisionsWithElectiveBySlot =
-    useGroupedSubdivisionsWithElectiveBySlot();
+  const groupedSubdivisionsWithoutElectiveBySlot =
+    useGroupedSubdivisionsWithoutElectiveBySlot();
   // const dbBasedGroupedTeachersBySlot = useDbBasedGroupedTeachersBySlot();
 
   console.log("Grouped Teachers: ", groupedTeachersBySlot);
   console.log("Grouped Classrooms: ", groupedClassroomsBySlot);
   console.log("Grouped Subdivisions: ", groupedSubdivisionsBySlot);
   console.log(
-    "Grouped Subdivisions with Elective: ",
-    groupedSubdivisionsWithElectiveBySlot,
+    "Grouped Subdivisions without Elective: ",
+    groupedSubdivisionsWithoutElectiveBySlot,
   );
   // console.log("DB Based Teacher Groups: ", dbBasedGroupedTeachersBySlot);
 

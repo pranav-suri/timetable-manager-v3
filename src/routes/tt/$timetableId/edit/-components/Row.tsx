@@ -28,11 +28,13 @@ export function Row({
 
   const { slotCollection } = useCollections();
 
-  const { data: slotsOfDay } = useLiveQuery((q) =>
-    q
-      .from({ slot: slotCollection })
-      .where(({ slot }) => eq(slot.day, day))
-      .orderBy(({ slot }) => slot.number),
+  const { data: slotsOfDay } = useLiveQuery(
+    (q) =>
+      q
+        .from({ slot: slotCollection })
+        .where(({ slot }) => eq(slot.day, day))
+        .orderBy(({ slot }) => slot.number),
+    [day],
   );
 
   return (

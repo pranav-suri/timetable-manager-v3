@@ -1,6 +1,6 @@
 import { Typography } from "@mui/material";
-import { useCollections } from "@/db-collections/providers/useCollections";
 import { eq, useLiveQuery } from "@tanstack/react-db";
+import { useCollections } from "@/db-collections/providers/useCollections";
 
 // You would create a utility function for this
 const formatSlot = (day: number, number: number) => {
@@ -37,19 +37,26 @@ export function ClassroomInfo({ classroomId }: { classroomId: string }) {
   );
 }
 
-export function LectureDetails({ lectureSlotId }: { lectureSlotId: string }) {
-  const {
-    lectureSlotCollection,
-    lectureCollection,
-    subjectCollection,
-    lectureSubdivisionCollection,
-    subdivisionCollection,
-  } = useCollections();
+export function SubdivisionInfo({ subdivisionId }: { subdivisionId: string }) {
+  const { subdivisionCollection } = useCollections();
+  const subdivision = subdivisionCollection.get(subdivisionId); // Fetch data
+  return (
+    <Typography>
+      <b>Subdivision:</b> {subdivision?.name ?? "Loading..."}
+    </Typography>
+  );
+}
 
-  const { data: lectureSlotMaybe } = useLiveQuery((q) =>
-    q
-      .from({ lecSub: lectureSlotCollection })
-      .where(({ lecSub }) => eq(lecSub.id, lectureSlotId)),
+export function LectureDetails({ lectureSlotId }: { lectureSlotId: string }) {
+  const { lectureSlotCollection, lectureCollection, subjectCollection } =
+    useCollections();
+
+  const { data: lectureSlotMaybe } = useLiveQuery(
+    (q) =>
+      q
+        .from({ lecSub: lectureSlotCollection })
+        .where(({ lecSub }) => eq(lecSub.id, lectureSlotId)),
+    [lectureSlotId],
   );
 
   const lectureSlot = lectureSlotMaybe.find(
