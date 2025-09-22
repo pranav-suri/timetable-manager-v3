@@ -11,7 +11,7 @@ npm run start
 
 # Building For Production
 
-To build this application for production:
+To build this Application for production:
 
 ```bash
 npm run build
