@@ -10,6 +10,7 @@ export function getSubdivisionCollection({
 }: CollectionInput) {
   const subdivisionCollection = createCollection(
     queryCollectionOptions({
+      id: "subdivision:" + timetableId,
       startSync: true,
       queryKey: trpc.subdivisions.list.queryKey({ timetableId }),
       queryFn: async () => {

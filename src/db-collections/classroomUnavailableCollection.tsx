@@ -10,6 +10,7 @@ export function getClassroomUnavailableCollection({
 }: CollectionInput) {
   const classroomUnavailableCollection = createCollection(
     queryCollectionOptions({
+      id: "classroomUnavailable:" + timetableId,
       startSync: true,
       queryKey: trpc.classroomUnavailabilities.list.queryKey({ timetableId }),
       queryFn: async () => {

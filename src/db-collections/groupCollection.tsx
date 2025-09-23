@@ -10,6 +10,7 @@ export function getGroupCollection({
 }: CollectionInput) {
   const groupCollection = createCollection(
     queryCollectionOptions({
+      id: "group:" + timetableId,
       startSync: true,
       queryKey: trpc.groups.list.queryKey({ timetableId }),
       queryFn: async () => {

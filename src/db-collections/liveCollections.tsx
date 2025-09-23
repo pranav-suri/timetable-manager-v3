@@ -31,6 +31,7 @@ export function getLiveCollections({
 }: GetLiveCollectionsInput) {
   const completeLectureOnlyCollection = createCollection(
     liveQueryCollectionOptions({
+      id: "completeLectureOnly",
       query: (q) => {
         const completeLectureWithoutGroup = q
           .from({ lecture: lectureCollection })
@@ -69,6 +70,7 @@ export function getLiveCollections({
 
   const lectureWithSubdivisionCollection = createCollection(
     liveQueryCollectionOptions({
+      id: "lectureWithSubdivision",
       query: (q) =>
         q.from({ completeLectureOnly: completeLectureOnlyCollection }).join(
           // No inner join here because we want lectures that may not have any subdivisions allotted
@@ -81,6 +83,7 @@ export function getLiveCollections({
 
   const lectureWithClassroomCollection = createCollection(
     liveQueryCollectionOptions({
+      id: "lectureWithClassroom",
       query: (q) =>
         q.from({ completeLectureOnly: completeLectureOnlyCollection }).join(
           // No inner join here because we want lectures that may not have any classroom allotted
