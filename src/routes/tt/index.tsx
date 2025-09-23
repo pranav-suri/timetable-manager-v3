@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { nanoid } from "nanoid";
 import { useLiveQuery } from "@tanstack/react-db";
@@ -23,43 +24,54 @@ import {
   Delete as DeleteIcon,
   Edit as EditIcon,
 } from "@mui/icons-material";
-import type { Subdivision } from "generated/prisma/client";
-import { useCollections } from "@/db-collections/providers/useCollections";
+import type { Timetable } from "generated/prisma/client";
+import { useTRPC, useTRPCClient } from "@/integrations/trpc";
+import { getTimetableCollection } from "@/db-collections/timetableCollection";
 
-export const Route = createFileRoute("/tt/$timetableId/subdivisions")({
+export const Route = createFileRoute("/tt/")({
   component: RouteComponent,
+  ssr: false,
 });
 
 function RouteComponent() {
-  const { subdivisionCollection } = useCollections();
-  const { timetableId } = Route.useParams();
+  const trpc = useTRPC();
+  const trpcClient = useTRPCClient();
+  const queryClient = useQueryClient();
+
+  const timetableCollection = getTimetableCollection({
+    queryClient,
+    trpcClient,
+    trpc,
+  });
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const { data: subdivisions } = useLiveQuery((q) =>
-    q.from({ subdivisionCollection }),
+  const { data: timetables } = useLiveQuery((q) =>
+    q.from({ timetableCollection }),
   );
 
   const form = useForm({
     defaultValues: { name: "" },
     onSubmit: ({ value }) => {
-      const newSubdivision = {
+      const newTimetable = {
         id: nanoid(4),
         name: value.name,
-        timetableId,
-      };
-      subdivisionCollection.insert(newSubdivision);
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } satisfies Timetable;
+
+      timetableCollection.insert(newTimetable);
       form.reset();
     },
   });
 
-  const handleEdit = (subdivision: Subdivision) => {
-    setEditingId(subdivision.id);
-    form.setFieldValue("name", subdivision.name);
+  const handleEdit = (timetable: Timetable) => {
+    setEditingId(timetable.id);
+    form.setFieldValue("name", timetable.name);
   };
 
   const handleUpdate = () => {
     if (editingId) {
-      subdivisionCollection.update(editingId, (draft) => {
+      timetableCollection.update(editingId, (draft) => {
         draft.name = form.state.values.name;
       });
       setEditingId(null);
@@ -68,7 +80,7 @@ function RouteComponent() {
   };
 
   const handleDelete = (id: string) => {
-    subdivisionCollection.delete(id);
+    timetableCollection.delete(id);
   };
 
   const cancelEdit = () => {
@@ -79,13 +91,13 @@ function RouteComponent() {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h3" component="h1" gutterBottom>
-        Subdivisions Management
+        Timetables Management
       </Typography>
-      {/* Subdivision Form Start ----------- */}
+      {/* Timetable Form Start ----------- */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Typography variant="h5" component="h2" gutterBottom>
-            {editingId ? "Edit Subdivision" : "Add New Subdivision"}
+            {editingId ? "Edit Timetable" : "Add New Timetable"}
           </Typography>
 
           <Box
@@ -110,7 +122,7 @@ function RouteComponent() {
               children={(field) => (
                 <TextField
                   fullWidth
-                  label="Subdivision Name"
+                  label="Timetable Name"
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
@@ -123,7 +135,7 @@ function RouteComponent() {
                       ? field.state.meta.errors.join(", ")
                       : ""
                   }
-                  placeholder="Enter subdivision name"
+                  placeholder="Enter timetable name"
                 />
               )}
             />
@@ -142,7 +154,7 @@ function RouteComponent() {
                       ? "Saving..."
                       : editingId
                         ? "Update"
-                        : "Add Subdivision"}
+                        : "Add Timetable"}
                   </Button>
                 )}
               />
@@ -156,9 +168,9 @@ function RouteComponent() {
           </Box>
         </CardContent>
       </Card>
-      {/* ----------- Subdivision Form End  */}
-      <SubdivisionList
-        subdivisions={subdivisions}
+      {/* ----------- Timetable Form End  */}
+      <TimetableList
+        timetables={timetables}
         handleEdit={handleEdit}
         handleDelete={handleDelete}
       />
@@ -166,36 +178,41 @@ function RouteComponent() {
   );
 }
 
-/* ---------------- Subdivision List Component ---------------- */
-function SubdivisionList({
-  subdivisions,
+/* ---------------- Timetable List Component ---------------- */
+function TimetableList({
+  timetables,
   handleEdit,
   handleDelete,
 }: {
-  subdivisions: Subdivision[];
-  handleEdit: (subdivision: Subdivision) => void;
+  timetables: Timetable[];
+  handleEdit: (timetable: Timetable) => void;
   handleDelete: (id: string) => void;
 }) {
   return (
     <Card>
       <CardContent>
         <Typography variant="h5" component="h2" gutterBottom>
-          Existing Subdivisions
+          Existing Timetables
         </Typography>
 
-        {subdivisions.length > 0 ? (
+        {timetables.length > 0 ? (
           <List>
-            {subdivisions.map((subdivision) => (
-              <ListItem key={subdivision.id} divider>
-                <ListItemText
-                  primary={subdivision.name}
-                  primaryTypographyProps={{ variant: "h6" }}
-                />
+            {timetables.map((timetable) => (
+              <ListItem key={timetable.id} divider>
+                <Link
+                  to={"/tt/$timetableId/edit"}
+                  params={{ timetableId: timetable.id }}
+                >
+                  <ListItemText
+                    primary={timetable.name}
+                    primaryTypographyProps={{ variant: "h6" }}
+                  />
+                </Link>
                 <ListItemSecondaryAction>
                   <IconButton
                     edge="end"
                     aria-label="edit"
-                    onClick={() => handleEdit(subdivision)}
+                    onClick={() => handleEdit(timetable)}
                     sx={{ mr: 1 }}
                     color="primary"
                   >
@@ -204,7 +221,7 @@ function SubdivisionList({
                   <IconButton
                     edge="end"
                     aria-label="delete"
-                    onClick={() => handleDelete(subdivision.id)}
+                    onClick={() => handleDelete(timetable.id)}
                     color="error"
                   >
                     <DeleteIcon />
@@ -215,7 +232,7 @@ function SubdivisionList({
           </List>
         ) : (
           <Alert severity="info" sx={{ mt: 2 }}>
-            No subdivisions found. Add your first subdivision above.
+            No timetables found. Add your first timetable above.
           </Alert>
         )}
       </CardContent>

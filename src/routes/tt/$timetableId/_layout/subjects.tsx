@@ -29,7 +29,7 @@ import {
 } from "@mui/icons-material";
 import { useCollections } from "@/db-collections/providers/useCollections";
 
-export const Route = createFileRoute("/tt/$timetableId/subjects")({
+export const Route = createFileRoute("/tt/$timetableId/_layout/subjects")({
   component: RouteComponent,
 });
 
@@ -252,7 +252,7 @@ function SubjectList({
           <Box>
             {Object.entries(groupedSubjects).map(([groupId, subjects]) => (
               <Box key={groupId} sx={{ mb: 3 }}>
-                <Typography variant="h6" sx={{ mb: 2, color: 'primary.main' }}>
+                <Typography variant="h6" sx={{ mb: 2, color: "primary.main" }}>
                   {getGroupName(groupId)}
                 </Typography>
                 <List>

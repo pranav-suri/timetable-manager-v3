@@ -1,13 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { styled } from "@mui/material/styles";
 import { Box } from "@mui/material";
 import MuiTimetable from "./-MuiTimetable";
 import { NavBar } from "@/components/Navbar";
 import { DrawerHeader, DrawerRight } from "@/components/Drawer";
-import { useCollections } from "@/db-collections/providers/useCollections";
 
-export const Route = createFileRoute("/tt/$timetableId/edit/")({
+export const Route = createFileRoute("/tt/$timetableId/_layout/edit/")({
   component: RouteComponent,
 });
 
@@ -42,8 +41,6 @@ const Main = styled("main", {
 
 function RouteComponent() {
   const [drawerState, setDrawerState] = useState(false);
-  const [allCollectionsReady, setAllCollectionsReady] =
-    useState<boolean>(false);
   const drawerwidth = 300;
 
   const handleDrawerOpen = () => {
@@ -53,25 +50,6 @@ function RouteComponent() {
   const handleDrawerClose = () => {
     setDrawerState(false);
   };
-
-  const collections = useCollections();
-
-  useEffect(() => {
-    const checkReady = async () => {
-      console.log(
-        "Total number of collections: ",
-        Object.values(collections).length,
-      );
-      for (const col of Object.values(collections)) {
-        col.preload();
-        await col.stateWhenReady();
-      }
-      setAllCollectionsReady(true);
-    };
-    checkReady();
-  }, [collections]);
-
-  if (!allCollectionsReady) return <>Loading Collections.</>;
 
   return (
     <Box sx={{ display: "flex" }}>

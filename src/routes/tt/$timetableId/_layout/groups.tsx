@@ -10,11 +10,13 @@ import {
   Card,
   CardContent,
   Container,
+  FormControlLabel,
   IconButton,
   List,
   ListItem,
   ListItemSecondaryAction,
   ListItemText,
+  Switch,
   TextField,
   Typography,
 } from '@mui/material'
@@ -25,47 +27,47 @@ import {
 } from '@mui/icons-material'
 import { useCollections } from '@/db-collections/providers/useCollections'
 
-export const Route = createFileRoute('/tt/$timetableId/teachers')({
+export const Route = createFileRoute('/tt/$timetableId/_layout/groups')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const { teacherCollection } = useCollections()
+  const { groupCollection } = useCollections()
   const { timetableId } = Route.useParams()
   const [editingId, setEditingId] = useState<string | null>(null)
 
-  const { data: teachers } = useLiveQuery((q) =>
-    q.from({ teacherCollection })
+  const { data: groups } = useLiveQuery((q) =>
+    q.from({ groupCollection })
   )
 
   const form = useForm({
     defaultValues: {
       name: '',
-      email: '',
+      allowSimultaneous: false,
     },
     onSubmit: ({ value }) => {
-      const newTeacher = {
+      const newGroup = {
         id: nanoid(4),
         name: value.name,
-        email: value.email,
+        allowSimultaneous: value.allowSimultaneous,
         timetableId,
       }
-      teacherCollection.insert(newTeacher)
+      groupCollection.insert(newGroup)
       form.reset()
     },
   })
 
-  const handleEdit = (teacher: any) => {
-    setEditingId(teacher.id)
-    form.setFieldValue('name', teacher.name)
-    form.setFieldValue('email', teacher.email)
+  const handleEdit = (group: any) => {
+    setEditingId(group.id)
+    form.setFieldValue('name', group.name)
+    form.setFieldValue('allowSimultaneous', group.allowSimultaneous)
   }
 
   const handleUpdate = () => {
     if (editingId) {
-      teacherCollection.update(editingId, (draft) => {
+      groupCollection.update(editingId, (draft) => {
         draft.name = form.state.values.name
-        draft.email = form.state.values.email
+        draft.allowSimultaneous = form.state.values.allowSimultaneous
       })
       setEditingId(null)
       form.reset()
@@ -73,7 +75,7 @@ function RouteComponent() {
   }
 
   const handleDelete = (id: string) => {
-    teacherCollection.delete(id)
+    groupCollection.delete(id)
   }
 
   const cancelEdit = () => {
@@ -84,14 +86,14 @@ function RouteComponent() {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h3" component="h1" gutterBottom>
-        Teachers Management
+        Groups Management
       </Typography>
 
-      {/* Teacher Form */}
+      {/* Group Form */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Typography variant="h5" component="h2" gutterBottom>
-            {editingId ? 'Edit Teacher' : 'Add New Teacher'}
+            {editingId ? 'Edit Group' : 'Add New Group'}
           </Typography>
 
           <Box
@@ -116,7 +118,7 @@ function RouteComponent() {
               children={(field) => (
                 <TextField
                   fullWidth
-                  label="Teacher Name"
+                  label="Group Name"
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
@@ -129,39 +131,23 @@ function RouteComponent() {
                       ? field.state.meta.errors.join(', ')
                       : ''
                   }
-                  placeholder="Enter teacher name"
+                  placeholder="Enter group name"
                 />
               )}
             />
 
             <form.Field
-              name="email"
-              validators={{
-                onChange: ({ value }) => {
-                  if (!value) return 'Email is required'
-                  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-                  if (!emailRegex.test(value)) return 'Please enter a valid email address'
-                  return undefined
-                },
-              }}
+              name="allowSimultaneous"
               children={(field) => (
-                <TextField
-                  fullWidth
-                  label="Email Address"
-                  type="email"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  onBlur={field.handleBlur}
-                  error={
-                    field.state.meta.isTouched &&
-                    field.state.meta.errors.length > 0
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.checked)}
+                    />
                   }
-                  helperText={
-                    field.state.meta.isTouched && field.state.meta.errors.length
-                      ? field.state.meta.errors.join(', ')
-                      : ''
-                  }
-                  placeholder="Enter email address"
+                  label="Allow Simultaneous Lectures"
+                  sx={{ mt: 1 }}
                 />
               )}
             />
@@ -180,7 +166,7 @@ function RouteComponent() {
                       ? 'Saving...'
                       : editingId
                         ? 'Update'
-                        : 'Add Teacher'}
+                        : 'Add Group'}
                   </Button>
                 )}
               />
@@ -195,9 +181,9 @@ function RouteComponent() {
         </CardContent>
       </Card>
 
-      {/* Teachers List */}
-      <TeacherList
-        teachers={teachers}
+      {/* Groups List */}
+      <GroupList
+        groups={groups}
         handleEdit={handleEdit}
         handleDelete={handleDelete}
       />
@@ -205,37 +191,37 @@ function RouteComponent() {
   )
 }
 
-/* ---------------- Teacher List Component ---------------- */
-function TeacherList({
-  teachers,
+/* ---------------- Group List Component ---------------- */
+function GroupList({
+  groups,
   handleEdit,
   handleDelete,
 }: {
-  teachers: any[]
-  handleEdit: (teacher: any) => void
+  groups: any[]
+  handleEdit: (group: any) => void
   handleDelete: (id: string) => void
 }) {
   return (
     <Card>
       <CardContent>
         <Typography variant="h5" component="h2" gutterBottom>
-          Existing Teachers
+          Existing Groups
         </Typography>
 
-        {teachers.length > 0 ? (
+        {groups.length > 0 ? (
           <List>
-            {teachers.map((teacher) => (
-              <ListItem key={teacher.id} divider>
+            {groups.map((group) => (
+              <ListItem key={group.id} divider>
                 <ListItemText
-                  primary={teacher.name}
-                  secondary={teacher.email}
+                  primary={group.name}
+                  secondary={`Allow Simultaneous: ${group.allowSimultaneous ? `Yes` : `No`}`}
                   primaryTypographyProps={{ variant: 'h6' }}
                 />
                 <ListItemSecondaryAction>
                   <IconButton
                     edge="end"
                     aria-label="edit"
-                    onClick={() => handleEdit(teacher)}
+                    onClick={() => handleEdit(group)}
                     sx={{ mr: 1 }}
                     color="primary"
                   >
@@ -244,7 +230,7 @@ function TeacherList({
                   <IconButton
                     edge="end"
                     aria-label="delete"
-                    onClick={() => handleDelete(teacher.id)}
+                    onClick={() => handleDelete(group.id)}
                     color="error"
                   >
                     <DeleteIcon />
@@ -255,7 +241,7 @@ function TeacherList({
           </List>
         ) : (
           <Alert severity="info" sx={{ mt: 2 }}>
-            No teachers found. Add your first teacher above.
+            No groups found. Add your first group above.
           </Alert>
         )}
       </CardContent>

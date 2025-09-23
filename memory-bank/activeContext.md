@@ -47,15 +47,19 @@ Based on open tabs and recent activity, current development is concentrated on:
 - **State in Live Queries**: Confirmed that state variables can be used in `useLiveQuery` for dynamic, reactive data fetching
 
 ### UI/UX Improvements
-- **MUI v7 Integration**: Converted subdivisions, classrooms, subjects, groups, and teachers management pages from Tailwind CSS to Material-UI v7 components
+- **MUI v7 Integration**: Converted subdivisions, classrooms, subjects, groups, teachers, and lectures management pages from Tailwind CSS to Material-UI v7 components
 - **Design System Consistency**: Implemented Material Design principles across entity management pages
-- **Component Library**: Established patterns for using MUI components (Container, Card, Typography, Button, TextField, List, Alert, Select, FormControl, Switch, FormControlLabel)
+- **Component Library**: Established patterns for using MUI components (Container, Card, Typography, Button, TextField, List, Alert, Select, FormControl, Switch, FormControlLabel, Chip, Checkbox, OutlinedInput)
 - **Accessibility**: Improved ARIA labels, semantic HTML structure, and keyboard navigation
 - **Responsive Design**: Enhanced mobile responsiveness using MUI's responsive system
-- **Entity Management**: Completed management interfaces for all core entities (subdivisions, classrooms, subjects, groups, teachers) with full CRUD functionality
-- **Relationship Handling**: Implemented proper parent-child relationships (subjects belong to groups) with dropdown selection
+- **Entity Management**: Completed management interfaces for all core entities (subdivisions, classrooms, subjects, groups, teachers, lectures) with full CRUD functionality
+- **Relationship Handling**: Implemented proper parent-child relationships (subjects belong to groups, lectures belong to teachers and subjects) with dropdown selection
 - **Advanced Form Controls**: Added Switch components for boolean fields (allowSimultaneous in groups)
 - **Email Validation**: Implemented robust email validation with regex patterns for teacher management
+- **Complex Form Validation**: Added number validation with min/max constraints for lecture count and duration fields
+- **Multi-Select Components**: Implemented multi-select dropdowns with checkboxes and chip displays for subdivisions and classrooms in lectures
+- **Schema Compliance**: Fixed duration field to represent number of slots instead of minutes as per database schema
+- **Relationship Queries**: Implemented proper queries to fetch and display related subdivisions and classrooms for each lecture using the pattern from LectureSlot.tsx
 
 ## Next Steps
 
