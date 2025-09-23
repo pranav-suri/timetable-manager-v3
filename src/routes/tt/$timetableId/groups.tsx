@@ -1,8 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { nanoid } from "nanoid";
-import { useLiveQuery } from "@tanstack/react-db";
-import { useForm } from "@tanstack/react-form";
+import { createFileRoute } from '@tanstack/react-router'
+import { useState } from 'react'
+import { nanoid } from 'nanoid'
+import { useLiveQuery } from '@tanstack/react-db'
+import { useForm } from '@tanstack/react-form'
 import {
   Alert,
   Box,
@@ -10,107 +10,115 @@ import {
   Card,
   CardContent,
   Container,
+  FormControlLabel,
   IconButton,
   List,
   ListItem,
   ListItemSecondaryAction,
   ListItemText,
+  Switch,
   TextField,
   Typography,
-} from "@mui/material";
+} from '@mui/material'
 import {
   Add as AddIcon,
   Delete as DeleteIcon,
   Edit as EditIcon,
-} from "@mui/icons-material";
-import type { Subdivision } from "generated/prisma/client";
-import { useCollections } from "@/db-collections/providers/useCollections";
+} from '@mui/icons-material'
+import { useCollections } from '@/db-collections/providers/useCollections'
 
-export const Route = createFileRoute("/tt/$timetableId/subdivisions")({
+export const Route = createFileRoute('/tt/$timetableId/groups')({
   component: RouteComponent,
-});
+})
 
 function RouteComponent() {
-  const { subdivisionCollection } = useCollections();
-  const { timetableId } = Route.useParams();
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const { groupCollection } = useCollections()
+  const { timetableId } = Route.useParams()
+  const [editingId, setEditingId] = useState<string | null>(null)
 
-  const { data: subdivisions } = useLiveQuery((q) =>
-    q.from({ subdivisionCollection }),
-  );
+  const { data: groups } = useLiveQuery((q) =>
+    q.from({ groupCollection })
+  )
 
   const form = useForm({
-    defaultValues: { name: "" },
+    defaultValues: {
+      name: '',
+      allowSimultaneous: false,
+    },
     onSubmit: ({ value }) => {
-      const newSubdivision = {
+      const newGroup = {
         id: nanoid(4),
         name: value.name,
+        allowSimultaneous: value.allowSimultaneous,
         timetableId,
-      };
-      subdivisionCollection.insert(newSubdivision);
-      form.reset();
+      }
+      groupCollection.insert(newGroup)
+      form.reset()
     },
-  });
+  })
 
-  const handleEdit = (subdivision: Subdivision) => {
-    setEditingId(subdivision.id);
-    form.setFieldValue("name", subdivision.name);
-  };
+  const handleEdit = (group: any) => {
+    setEditingId(group.id)
+    form.setFieldValue('name', group.name)
+    form.setFieldValue('allowSimultaneous', group.allowSimultaneous)
+  }
 
   const handleUpdate = () => {
     if (editingId) {
-      subdivisionCollection.update(editingId, (draft) => {
-        draft.name = form.state.values.name;
-      });
-      setEditingId(null);
-      form.reset();
+      groupCollection.update(editingId, (draft) => {
+        draft.name = form.state.values.name
+        draft.allowSimultaneous = form.state.values.allowSimultaneous
+      })
+      setEditingId(null)
+      form.reset()
     }
-  };
+  }
 
   const handleDelete = (id: string) => {
-    subdivisionCollection.delete(id);
-  };
+    groupCollection.delete(id)
+  }
 
   const cancelEdit = () => {
-    setEditingId(null);
-    form.reset();
-  };
+    setEditingId(null)
+    form.reset()
+  }
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h3" component="h1" gutterBottom>
-        Subdivisions Management
+        Groups Management
       </Typography>
-      {/* Subdivision Form Start ----------- */}
+
+      {/* Group Form */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Typography variant="h5" component="h2" gutterBottom>
-            {editingId ? "Edit Subdivision" : "Add New Subdivision"}
+            {editingId ? 'Edit Group' : 'Add New Group'}
           </Typography>
 
           <Box
             component="form"
             onSubmit={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
+              e.preventDefault()
+              e.stopPropagation()
               if (editingId) {
-                handleUpdate();
+                handleUpdate()
               } else {
-                form.handleSubmit();
+                form.handleSubmit()
               }
             }}
-            sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+            sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
           >
             <form.Field
               name="name"
               validators={{
                 onChange: ({ value }) =>
-                  !value ? "Name is required" : undefined,
+                  !value ? 'Name is required' : undefined,
               }}
               children={(field) => (
                 <TextField
                   fullWidth
-                  label="Subdivision Name"
+                  label="Group Name"
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
@@ -120,15 +128,31 @@ function RouteComponent() {
                   }
                   helperText={
                     field.state.meta.isTouched && field.state.meta.errors.length
-                      ? field.state.meta.errors.join(", ")
-                      : ""
+                      ? field.state.meta.errors.join(', ')
+                      : ''
                   }
-                  placeholder="Enter subdivision name"
+                  placeholder="Enter group name"
                 />
               )}
             />
 
-            <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
+            <form.Field
+              name="allowSimultaneous"
+              children={(field) => (
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.checked)}
+                    />
+                  }
+                  label="Allow Simultaneous Lectures"
+                  sx={{ mt: 1 }}
+                />
+              )}
+            />
+
+            <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
               <form.Subscribe
                 selector={(state) => [state.canSubmit, state.isSubmitting]}
                 children={([canSubmit, isSubmitting]) => (
@@ -139,10 +163,10 @@ function RouteComponent() {
                     startIcon={editingId ? <EditIcon /> : <AddIcon />}
                   >
                     {isSubmitting
-                      ? "Saving..."
+                      ? 'Saving...'
                       : editingId
-                        ? "Update"
-                        : "Add Subdivision"}
+                        ? 'Update'
+                        : 'Add Group'}
                   </Button>
                 )}
               />
@@ -156,46 +180,48 @@ function RouteComponent() {
           </Box>
         </CardContent>
       </Card>
-      {/* ----------- Subdivision Form End  */}
-      <SubdivisionList
-        subdivisions={subdivisions}
+
+      {/* Groups List */}
+      <GroupList
+        groups={groups}
         handleEdit={handleEdit}
         handleDelete={handleDelete}
       />
     </Container>
-  );
+  )
 }
 
-/* ---------------- Subdivision List Component ---------------- */
-function SubdivisionList({
-  subdivisions,
+/* ---------------- Group List Component ---------------- */
+function GroupList({
+  groups,
   handleEdit,
   handleDelete,
 }: {
-  subdivisions: Subdivision[];
-  handleEdit: (subdivision: Subdivision) => void;
-  handleDelete: (id: string) => void;
+  groups: any[]
+  handleEdit: (group: any) => void
+  handleDelete: (id: string) => void
 }) {
   return (
     <Card>
       <CardContent>
         <Typography variant="h5" component="h2" gutterBottom>
-          Existing Subdivisions
+          Existing Groups
         </Typography>
 
-        {subdivisions.length > 0 ? (
+        {groups.length > 0 ? (
           <List>
-            {subdivisions.map((subdivision) => (
-              <ListItem key={subdivision.id} divider>
+            {groups.map((group) => (
+              <ListItem key={group.id} divider>
                 <ListItemText
-                  primary={subdivision.name}
-                  primaryTypographyProps={{ variant: "h6" }}
+                  primary={group.name}
+                  secondary={`Allow Simultaneous: ${group.allowSimultaneous ? 'Yes' : 'No'}`}
+                  primaryTypographyProps={{ variant: 'h6' }}
                 />
                 <ListItemSecondaryAction>
                   <IconButton
                     edge="end"
                     aria-label="edit"
-                    onClick={() => handleEdit(subdivision)}
+                    onClick={() => handleEdit(group)}
                     sx={{ mr: 1 }}
                     color="primary"
                   >
@@ -204,7 +230,7 @@ function SubdivisionList({
                   <IconButton
                     edge="end"
                     aria-label="delete"
-                    onClick={() => handleDelete(subdivision.id)}
+                    onClick={() => handleDelete(group.id)}
                     color="error"
                   >
                     <DeleteIcon />
@@ -215,10 +241,10 @@ function SubdivisionList({
           </List>
         ) : (
           <Alert severity="info" sx={{ mt: 2 }}>
-            No subdivisions found. Add your first subdivision above.
+            No groups found. Add your first group above.
           </Alert>
         )}
       </CardContent>
     </Card>
-  );
+  )
 }

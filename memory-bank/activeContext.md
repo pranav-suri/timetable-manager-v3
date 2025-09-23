@@ -16,6 +16,7 @@ Based on open tabs and recent activity, current development is concentrated on:
 - **Collection System**: Data access layer with caching and synchronization
 - **Database Schema**: Prisma models for complex relationships
 - **UI Components**: React components for timetable visualization and editing
+- **Entity Management Pages**: Building MUI-based management interfaces for subdivisions, classrooms, and groups
 
 ## Recent Changes
 
@@ -44,6 +45,17 @@ Based on open tabs and recent activity, current development is concentrated on:
 - **Memo Usage**: Discussed proper usage of `React.memo` to prevent unnecessary re-renders
 - **Component Optimization**: Identified that memoizing every component can hurt performance and should be targeted at expensive components
 - **State in Live Queries**: Confirmed that state variables can be used in `useLiveQuery` for dynamic, reactive data fetching
+
+### UI/UX Improvements
+- **MUI v7 Integration**: Converted subdivisions, classrooms, subjects, groups, and teachers management pages from Tailwind CSS to Material-UI v7 components
+- **Design System Consistency**: Implemented Material Design principles across entity management pages
+- **Component Library**: Established patterns for using MUI components (Container, Card, Typography, Button, TextField, List, Alert, Select, FormControl, Switch, FormControlLabel)
+- **Accessibility**: Improved ARIA labels, semantic HTML structure, and keyboard navigation
+- **Responsive Design**: Enhanced mobile responsiveness using MUI's responsive system
+- **Entity Management**: Completed management interfaces for all core entities (subdivisions, classrooms, subjects, groups, teachers) with full CRUD functionality
+- **Relationship Handling**: Implemented proper parent-child relationships (subjects belong to groups) with dropdown selection
+- **Advanced Form Controls**: Added Switch components for boolean fields (allowSimultaneous in groups)
+- **Email Validation**: Implemented robust email validation with regex patterns for teacher management
 
 ## Next Steps
 
@@ -85,7 +97,7 @@ Based on open tabs and recent activity, current development is concentrated on:
 - **State Management**: TanStack Query for server state, Zustand for client state
 - **Database Choice**: SQLite for development, PostgreSQL for production
 - **API Pattern**: tRPC for type safety over REST
-- **Component Library**: Custom components over third-party UI libraries
+- **Component Library**: Material-UI v7 for consistent, accessible, and responsive components
 
 ### Architecture Decisions
 - **Modular Structure**: Feature-based organization with clear separation
@@ -98,6 +110,8 @@ Based on open tabs and recent activity, current development is concentrated on:
 - **Data Flow**: Unidirectional data flow with proper state management
 - **Responsive Design**: Mobile-first approach with progressive enhancement
 - **Accessibility**: WCAG compliance for inclusive design
+- **Component Library**: Material-UI v7 for consistent, accessible, and responsive components
+- **Design System**: Material Design principles with proper typography hierarchy and spacing
 
 ## Important Patterns and Preferences
 
