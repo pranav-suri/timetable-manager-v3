@@ -23,44 +23,43 @@ import {
   Delete as DeleteIcon,
   Edit as EditIcon,
 } from "@mui/icons-material";
-import type { Timetable } from "generated/prisma/client";
+import type { Classroom } from "generated/prisma/client";
 import { useCollections } from "@/db-collections/providers/useCollections";
 
-export const Route = createFileRoute("/tt/$timetableId/timetables")({
+export const Route = createFileRoute("/tt/$timetableId/_layout/classrooms")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { timetableCollection } = useCollections();
+  const { classroomCollection } = useCollections();
+  const { timetableId } = Route.useParams();
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const { data: timetables } = useLiveQuery((q) =>
-    q.from({ timetableCollection }),
+  const { data: classrooms } = useLiveQuery((q) =>
+    q.from({ classroomCollection }),
   );
 
   const form = useForm({
     defaultValues: { name: "" },
     onSubmit: ({ value }) => {
-      const newTimetable = {
+      const newClassroom = {
         id: nanoid(4),
         name: value.name,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      } satisfies Timetable;
-
-      timetableCollection.insert(newTimetable);
+        timetableId,
+      };
+      classroomCollection.insert(newClassroom);
       form.reset();
     },
   });
 
-  const handleEdit = (timetable: Timetable) => {
-    setEditingId(timetable.id);
-    form.setFieldValue("name", timetable.name);
+  const handleEdit = (classroom: Classroom) => {
+    setEditingId(classroom.id);
+    form.setFieldValue("name", classroom.name);
   };
 
   const handleUpdate = () => {
     if (editingId) {
-      timetableCollection.update(editingId, (draft) => {
+      classroomCollection.update(editingId, (draft) => {
         draft.name = form.state.values.name;
       });
       setEditingId(null);
@@ -69,7 +68,7 @@ function RouteComponent() {
   };
 
   const handleDelete = (id: string) => {
-    timetableCollection.delete(id);
+    classroomCollection.delete(id);
   };
 
   const cancelEdit = () => {
@@ -80,13 +79,13 @@ function RouteComponent() {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h3" component="h1" gutterBottom>
-        Timetables Management
+        Classrooms Management
       </Typography>
-      {/* Timetable Form Start ----------- */}
+      {/* Classroom Form Start ----------- */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Typography variant="h5" component="h2" gutterBottom>
-            {editingId ? "Edit Timetable" : "Add New Timetable"}
+            {editingId ? "Edit Classroom" : "Add New Classroom"}
           </Typography>
 
           <Box
@@ -111,7 +110,7 @@ function RouteComponent() {
               children={(field) => (
                 <TextField
                   fullWidth
-                  label="Timetable Name"
+                  label="Classroom Name"
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
@@ -124,7 +123,7 @@ function RouteComponent() {
                       ? field.state.meta.errors.join(", ")
                       : ""
                   }
-                  placeholder="Enter timetable name"
+                  placeholder="Enter classroom name"
                 />
               )}
             />
@@ -143,7 +142,7 @@ function RouteComponent() {
                       ? "Saving..."
                       : editingId
                         ? "Update"
-                        : "Add Timetable"}
+                        : "Add Classroom"}
                   </Button>
                 )}
               />
@@ -157,9 +156,9 @@ function RouteComponent() {
           </Box>
         </CardContent>
       </Card>
-      {/* ----------- Timetable Form End  */}
-      <TimetableList
-        timetables={timetables}
+      {/* ----------- Classroom Form End  */}
+      <ClassroomList
+        classrooms={classrooms}
         handleEdit={handleEdit}
         handleDelete={handleDelete}
       />
@@ -167,36 +166,36 @@ function RouteComponent() {
   );
 }
 
-/* ---------------- Timetable List Component ---------------- */
-function TimetableList({
-  timetables,
+/* ---------------- Classroom List Component ---------------- */
+function ClassroomList({
+  classrooms,
   handleEdit,
   handleDelete,
 }: {
-  timetables: Timetable[];
-  handleEdit: (timetable: Timetable) => void;
+  classrooms: Classroom[];
+  handleEdit: (classroom: Classroom) => void;
   handleDelete: (id: string) => void;
 }) {
   return (
     <Card>
       <CardContent>
         <Typography variant="h5" component="h2" gutterBottom>
-          Existing Timetables
+          Existing Classrooms
         </Typography>
 
-        {timetables.length > 0 ? (
+        {classrooms.length > 0 ? (
           <List>
-            {timetables.map((timetable) => (
-              <ListItem key={timetable.id} divider>
+            {classrooms.map((classroom) => (
+              <ListItem key={classroom.id} divider>
                 <ListItemText
-                  primary={timetable.name}
+                  primary={classroom.name}
                   primaryTypographyProps={{ variant: "h6" }}
                 />
                 <ListItemSecondaryAction>
                   <IconButton
                     edge="end"
                     aria-label="edit"
-                    onClick={() => handleEdit(timetable)}
+                    onClick={() => handleEdit(classroom)}
                     sx={{ mr: 1 }}
                     color="primary"
                   >
@@ -205,7 +204,7 @@ function TimetableList({
                   <IconButton
                     edge="end"
                     aria-label="delete"
-                    onClick={() => handleDelete(timetable.id)}
+                    onClick={() => handleDelete(classroom.id)}
                     color="error"
                   >
                     <DeleteIcon />
@@ -216,7 +215,7 @@ function TimetableList({
           </List>
         ) : (
           <Alert severity="info" sx={{ mt: 2 }}>
-            No timetables found. Add your first timetable above.
+            No classrooms found. Add your first classroom above.
           </Alert>
         )}
       </CardContent>

@@ -23,43 +23,43 @@ import {
   Delete as DeleteIcon,
   Edit as EditIcon,
 } from "@mui/icons-material";
-import type { Classroom } from "generated/prisma/client";
+import type { Subdivision } from "generated/prisma/client";
 import { useCollections } from "@/db-collections/providers/useCollections";
 
-export const Route = createFileRoute("/tt/$timetableId/classrooms")({
+export const Route = createFileRoute("/tt/$timetableId/_layout/subdivisions")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { classroomCollection } = useCollections();
+  const { subdivisionCollection } = useCollections();
   const { timetableId } = Route.useParams();
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const { data: classrooms } = useLiveQuery((q) =>
-    q.from({ classroomCollection }),
+  const { data: subdivisions } = useLiveQuery((q) =>
+    q.from({ subdivisionCollection }),
   );
 
   const form = useForm({
     defaultValues: { name: "" },
     onSubmit: ({ value }) => {
-      const newClassroom = {
+      const newSubdivision = {
         id: nanoid(4),
         name: value.name,
         timetableId,
       };
-      classroomCollection.insert(newClassroom);
+      subdivisionCollection.insert(newSubdivision);
       form.reset();
     },
   });
 
-  const handleEdit = (classroom: Classroom) => {
-    setEditingId(classroom.id);
-    form.setFieldValue("name", classroom.name);
+  const handleEdit = (subdivision: Subdivision) => {
+    setEditingId(subdivision.id);
+    form.setFieldValue("name", subdivision.name);
   };
 
   const handleUpdate = () => {
     if (editingId) {
-      classroomCollection.update(editingId, (draft) => {
+      subdivisionCollection.update(editingId, (draft) => {
         draft.name = form.state.values.name;
       });
       setEditingId(null);
@@ -68,7 +68,7 @@ function RouteComponent() {
   };
 
   const handleDelete = (id: string) => {
-    classroomCollection.delete(id);
+    subdivisionCollection.delete(id);
   };
 
   const cancelEdit = () => {
@@ -79,13 +79,13 @@ function RouteComponent() {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h3" component="h1" gutterBottom>
-        Classrooms Management
+        Subdivisions Management
       </Typography>
-      {/* Classroom Form Start ----------- */}
+      {/* Subdivision Form Start ----------- */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Typography variant="h5" component="h2" gutterBottom>
-            {editingId ? "Edit Classroom" : "Add New Classroom"}
+            {editingId ? "Edit Subdivision" : "Add New Subdivision"}
           </Typography>
 
           <Box
@@ -110,7 +110,7 @@ function RouteComponent() {
               children={(field) => (
                 <TextField
                   fullWidth
-                  label="Classroom Name"
+                  label="Subdivision Name"
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
@@ -123,7 +123,7 @@ function RouteComponent() {
                       ? field.state.meta.errors.join(", ")
                       : ""
                   }
-                  placeholder="Enter classroom name"
+                  placeholder="Enter subdivision name"
                 />
               )}
             />
@@ -142,7 +142,7 @@ function RouteComponent() {
                       ? "Saving..."
                       : editingId
                         ? "Update"
-                        : "Add Classroom"}
+                        : "Add Subdivision"}
                   </Button>
                 )}
               />
@@ -156,9 +156,9 @@ function RouteComponent() {
           </Box>
         </CardContent>
       </Card>
-      {/* ----------- Classroom Form End  */}
-      <ClassroomList
-        classrooms={classrooms}
+      {/* ----------- Subdivision Form End  */}
+      <SubdivisionList
+        subdivisions={subdivisions}
         handleEdit={handleEdit}
         handleDelete={handleDelete}
       />
@@ -166,36 +166,36 @@ function RouteComponent() {
   );
 }
 
-/* ---------------- Classroom List Component ---------------- */
-function ClassroomList({
-  classrooms,
+/* ---------------- Subdivision List Component ---------------- */
+function SubdivisionList({
+  subdivisions,
   handleEdit,
   handleDelete,
 }: {
-  classrooms: Classroom[];
-  handleEdit: (classroom: Classroom) => void;
+  subdivisions: Subdivision[];
+  handleEdit: (subdivision: Subdivision) => void;
   handleDelete: (id: string) => void;
 }) {
   return (
     <Card>
       <CardContent>
         <Typography variant="h5" component="h2" gutterBottom>
-          Existing Classrooms
+          Existing Subdivisions
         </Typography>
 
-        {classrooms.length > 0 ? (
+        {subdivisions.length > 0 ? (
           <List>
-            {classrooms.map((classroom) => (
-              <ListItem key={classroom.id} divider>
+            {subdivisions.map((subdivision) => (
+              <ListItem key={subdivision.id} divider>
                 <ListItemText
-                  primary={classroom.name}
+                  primary={subdivision.name}
                   primaryTypographyProps={{ variant: "h6" }}
                 />
                 <ListItemSecondaryAction>
                   <IconButton
                     edge="end"
                     aria-label="edit"
-                    onClick={() => handleEdit(classroom)}
+                    onClick={() => handleEdit(subdivision)}
                     sx={{ mr: 1 }}
                     color="primary"
                   >
@@ -204,7 +204,7 @@ function ClassroomList({
                   <IconButton
                     edge="end"
                     aria-label="delete"
-                    onClick={() => handleDelete(classroom.id)}
+                    onClick={() => handleDelete(subdivision.id)}
                     color="error"
                   >
                     <DeleteIcon />
@@ -215,7 +215,7 @@ function ClassroomList({
           </List>
         ) : (
           <Alert severity="info" sx={{ mt: 2 }}>
-            No classrooms found. Add your first classroom above.
+            No subdivisions found. Add your first subdivision above.
           </Alert>
         )}
       </CardContent>

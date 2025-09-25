@@ -1,5 +1,4 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useRef } from "react";
 import { getTeacherCollection } from "../teacherCollection";
 import { getSubjectCollection } from "../subjectCollection";
 import { getGroupCollection } from "../groupCollection";
@@ -78,21 +77,19 @@ export function CollectionsProvider({
   timetableId: string;
   children: ReactNode;
 }) {
-  const ref = useRef<CollectionsContextType>(null);
   const trpc = useTRPC();
   const trpcClient = useTRPCClient();
   const queryClient = useQueryClient();
 
-  if (!ref.current)
-    ref.current = getCollections({
-      trpc,
-      trpcClient,
-      queryClient,
-      timetableId,
-    });
+  const collections = getCollections({
+    trpc,
+    trpcClient,
+    queryClient,
+    timetableId,
+  });
 
   return (
-    <CollectionsContext.Provider value={ref.current}>
+    <CollectionsContext.Provider value={collections}>
       {children}
     </CollectionsContext.Provider>
   );
