@@ -32,6 +32,8 @@ export type CollectionsContextType = ReturnType<typeof getCollections>;
 
 function getCollections(input: CollectionInput) {
   const { trpc, queryClient, trpcClient } = input;
+  // console.log("Query Client Cache Size before clearing:", queryClient.getQueryCache().getAll().length);
+  queryClient.clear(); // Clear the cache to avoid stale data issues
   // Add more collections to this object as needed
   const collections = {
     classroomCollection: getClassroomCollection(input),
