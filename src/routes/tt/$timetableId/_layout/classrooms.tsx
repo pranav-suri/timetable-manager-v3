@@ -35,8 +35,9 @@ function RouteComponent() {
   const { timetableId } = Route.useParams();
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const { data: classrooms } = useLiveQuery((q) =>
-    q.from({ classroomCollection }),
+  const { data: classrooms } = useLiveQuery(
+    (q) => q.from({ classroomCollection }),
+    [classroomCollection],
   );
 
   const form = useForm({

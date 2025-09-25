@@ -56,7 +56,7 @@ export function LectureDetails({ lectureSlotId }: { lectureSlotId: string }) {
       q
         .from({ lecSub: lectureSlotCollection })
         .where(({ lecSub }) => eq(lecSub.id, lectureSlotId)),
-    [lectureSlotId],
+    [lectureSlotCollection, lectureSlotId],
   );
 
   const lectureSlot = lectureSlotMaybe.find(

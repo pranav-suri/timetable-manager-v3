@@ -1,8 +1,8 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
-import { nanoid } from 'nanoid'
-import { useLiveQuery } from '@tanstack/react-db'
-import { useForm } from '@tanstack/react-form'
+import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { nanoid } from "nanoid";
+import { useLiveQuery } from "@tanstack/react-db";
+import { useForm } from "@tanstack/react-form";
 import {
   Alert,
   Box,
@@ -19,30 +19,31 @@ import {
   Switch,
   TextField,
   Typography,
-} from '@mui/material'
+} from "@mui/material";
 import {
   Add as AddIcon,
   Delete as DeleteIcon,
   Edit as EditIcon,
-} from '@mui/icons-material'
-import { useCollections } from '@/db-collections/providers/useCollections'
+} from "@mui/icons-material";
+import { useCollections } from "@/db-collections/providers/useCollections";
 
-export const Route = createFileRoute('/tt/$timetableId/_layout/groups')({
+export const Route = createFileRoute("/tt/$timetableId/_layout/groups")({
   component: RouteComponent,
-})
+});
 
 function RouteComponent() {
-  const { groupCollection } = useCollections()
-  const { timetableId } = Route.useParams()
-  const [editingId, setEditingId] = useState<string | null>(null)
+  const { groupCollection } = useCollections();
+  const { timetableId } = Route.useParams();
+  const [editingId, setEditingId] = useState<string | null>(null);
 
-  const { data: groups } = useLiveQuery((q) =>
-    q.from({ groupCollection })
-  )
+  const { data: groups } = useLiveQuery(
+    (q) => q.from({ groupCollection }),
+    [groupCollection],
+  );
 
   const form = useForm({
     defaultValues: {
-      name: '',
+      name: "",
       allowSimultaneous: false,
     },
     onSubmit: ({ value }) => {
@@ -51,37 +52,37 @@ function RouteComponent() {
         name: value.name,
         allowSimultaneous: value.allowSimultaneous,
         timetableId,
-      }
-      groupCollection.insert(newGroup)
-      form.reset()
+      };
+      groupCollection.insert(newGroup);
+      form.reset();
     },
-  })
+  });
 
   const handleEdit = (group: any) => {
-    setEditingId(group.id)
-    form.setFieldValue('name', group.name)
-    form.setFieldValue('allowSimultaneous', group.allowSimultaneous)
-  }
+    setEditingId(group.id);
+    form.setFieldValue("name", group.name);
+    form.setFieldValue("allowSimultaneous", group.allowSimultaneous);
+  };
 
   const handleUpdate = () => {
     if (editingId) {
       groupCollection.update(editingId, (draft) => {
-        draft.name = form.state.values.name
-        draft.allowSimultaneous = form.state.values.allowSimultaneous
-      })
-      setEditingId(null)
-      form.reset()
+        draft.name = form.state.values.name;
+        draft.allowSimultaneous = form.state.values.allowSimultaneous;
+      });
+      setEditingId(null);
+      form.reset();
     }
-  }
+  };
 
   const handleDelete = (id: string) => {
-    groupCollection.delete(id)
-  }
+    groupCollection.delete(id);
+  };
 
   const cancelEdit = () => {
-    setEditingId(null)
-    form.reset()
-  }
+    setEditingId(null);
+    form.reset();
+  };
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -93,27 +94,27 @@ function RouteComponent() {
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Typography variant="h5" component="h2" gutterBottom>
-            {editingId ? 'Edit Group' : 'Add New Group'}
+            {editingId ? "Edit Group" : "Add New Group"}
           </Typography>
 
           <Box
             component="form"
             onSubmit={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
+              e.preventDefault();
+              e.stopPropagation();
               if (editingId) {
-                handleUpdate()
+                handleUpdate();
               } else {
-                form.handleSubmit()
+                form.handleSubmit();
               }
             }}
-            sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
+            sx={{ display: "flex", flexDirection: "column", gap: 2 }}
           >
             <form.Field
               name="name"
               validators={{
                 onChange: ({ value }) =>
-                  !value ? 'Name is required' : undefined,
+                  !value ? "Name is required" : undefined,
               }}
               children={(field) => (
                 <TextField
@@ -128,8 +129,8 @@ function RouteComponent() {
                   }
                   helperText={
                     field.state.meta.isTouched && field.state.meta.errors.length
-                      ? field.state.meta.errors.join(', ')
-                      : ''
+                      ? field.state.meta.errors.join(", ")
+                      : ""
                   }
                   placeholder="Enter group name"
                 />
@@ -152,7 +153,7 @@ function RouteComponent() {
               )}
             />
 
-            <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+            <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
               <form.Subscribe
                 selector={(state) => [state.canSubmit, state.isSubmitting]}
                 children={([canSubmit, isSubmitting]) => (
@@ -163,10 +164,10 @@ function RouteComponent() {
                     startIcon={editingId ? <EditIcon /> : <AddIcon />}
                   >
                     {isSubmitting
-                      ? 'Saving...'
+                      ? "Saving..."
                       : editingId
-                        ? 'Update'
-                        : 'Add Group'}
+                        ? "Update"
+                        : "Add Group"}
                   </Button>
                 )}
               />
@@ -188,7 +189,7 @@ function RouteComponent() {
         handleDelete={handleDelete}
       />
     </Container>
-  )
+  );
 }
 
 /* ---------------- Group List Component ---------------- */
@@ -197,9 +198,9 @@ function GroupList({
   handleEdit,
   handleDelete,
 }: {
-  groups: any[]
-  handleEdit: (group: any) => void
-  handleDelete: (id: string) => void
+  groups: any[];
+  handleEdit: (group: any) => void;
+  handleDelete: (id: string) => void;
 }) {
   return (
     <Card>
@@ -215,7 +216,7 @@ function GroupList({
                 <ListItemText
                   primary={group.name}
                   secondary={`Allow Simultaneous: ${group.allowSimultaneous ? `Yes` : `No`}`}
-                  primaryTypographyProps={{ variant: 'h6' }}
+                  primaryTypographyProps={{ variant: "h6" }}
                 />
                 <ListItemSecondaryAction>
                   <IconButton
@@ -246,5 +247,5 @@ function GroupList({
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

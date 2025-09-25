@@ -1,8 +1,8 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
-import { nanoid } from 'nanoid'
-import { useLiveQuery } from '@tanstack/react-db'
-import { useForm } from '@tanstack/react-form'
+import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { nanoid } from "nanoid";
+import { useLiveQuery } from "@tanstack/react-db";
+import { useForm } from "@tanstack/react-form";
 import {
   Alert,
   Box,
@@ -17,31 +17,32 @@ import {
   ListItemText,
   TextField,
   Typography,
-} from '@mui/material'
+} from "@mui/material";
 import {
   Add as AddIcon,
   Delete as DeleteIcon,
   Edit as EditIcon,
-} from '@mui/icons-material'
-import { useCollections } from '@/db-collections/providers/useCollections'
+} from "@mui/icons-material";
+import { useCollections } from "@/db-collections/providers/useCollections";
 
-export const Route = createFileRoute('/tt/$timetableId/_layout/teachers')({
+export const Route = createFileRoute("/tt/$timetableId/_layout/teachers")({
   component: RouteComponent,
-})
+});
 
 function RouteComponent() {
-  const { teacherCollection } = useCollections()
-  const { timetableId } = Route.useParams()
-  const [editingId, setEditingId] = useState<string | null>(null)
+  const { teacherCollection } = useCollections();
+  const { timetableId } = Route.useParams();
+  const [editingId, setEditingId] = useState<string | null>(null);
 
-  const { data: teachers } = useLiveQuery((q) =>
-    q.from({ teacherCollection })
-  )
+  const { data: teachers } = useLiveQuery(
+    (q) => q.from({ teacherCollection }),
+    [teacherCollection],
+  );
 
   const form = useForm({
     defaultValues: {
-      name: '',
-      email: '',
+      name: "",
+      email: "",
     },
     onSubmit: ({ value }) => {
       const newTeacher = {
@@ -49,37 +50,37 @@ function RouteComponent() {
         name: value.name,
         email: value.email,
         timetableId,
-      }
-      teacherCollection.insert(newTeacher)
-      form.reset()
+      };
+      teacherCollection.insert(newTeacher);
+      form.reset();
     },
-  })
+  });
 
   const handleEdit = (teacher: any) => {
-    setEditingId(teacher.id)
-    form.setFieldValue('name', teacher.name)
-    form.setFieldValue('email', teacher.email)
-  }
+    setEditingId(teacher.id);
+    form.setFieldValue("name", teacher.name);
+    form.setFieldValue("email", teacher.email);
+  };
 
   const handleUpdate = () => {
     if (editingId) {
       teacherCollection.update(editingId, (draft) => {
-        draft.name = form.state.values.name
-        draft.email = form.state.values.email
-      })
-      setEditingId(null)
-      form.reset()
+        draft.name = form.state.values.name;
+        draft.email = form.state.values.email;
+      });
+      setEditingId(null);
+      form.reset();
     }
-  }
+  };
 
   const handleDelete = (id: string) => {
-    teacherCollection.delete(id)
-  }
+    teacherCollection.delete(id);
+  };
 
   const cancelEdit = () => {
-    setEditingId(null)
-    form.reset()
-  }
+    setEditingId(null);
+    form.reset();
+  };
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -90,27 +91,27 @@ function RouteComponent() {
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Typography variant="h5" component="h2" gutterBottom>
-            {editingId ? 'Edit Teacher' : 'Add New Teacher'}
+            {editingId ? "Edit Teacher" : "Add New Teacher"}
           </Typography>
 
           <Box
             component="form"
             onSubmit={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
+              e.preventDefault();
+              e.stopPropagation();
               if (editingId) {
-                handleUpdate()
+                handleUpdate();
               } else {
-                form.handleSubmit()
+                form.handleSubmit();
               }
             }}
-            sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
+            sx={{ display: "flex", flexDirection: "column", gap: 2 }}
           >
             <form.Field
               name="name"
               validators={{
                 onChange: ({ value }) =>
-                  !value ? 'Name is required' : undefined,
+                  !value ? "Name is required" : undefined,
               }}
               children={(field) => (
                 <TextField
@@ -125,8 +126,8 @@ function RouteComponent() {
                   }
                   helperText={
                     field.state.meta.isTouched && field.state.meta.errors.length
-                      ? field.state.meta.errors.join(', ')
-                      : ''
+                      ? field.state.meta.errors.join(", ")
+                      : ""
                   }
                   placeholder="Enter teacher name"
                 />
@@ -137,10 +138,11 @@ function RouteComponent() {
               name="email"
               validators={{
                 onChange: ({ value }) => {
-                  if (!value) return 'Email is required'
-                  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-                  if (!emailRegex.test(value)) return 'Please enter a valid email address'
-                  return undefined
+                  if (!value) return "Email is required";
+                  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                  if (!emailRegex.test(value))
+                    return "Please enter a valid email address";
+                  return undefined;
                 },
               }}
               children={(field) => (
@@ -157,15 +159,15 @@ function RouteComponent() {
                   }
                   helperText={
                     field.state.meta.isTouched && field.state.meta.errors.length
-                      ? field.state.meta.errors.join(', ')
-                      : ''
+                      ? field.state.meta.errors.join(", ")
+                      : ""
                   }
                   placeholder="Enter email address"
                 />
               )}
             />
 
-            <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+            <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
               <form.Subscribe
                 selector={(state) => [state.canSubmit, state.isSubmitting]}
                 children={([canSubmit, isSubmitting]) => (
@@ -176,10 +178,10 @@ function RouteComponent() {
                     startIcon={editingId ? <EditIcon /> : <AddIcon />}
                   >
                     {isSubmitting
-                      ? 'Saving...'
+                      ? "Saving..."
                       : editingId
-                        ? 'Update'
-                        : 'Add Teacher'}
+                        ? "Update"
+                        : "Add Teacher"}
                   </Button>
                 )}
               />
@@ -200,7 +202,7 @@ function RouteComponent() {
         handleDelete={handleDelete}
       />
     </Container>
-  )
+  );
 }
 
 /* ---------------- Teacher List Component ---------------- */
@@ -209,9 +211,9 @@ function TeacherList({
   handleEdit,
   handleDelete,
 }: {
-  teachers: any[]
-  handleEdit: (teacher: any) => void
-  handleDelete: (id: string) => void
+  teachers: any[];
+  handleEdit: (teacher: any) => void;
+  handleDelete: (id: string) => void;
 }) {
   return (
     <Card>
@@ -227,7 +229,7 @@ function TeacherList({
                 <ListItemText
                   primary={teacher.name}
                   secondary={teacher.email}
-                  primaryTypographyProps={{ variant: 'h6' }}
+                  primaryTypographyProps={{ variant: "h6" }}
                 />
                 <ListItemSecondaryAction>
                   <IconButton
@@ -258,5 +260,5 @@ function TeacherList({
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

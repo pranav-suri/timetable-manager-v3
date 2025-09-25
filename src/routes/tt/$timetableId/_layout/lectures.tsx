@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { nanoid } from "nanoid";
-import { useLiveQuery, eq } from "@tanstack/react-db";
+import { eq, useLiveQuery } from "@tanstack/react-db";
 import { useForm } from "@tanstack/react-form";
 import {
   Alert,
@@ -30,8 +30,8 @@ import {
   Delete as DeleteIcon,
   Edit as EditIcon,
 } from "@mui/icons-material";
-import { useCollections } from "@/db-collections/providers/useCollections";
 import type { Lecture, Subject, Teacher } from "generated/prisma/client";
+import { useCollections } from "@/db-collections/providers/useCollections";
 
 export const Route = createFileRoute("/tt/$timetableId/_layout/lectures")({
   component: RouteComponent,
@@ -50,18 +50,29 @@ function RouteComponent() {
   const { timetableId } = Route.useParams();
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const { data: lectures } = useLiveQuery((q) => q.from({ lectureCollection }));
-
-  const { data: teachers } = useLiveQuery((q) => q.from({ teacherCollection }));
-
-  const { data: subjects } = useLiveQuery((q) => q.from({ subjectCollection }));
-
-  const { data: subdivisions } = useLiveQuery((q) =>
-    q.from({ subdivisionCollection }),
+  const { data: lectures } = useLiveQuery(
+    (q) => q.from({ lectureCollection }),
+    [lectureCollection],
   );
 
-  const { data: classrooms } = useLiveQuery((q) =>
-    q.from({ classroomCollection }),
+  const { data: teachers } = useLiveQuery(
+    (q) => q.from({ teacherCollection }),
+    [teacherCollection],
+  );
+
+  const { data: subjects } = useLiveQuery(
+    (q) => q.from({ subjectCollection }),
+    [subjectCollection],
+  );
+
+  const { data: subdivisions } = useLiveQuery(
+    (q) => q.from({ subdivisionCollection }),
+    [subdivisionCollection],
+  );
+
+  const { data: classrooms } = useLiveQuery(
+    (q) => q.from({ classroomCollection }),
+    [classroomCollection],
   );
 
   const form = useForm({
@@ -463,7 +474,7 @@ function LectureList({
           )
           .select(({ subdivision }) => ({ ...subdivision }))
           .orderBy(({ subdivision }) => subdivision.name),
-      [lecture.id],
+      [lecture.id, lectureSubdivisionCollection],
     );
 
     // Fetch related classrooms for this lecture
@@ -481,7 +492,7 @@ function LectureList({
           )
           .select(({ classroom }) => ({ ...classroom }))
           .orderBy(({ classroom }) => classroom.name),
-      [lecture.id],
+      [lecture.id, lectureClassroomCollection],
     );
 
     const subdivisionNames = lectureSubdivisions.map((s) => s.name).join(", ");

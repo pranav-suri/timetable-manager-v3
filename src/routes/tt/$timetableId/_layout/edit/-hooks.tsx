@@ -17,11 +17,15 @@ export function useBusySlotsByTeacher(lectureSlotId: string | null) {
   const { lectureSlotCollection, lectureCollection } = useCollections();
   // Get all lectureSlots
   const { data: allLectureSlots, collection: allLectureSlotCollection } =
-    useLiveQuery((q) => q.from({ lectureSlot: lectureSlotCollection }));
+    useLiveQuery(
+      (q) => q.from({ lectureSlot: lectureSlotCollection }),
+      [lectureSlotCollection],
+    );
 
   // Get all lectures
   const { data: allLectures, collection: allLectureCollection } = useLiveQuery(
     (q) => q.from({ lecture: lectureCollection }),
+    [lectureCollection],
   );
 
   if (!lectureSlotId) {
@@ -61,13 +65,15 @@ export function useBusySlotsByTeacherNew(lectureSlotId: string | null) {
   let teacherId = "";
 
   // Get all lectureSlots
-  const { collection: allLectureSlotCollection } = useLiveQuery((q) =>
-    q.from({ lectureSlot: lectureSlotCollection }),
+  const { collection: allLectureSlotCollection } = useLiveQuery(
+    (q) => q.from({ lectureSlot: lectureSlotCollection }),
+    [lectureSlotCollection],
   );
 
   // Get all lectures
-  const { collection: allLectureCollection } = useLiveQuery((q) =>
-    q.from({ lecture: lectureCollection }),
+  const { collection: allLectureCollection } = useLiveQuery(
+    (q) => q.from({ lecture: lectureCollection }),
+    [lectureCollection],
   );
 
   // Get lectureId from lectureSlot
@@ -84,7 +90,7 @@ export function useBusySlotsByTeacherNew(lectureSlotId: string | null) {
       q
         .from({ comp: completeLectureOnlyCollection })
         .where(({ comp }) => eq(comp.teacherId, teacherId)),
-    [teacherId],
+    [teacherId, completeLectureOnlyCollection],
   );
 
   // Extract slotIds
@@ -100,16 +106,21 @@ export function useBusySlotsByClassroom(lectureSlotId: string | null) {
   } = useCollections();
   // Get all lectureSlots
   const { data: allLectureSlots, collection: allLectureSlotCollection } =
-    useLiveQuery((q) => q.from({ lectureSlot: lectureSlotCollection }));
+    useLiveQuery(
+      (q) => q.from({ lectureSlot: lectureSlotCollection }),
+      [lectureSlotCollection],
+    );
 
   // Get all lectures
-  const { collection: allLectureCollection } = useLiveQuery((q) =>
-    q.from({ lecture: lectureCollection }),
+  const { collection: allLectureCollection } = useLiveQuery(
+    (q) => q.from({ lecture: lectureCollection }),
+    [lectureCollection],
   );
 
   // Get all lectureClassrooms
-  const { data: allLectureClassrooms } = useLiveQuery((q) =>
-    q.from({ lectureClassroom: lectureClassroomCollection }),
+  const { data: allLectureClassrooms } = useLiveQuery(
+    (q) => q.from({ lectureClassroom: lectureClassroomCollection }),
+    [lectureClassroomCollection],
   );
 
   if (!lectureSlotId) return new Set<string>();
@@ -154,8 +165,9 @@ export function useBusySlotsBySubdivision(lectureSlotId: string | null) {
   const { lectureWithSubdivisionCollection, completeLectureOnlyCollection } =
     useCollections();
 
-  const { data: lectureWithSubdivisions } = useLiveQuery((q) =>
-    q.from({ lectureWithSubdivisionCollection }),
+  const { data: lectureWithSubdivisions } = useLiveQuery(
+    (q) => q.from({ lectureWithSubdivisionCollection }),
+    [lectureWithSubdivisionCollection],
   );
 
   const { data: completeLectureSlotMaybe } = useLiveQuery(
@@ -163,7 +175,7 @@ export function useBusySlotsBySubdivision(lectureSlotId: string | null) {
       q
         .from({ comp: completeLectureOnlyCollection })
         .where(({ comp }) => eq(comp.lectureSlotId, lectureSlotId)),
-    [lectureSlotId],
+    [completeLectureOnlyCollection, lectureSlotId],
   );
 
   if (!lectureSlotId) return new Set<string>();
@@ -275,16 +287,21 @@ export function useBusySlotsBySubdivisionOld(lectureSlotId: string | null) {
   } = useCollections();
   // Get all lectureSlots
   const { data: allLectureSlots, collection: allLectureSlotCollection } =
-    useLiveQuery((q) => q.from({ lectureSlot: lectureSlotCollection }));
+    useLiveQuery(
+      (q) => q.from({ lectureSlot: lectureSlotCollection }),
+      [lectureSlotCollection],
+    );
 
   // Get all lectures
-  const { collection: allLectureCollection } = useLiveQuery((q) =>
-    q.from({ lecture: lectureCollection }),
+  const { collection: allLectureCollection } = useLiveQuery(
+    (q) => q.from({ lecture: lectureCollection }),
+    [lectureCollection],
   );
 
   // Get all lectureSubdivisions
-  const { data: allLectureSubdivisions } = useLiveQuery((q) =>
-    q.from({ lectureSubdivision: lectureSubdivisionCollection }),
+  const { data: allLectureSubdivisions } = useLiveQuery(
+    (q) => q.from({ lectureSubdivision: lectureSubdivisionCollection }),
+    [lectureSubdivisionCollection],
   );
 
   if (!lectureSlotId) return new Set<string>();

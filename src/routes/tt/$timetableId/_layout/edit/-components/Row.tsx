@@ -34,7 +34,7 @@ export function Row({
         .from({ slot: slotCollection })
         .where(({ slot }) => eq(slot.day, day))
         .orderBy(({ slot }) => slot.number),
-    [day],
+    [day, slotCollection],
   );
 
   return (

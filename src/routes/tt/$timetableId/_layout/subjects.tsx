@@ -37,12 +37,14 @@ function RouteComponent() {
   const { subjectCollection, groupCollection } = useCollections();
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const { data: subjects } = useLiveQuery((q) =>
-    q.from({ subjectCollection })
+  const { data: subjects } = useLiveQuery(
+    (q) => q.from({ subjectCollection }),
+    [subjectCollection],
   );
 
-  const { data: groups } = useLiveQuery((q) =>
-    q.from({ groupCollection })
+  const { data: groups } = useLiveQuery(
+    (q) => q.from({ groupCollection }),
+    [groupCollection],
   );
 
   const form = useForm({
@@ -88,14 +90,17 @@ function RouteComponent() {
   };
 
   // Group subjects by their parent group
-  const groupedSubjects = subjects.reduce((acc, subject) => {
-    const groupId = subject.groupId;
-    if (!acc[groupId]) {
-      acc[groupId] = [];
-    }
-    acc[groupId].push(subject);
-    return acc;
-  }, {} as Record<string, typeof subjects>);
+  const groupedSubjects = subjects.reduce(
+    (acc, subject) => {
+      const groupId = subject.groupId;
+      if (!acc[groupId]) {
+        acc[groupId] = [];
+      }
+      acc[groupId].push(subject);
+      return acc;
+    },
+    {} as Record<string, typeof subjects>,
+  );
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -175,7 +180,8 @@ function RouteComponent() {
                       </MenuItem>
                     ))}
                   </Select>
-                  {field.state.meta.isTouched && field.state.meta.errors.length ? (
+                  {field.state.meta.isTouched &&
+                  field.state.meta.errors.length ? (
                     <Typography variant="caption" color="error" sx={{ mt: 1 }}>
                       {field.state.meta.errors.join(", ")}
                     </Typography>
@@ -237,8 +243,8 @@ function SubjectList({
   handleDelete: (id: string) => void;
 }) {
   const getGroupName = (groupId: string) => {
-    const group = groups.find(g => g.id === groupId);
-    return group ? group.name : 'Unknown Group';
+    const group = groups.find((g) => g.id === groupId);
+    return group ? group.name : "Unknown Group";
   };
 
   return (

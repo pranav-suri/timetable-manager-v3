@@ -43,7 +43,7 @@ function LectureSlot({
         )
         .select(({ classroom }) => ({ ...classroom }))
         .orderBy(({ classroom }) => classroom.name),
-    [lectureId],
+    [lectureId, lectureClassroomCollection, classroomCollection],
   );
   const { data: subdivisions } = useLiveQuery(
     (q) =>
@@ -59,7 +59,7 @@ function LectureSlot({
         )
         .select(({ subdivision }) => ({ ...subdivision }))
         .orderBy(({ subdivision }) => subdivision.name),
-    [lectureId],
+    [lectureId, lectureSubdivisionCollection, subdivisionCollection],
   );
 
   const { attributes, listeners, setNodeRef, transform, isDragging } =

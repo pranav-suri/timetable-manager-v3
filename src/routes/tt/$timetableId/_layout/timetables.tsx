@@ -34,8 +34,9 @@ function RouteComponent() {
   const { timetableCollection } = useCollections();
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const { data: timetables } = useLiveQuery((q) =>
-    q.from({ timetableCollection }),
+  const { data: timetables } = useLiveQuery(
+    (q) => q.from({ timetableCollection }),
+    [timetableCollection],
   );
 
   const form = useForm({

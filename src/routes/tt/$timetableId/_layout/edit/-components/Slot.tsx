@@ -25,7 +25,7 @@ function Slot({
         )
         .orderBy(({ subject }) => subject.name)
         .select(({ item }) => ({ ...item })),
-    [slotId],
+    [slotId, completeLectureOnlyCollection, subjectCollection],
   );
 
   return (
