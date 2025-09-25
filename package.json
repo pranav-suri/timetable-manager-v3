@@ -38,6 +38,7 @@
     "@trpc/client": "^11.4.3",
     "@trpc/server": "^11.4.3",
     "@trpc/tanstack-react-query": "^11.4.3",
+    "eslint-plugin-react-hooks": "^5.2.0",
     "nanoid": "^5.1.5",
     "papaparse": "^5.5.3",
     "react": "^19.0.0",
