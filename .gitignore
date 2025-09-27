@@ -17,3 +17,5 @@ mcp-todos.json
 generated
 *.db
 prisma/migrations
+
+routeTree.gen.ts
