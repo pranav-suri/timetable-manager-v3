@@ -49,6 +49,7 @@
     "uniqolor": "^1.1.1",
     "vite-tsconfig-paths": "^5.1.4",
     "zod": "^4.1.5",
+    "zod-prisma-types": "^3.2.4",
     "zustand": "^5.0.8"
   },
   "devDependencies": {

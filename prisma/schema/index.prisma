@@ -10,3 +10,9 @@ datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
+
+generator zod {
+  provider       = "zod-prisma-types"
+  output         = "../../generated/zod"
+  createInputTypes = false
+}
