@@ -1,5 +1,4 @@
-//  @ts-check
-
+// @ts-check
 import { tanstackConfig } from "@tanstack/eslint-config";
 import typescriptEslintPlugin from "@typescript-eslint/eslint-plugin";
 import eslintPluginImportX from "eslint-plugin-import-x";
@@ -8,6 +7,7 @@ import eslintReactHooks from "eslint-plugin-react-hooks";
 export default [
   ...tanstackConfig,
   {
+    ignores: ["**/dist/**", "**/node_modules/**", "**/generated/**"],
     plugins: {
       "@typescript-eslint": typescriptEslintPlugin,
       import: eslintPluginImportX,

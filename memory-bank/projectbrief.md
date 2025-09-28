@@ -77,11 +77,3 @@ This document outlines the core requirements and goals for the Timetable Manager
 *   Department Heads
 *   School/College Principals/Directors
 *   Teachers (for viewing their personal timetables)
-
-## 6. Key Stakeholders
-
-*   Project Sponsor: [Name/Department, if applicable]
-*   Project Manager: [Your Name/Role]
-*   Development Team
-*   Potential End-Users/User Representatives from Educational Institutes
-  

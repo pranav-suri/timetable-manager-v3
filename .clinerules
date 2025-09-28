@@ -10,6 +10,7 @@ flowchart TD
     PB[projectbrief.md] --> PC[productContext.md]
     PB --> SP[systemPatterns.md]
     PB --> TC[techContext.md]
+    TC --> (Usage of useLiveQuery and collections)[tanstackDbDocs.md]
 
     PC --> AC[activeContext.md]
     SP --> AC

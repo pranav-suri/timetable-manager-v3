@@ -11,12 +11,12 @@ The project is currently focused on building a comprehensive timetable managemen
 - **Multi-format Export**: PDF, CSV, and calendar integrations
 
 ### Active Development Areas
-Based on open tabs and recent activity, current development is concentrated on:
-- **tRPC Router Implementation**: Building type-safe API endpoints for all entities
-- **Collection System**: Data access layer with caching and synchronization
-- **Database Schema**: Prisma models for complex relationships
-- **UI Components**: React components for timetable visualization and editing
-- **Entity Management Pages**: Building MUI-based management interfaces for subdivisions, classrooms, and groups
+Based on current application structure, development includes:
+- **Complete Entity Management**: Full CRUD interfaces for teachers, subjects, classrooms, groups, subdivisions, and lectures
+- **Interactive Timetable Editor**: Drag-and-drop timetable editing with conflict detection
+- **Data Import/Export**: CSV/XLSX import functionality for bulk data management
+- **Real-time Synchronization**: Live data updates across all components using TanStack DB
+- **Advanced Form Handling**: Complex form validation and relationship management
 
 ## Recent Changes
 
@@ -102,20 +102,6 @@ Based on open tabs and recent activity, current development is concentrated on:
 - **Database Choice**: SQLite for development, PostgreSQL for production
 - **API Pattern**: tRPC for type safety over REST
 - **Component Library**: Material-UI v7 for consistent, accessible, and responsive components
-
-### Architecture Decisions
-- **Modular Structure**: Feature-based organization with clear separation
-- **Type Safety**: Strict TypeScript usage throughout the application
-- **Error Handling**: Centralized error management with user feedback
-- **Caching Strategy**: Aggressive caching with smart invalidation
-
-### Design Decisions
-- **User Experience**: Intuitive drag-and-drop interface for timetable editing
-- **Data Flow**: Unidirectional data flow with proper state management
-- **Responsive Design**: Mobile-first approach with progressive enhancement
-- **Accessibility**: WCAG compliance for inclusive design
-- **Component Library**: Material-UI v7 for consistent, accessible, and responsive components
-- **Design System**: Material Design principles with proper typography hierarchy and spacing
 
 ## Important Patterns and Preferences
 

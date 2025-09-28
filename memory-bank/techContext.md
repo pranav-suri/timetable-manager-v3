@@ -19,12 +19,6 @@
 - **SQLite** (development) / **PostgreSQL** (production) via Prisma
 - Database schema includes: Teachers, Subjects, Classrooms, Lectures, Slots, Timetables, etc.
 
-### Development Tools
-- **TypeScript** for static type checking
-- **ESLint** for code linting
-- **Prettier** for code formatting
-- **Vite** for fast development builds
-- **Git** for version control
 
 ## Development Setup
 
@@ -33,46 +27,21 @@
 - npm or yarn package manager
 - Git
 
-### Installation
+### Quick Start
 ```bash
 git clone https://github.com/pranav-suri/timetable-manager-v3.git
 cd timetable-manager-v3
 npm install
+npm run dev
 ```
 
-### Development Commands
+### Key Commands
 ```bash
 npm run dev          # Start development server
 npm run build        # Build for production
-npm run preview      # Preview production build
-npm run lint         # Run ESLint
-npm run format       # Format code with Prettier
+npx prisma generate  # Generate Prisma client
+npx prisma db push   # Push schema to database
 ```
-
-### Database Setup
-```bash
-npx prisma generate   # Generate Prisma client
-npx prisma db push    # Push schema to database
-npx prisma studio     # Open Prisma Studio for database management
-```
-
-## Technical Constraints
-
-### Performance
-- **Client-side rendering** with hydration for optimal UX
-- **Lazy loading** of routes and components
-- **Efficient data fetching** with TanStack Query caching
-- **Optimized bundle size** through code splitting
-
-### Scalability
-- **Modular architecture** with separate concerns (collections, routers, components)
-- **Type-safe APIs** with tRPC ensuring frontend-backend consistency
-- **Database optimization** through Prisma query optimization
-
-### Security
-- **Input validation** through Zod schemas
-- **Type safety** preventing runtime errors
-- **Environment-based configuration** for sensitive data
 
 ## Dependencies
 
