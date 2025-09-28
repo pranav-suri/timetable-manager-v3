@@ -29,7 +29,7 @@ import {
 } from "@mui/icons-material";
 import { useCollections } from "@/db-collections/providers/useCollections";
 
-export const Route = createFileRoute("/tt/$timetableId/_layout/subjects")({
+export const Route = createFileRoute("/tt/$timetableId/subjects")({
   component: RouteComponent,
 });
 

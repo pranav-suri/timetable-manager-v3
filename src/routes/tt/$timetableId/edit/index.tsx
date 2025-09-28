@@ -6,7 +6,7 @@ import MuiTimetable from "./-MuiTimetable";
 import { NavBar } from "@/components/Navbar";
 import { DrawerHeader, DrawerRight } from "@/components/Drawer";
 
-export const Route = createFileRoute("/tt/$timetableId/_layout/edit/")({
+export const Route = createFileRoute("/tt/$timetableId/edit/")({
   component: RouteComponent,
 });
 

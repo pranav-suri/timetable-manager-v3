@@ -10,11 +10,13 @@ import {
   Card,
   CardContent,
   Container,
+  FormControlLabel,
   IconButton,
   List,
   ListItem,
   ListItemSecondaryAction,
   ListItemText,
+  Switch,
   TextField,
   Typography,
 } from "@mui/material";
@@ -23,45 +25,50 @@ import {
   Delete as DeleteIcon,
   Edit as EditIcon,
 } from "@mui/icons-material";
-import type { Classroom } from "generated/prisma/client";
 import { useCollections } from "@/db-collections/providers/useCollections";
 
-export const Route = createFileRoute("/tt/$timetableId/_layout/classrooms")({
+export const Route = createFileRoute("/tt/$timetableId/groups")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { classroomCollection } = useCollections();
+  const { groupCollection } = useCollections();
   const { timetableId } = Route.useParams();
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const { data: classrooms } = useLiveQuery(
-    (q) => q.from({ classroomCollection }),
-    [classroomCollection],
+  const { data: groups } = useLiveQuery(
+    (q) => q.from({ groupCollection }),
+    [groupCollection],
   );
 
   const form = useForm({
-    defaultValues: { name: "" },
+    defaultValues: {
+      name: "",
+      allowSimultaneous: false,
+    },
     onSubmit: ({ value }) => {
-      const newClassroom = {
+      const newGroup = {
         id: nanoid(4),
         name: value.name,
+        allowSimultaneous: value.allowSimultaneous,
         timetableId,
       };
-      classroomCollection.insert(newClassroom);
+      groupCollection.insert(newGroup);
       form.reset();
     },
   });
 
-  const handleEdit = (classroom: Classroom) => {
-    setEditingId(classroom.id);
-    form.setFieldValue("name", classroom.name);
+  const handleEdit = (group: any) => {
+    setEditingId(group.id);
+    form.setFieldValue("name", group.name);
+    form.setFieldValue("allowSimultaneous", group.allowSimultaneous);
   };
 
   const handleUpdate = () => {
     if (editingId) {
-      classroomCollection.update(editingId, (draft) => {
+      groupCollection.update(editingId, (draft) => {
         draft.name = form.state.values.name;
+        draft.allowSimultaneous = form.state.values.allowSimultaneous;
       });
       setEditingId(null);
       form.reset();
@@ -69,7 +76,7 @@ function RouteComponent() {
   };
 
   const handleDelete = (id: string) => {
-    classroomCollection.delete(id);
+    groupCollection.delete(id);
   };
 
   const cancelEdit = () => {
@@ -80,13 +87,14 @@ function RouteComponent() {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h3" component="h1" gutterBottom>
-        Classrooms Management
+        Groups Management
       </Typography>
-      {/* Classroom Form Start ----------- */}
+
+      {/* Group Form */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Typography variant="h5" component="h2" gutterBottom>
-            {editingId ? "Edit Classroom" : "Add New Classroom"}
+            {editingId ? "Edit Group" : "Add New Group"}
           </Typography>
 
           <Box
@@ -111,7 +119,7 @@ function RouteComponent() {
               children={(field) => (
                 <TextField
                   fullWidth
-                  label="Classroom Name"
+                  label="Group Name"
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
@@ -124,7 +132,23 @@ function RouteComponent() {
                       ? field.state.meta.errors.join(", ")
                       : ""
                   }
-                  placeholder="Enter classroom name"
+                  placeholder="Enter group name"
+                />
+              )}
+            />
+
+            <form.Field
+              name="allowSimultaneous"
+              children={(field) => (
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.checked)}
+                    />
+                  }
+                  label="Allow Simultaneous Lectures"
+                  sx={{ mt: 1 }}
                 />
               )}
             />
@@ -143,7 +167,7 @@ function RouteComponent() {
                       ? "Saving..."
                       : editingId
                         ? "Update"
-                        : "Add Classroom"}
+                        : "Add Group"}
                   </Button>
                 )}
               />
@@ -157,9 +181,10 @@ function RouteComponent() {
           </Box>
         </CardContent>
       </Card>
-      {/* ----------- Classroom Form End  */}
-      <ClassroomList
-        classrooms={classrooms}
+
+      {/* Groups List */}
+      <GroupList
+        groups={groups}
         handleEdit={handleEdit}
         handleDelete={handleDelete}
       />
@@ -167,36 +192,37 @@ function RouteComponent() {
   );
 }
 
-/* ---------------- Classroom List Component ---------------- */
-function ClassroomList({
-  classrooms,
+/* ---------------- Group List Component ---------------- */
+function GroupList({
+  groups,
   handleEdit,
   handleDelete,
 }: {
-  classrooms: Classroom[];
-  handleEdit: (classroom: Classroom) => void;
+  groups: any[];
+  handleEdit: (group: any) => void;
   handleDelete: (id: string) => void;
 }) {
   return (
     <Card>
       <CardContent>
         <Typography variant="h5" component="h2" gutterBottom>
-          Existing Classrooms
+          Existing Groups
         </Typography>
 
-        {classrooms.length > 0 ? (
+        {groups.length > 0 ? (
           <List>
-            {classrooms.map((classroom) => (
-              <ListItem key={classroom.id} divider>
+            {groups.map((group) => (
+              <ListItem key={group.id} divider>
                 <ListItemText
-                  primary={classroom.name}
+                  primary={group.name}
+                  secondary={`Allow Simultaneous: ${group.allowSimultaneous ? `Yes` : `No`}`}
                   primaryTypographyProps={{ variant: "h6" }}
                 />
                 <ListItemSecondaryAction>
                   <IconButton
                     edge="end"
                     aria-label="edit"
-                    onClick={() => handleEdit(classroom)}
+                    onClick={() => handleEdit(group)}
                     sx={{ mr: 1 }}
                     color="primary"
                   >
@@ -205,7 +231,7 @@ function ClassroomList({
                   <IconButton
                     edge="end"
                     aria-label="delete"
-                    onClick={() => handleDelete(classroom.id)}
+                    onClick={() => handleDelete(group.id)}
                     color="error"
                   >
                     <DeleteIcon />
@@ -216,7 +242,7 @@ function ClassroomList({
           </List>
         ) : (
           <Alert severity="info" sx={{ mt: 2 }}>
-            No classrooms found. Add your first classroom above.
+            No groups found. Add your first group above.
           </Alert>
         )}
       </CardContent>

@@ -33,7 +33,7 @@ import {
 import type { Lecture, Subject, Teacher } from "generated/prisma/client";
 import { useCollections } from "@/db-collections/providers/useCollections";
 
-export const Route = createFileRoute("/tt/$timetableId/_layout/lectures")({
+export const Route = createFileRoute("/tt/$timetableId/lectures")({
   component: RouteComponent,
 });
 

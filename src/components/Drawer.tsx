@@ -4,7 +4,7 @@ import {
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
 } from "@mui/icons-material";
-import { ConflictList } from "@/routes/tt/$timetableId/_layout/edit/-conflictList/ConflictList";
+import { ConflictList } from "@/routes/tt/$timetableId/edit/-conflictList/ConflictList";
 
 export const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",

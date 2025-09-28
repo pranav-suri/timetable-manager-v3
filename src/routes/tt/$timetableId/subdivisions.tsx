@@ -23,50 +23,45 @@ import {
   Delete as DeleteIcon,
   Edit as EditIcon,
 } from "@mui/icons-material";
+import type { Subdivision } from "generated/prisma/client";
 import { useCollections } from "@/db-collections/providers/useCollections";
 
-export const Route = createFileRoute("/tt/$timetableId/_layout/teachers")({
+export const Route = createFileRoute("/tt/$timetableId/subdivisions")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { teacherCollection } = useCollections();
+  const { subdivisionCollection } = useCollections();
   const { timetableId } = Route.useParams();
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const { data: teachers } = useLiveQuery(
-    (q) => q.from({ teacherCollection }),
-    [teacherCollection],
+  const { data: subdivisions } = useLiveQuery(
+    (q) => q.from({ subdivisionCollection }),
+    [subdivisionCollection],
   );
 
   const form = useForm({
-    defaultValues: {
-      name: "",
-      email: "",
-    },
+    defaultValues: { name: "" },
     onSubmit: ({ value }) => {
-      const newTeacher = {
+      const newSubdivision = {
         id: nanoid(4),
         name: value.name,
-        email: value.email,
         timetableId,
       };
-      teacherCollection.insert(newTeacher);
+      subdivisionCollection.insert(newSubdivision);
       form.reset();
     },
   });
 
-  const handleEdit = (teacher: any) => {
-    setEditingId(teacher.id);
-    form.setFieldValue("name", teacher.name);
-    form.setFieldValue("email", teacher.email);
+  const handleEdit = (subdivision: Subdivision) => {
+    setEditingId(subdivision.id);
+    form.setFieldValue("name", subdivision.name);
   };
 
   const handleUpdate = () => {
     if (editingId) {
-      teacherCollection.update(editingId, (draft) => {
+      subdivisionCollection.update(editingId, (draft) => {
         draft.name = form.state.values.name;
-        draft.email = form.state.values.email;
       });
       setEditingId(null);
       form.reset();
@@ -74,7 +69,7 @@ function RouteComponent() {
   };
 
   const handleDelete = (id: string) => {
-    teacherCollection.delete(id);
+    subdivisionCollection.delete(id);
   };
 
   const cancelEdit = () => {
@@ -85,13 +80,13 @@ function RouteComponent() {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h3" component="h1" gutterBottom>
-        Teachers Management
+        Subdivisions Management
       </Typography>
-      {/* Teacher Form */}
+      {/* Subdivision Form Start ----------- */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Typography variant="h5" component="h2" gutterBottom>
-            {editingId ? "Edit Teacher" : "Add New Teacher"}
+            {editingId ? "Edit Subdivision" : "Add New Subdivision"}
           </Typography>
 
           <Box
@@ -116,7 +111,7 @@ function RouteComponent() {
               children={(field) => (
                 <TextField
                   fullWidth
-                  label="Teacher Name"
+                  label="Subdivision Name"
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
@@ -129,40 +124,7 @@ function RouteComponent() {
                       ? field.state.meta.errors.join(", ")
                       : ""
                   }
-                  placeholder="Enter teacher name"
-                />
-              )}
-            />
-
-            <form.Field
-              name="email"
-              validators={{
-                onChange: ({ value }) => {
-                  if (!value) return "Email is required";
-                  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                  if (!emailRegex.test(value))
-                    return "Please enter a valid email address";
-                  return undefined;
-                },
-              }}
-              children={(field) => (
-                <TextField
-                  fullWidth
-                  label="Email Address"
-                  type="email"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  onBlur={field.handleBlur}
-                  error={
-                    field.state.meta.isTouched &&
-                    field.state.meta.errors.length > 0
-                  }
-                  helperText={
-                    field.state.meta.isTouched && field.state.meta.errors.length
-                      ? field.state.meta.errors.join(", ")
-                      : ""
-                  }
-                  placeholder="Enter email address"
+                  placeholder="Enter subdivision name"
                 />
               )}
             />
@@ -181,7 +143,7 @@ function RouteComponent() {
                       ? "Saving..."
                       : editingId
                         ? "Update"
-                        : "Add Teacher"}
+                        : "Add Subdivision"}
                   </Button>
                 )}
               />
@@ -195,9 +157,9 @@ function RouteComponent() {
           </Box>
         </CardContent>
       </Card>
-      {/* Teachers List */}
-      <TeacherList
-        teachers={teachers}
+      {/* ----------- Subdivision Form End  */}
+      <SubdivisionList
+        subdivisions={subdivisions}
         handleEdit={handleEdit}
         handleDelete={handleDelete}
       />
@@ -205,37 +167,36 @@ function RouteComponent() {
   );
 }
 
-/* ---------------- Teacher List Component ---------------- */
-function TeacherList({
-  teachers,
+/* ---------------- Subdivision List Component ---------------- */
+function SubdivisionList({
+  subdivisions,
   handleEdit,
   handleDelete,
 }: {
-  teachers: any[];
-  handleEdit: (teacher: any) => void;
+  subdivisions: Subdivision[];
+  handleEdit: (subdivision: Subdivision) => void;
   handleDelete: (id: string) => void;
 }) {
   return (
     <Card>
       <CardContent>
         <Typography variant="h5" component="h2" gutterBottom>
-          Existing Teachers
+          Existing Subdivisions
         </Typography>
 
-        {teachers.length > 0 ? (
+        {subdivisions.length > 0 ? (
           <List>
-            {teachers.map((teacher) => (
-              <ListItem key={teacher.id} divider>
+            {subdivisions.map((subdivision) => (
+              <ListItem key={subdivision.id} divider>
                 <ListItemText
-                  primary={teacher.name}
-                  secondary={teacher.email}
+                  primary={subdivision.name}
                   primaryTypographyProps={{ variant: "h6" }}
                 />
                 <ListItemSecondaryAction>
                   <IconButton
                     edge="end"
                     aria-label="edit"
-                    onClick={() => handleEdit(teacher)}
+                    onClick={() => handleEdit(subdivision)}
                     sx={{ mr: 1 }}
                     color="primary"
                   >
@@ -244,7 +205,7 @@ function TeacherList({
                   <IconButton
                     edge="end"
                     aria-label="delete"
-                    onClick={() => handleDelete(teacher.id)}
+                    onClick={() => handleDelete(subdivision.id)}
                     color="error"
                   >
                     <DeleteIcon />
@@ -255,7 +216,7 @@ function TeacherList({
           </List>
         ) : (
           <Alert severity="info" sx={{ mt: 2 }}>
-            No teachers found. Add your first teacher above.
+            No subdivisions found. Add your first subdivision above.
           </Alert>
         )}
       </CardContent>

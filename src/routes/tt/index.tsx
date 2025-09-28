@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { nanoid } from "nanoid";
 import { useLiveQuery } from "@tanstack/react-db";
 import { useForm } from "@tanstack/react-form";
@@ -37,7 +37,7 @@ function RouteComponent() {
   const trpc = useTRPC();
   const trpcClient = useTRPCClient();
   const queryClient = useQueryClient();
-
+  const [collectionsInitialized, setCollectionsInitialized] = useState(false);
   const timetableCollection = getTimetableCollection({
     queryClient,
     trpcClient,
@@ -45,8 +45,23 @@ function RouteComponent() {
   });
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const { data: timetables } = useLiveQuery((q) =>
-    q.from({ timetableCollection }),
+  useEffect(() => {
+    async function init() {
+      timetableCollection.preload();
+      await timetableCollection.stateWhenReady();
+      setCollectionsInitialized(true);
+    }
+    init();
+  }, [timetableCollection]);
+
+  const { data: timetables } = useLiveQuery(
+    (q) => q.from({ timetableCollection }),
+    // NOTE:
+    // Specifying the hook breaks the code and does not render the timetables.
+    // collectionsInitialized is necessary to ensure the query is recomputed once the collections are ready.
+    // DO NOT SPECIFY THE HOOK BELOW
+    // eslint-disable-next-line
+    [collectionsInitialized, timetableCollection],
   );
 
   const form = useForm({

@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { nanoid } from "nanoid";
 import { useLiveQuery } from "@tanstack/react-db";
@@ -10,13 +10,11 @@ import {
   Card,
   CardContent,
   Container,
-  FormControlLabel,
   IconButton,
   List,
   ListItem,
   ListItemSecondaryAction,
   ListItemText,
-  Switch,
   TextField,
   Typography,
 } from "@mui/material";
@@ -25,50 +23,46 @@ import {
   Delete as DeleteIcon,
   Edit as EditIcon,
 } from "@mui/icons-material";
+import type { Timetable } from "generated/prisma/client";
 import { useCollections } from "@/db-collections/providers/useCollections";
 
-export const Route = createFileRoute("/tt/$timetableId/_layout/groups")({
+export const Route = createFileRoute("/tt/$timetableId/timetables")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { groupCollection } = useCollections();
-  const { timetableId } = Route.useParams();
+  const { timetableCollection } = useCollections();
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const { data: groups } = useLiveQuery(
-    (q) => q.from({ groupCollection }),
-    [groupCollection],
+  const { data: timetables } = useLiveQuery(
+    (q) => q.from({ timetableCollection }),
+    [timetableCollection],
   );
 
   const form = useForm({
-    defaultValues: {
-      name: "",
-      allowSimultaneous: false,
-    },
+    defaultValues: { name: "" },
     onSubmit: ({ value }) => {
-      const newGroup = {
+      const newTimetable = {
         id: nanoid(4),
         name: value.name,
-        allowSimultaneous: value.allowSimultaneous,
-        timetableId,
-      };
-      groupCollection.insert(newGroup);
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } satisfies Timetable;
+
+      timetableCollection.insert(newTimetable);
       form.reset();
     },
   });
 
-  const handleEdit = (group: any) => {
-    setEditingId(group.id);
-    form.setFieldValue("name", group.name);
-    form.setFieldValue("allowSimultaneous", group.allowSimultaneous);
+  const handleEdit = (timetable: Timetable) => {
+    setEditingId(timetable.id);
+    form.setFieldValue("name", timetable.name);
   };
 
   const handleUpdate = () => {
     if (editingId) {
-      groupCollection.update(editingId, (draft) => {
+      timetableCollection.update(editingId, (draft) => {
         draft.name = form.state.values.name;
-        draft.allowSimultaneous = form.state.values.allowSimultaneous;
       });
       setEditingId(null);
       form.reset();
@@ -76,7 +70,7 @@ function RouteComponent() {
   };
 
   const handleDelete = (id: string) => {
-    groupCollection.delete(id);
+    timetableCollection.delete(id);
   };
 
   const cancelEdit = () => {
@@ -87,14 +81,13 @@ function RouteComponent() {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h3" component="h1" gutterBottom>
-        Groups Management
+        Timetables Management
       </Typography>
-
-      {/* Group Form */}
+      {/* Timetable Form Start ----------- */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Typography variant="h5" component="h2" gutterBottom>
-            {editingId ? "Edit Group" : "Add New Group"}
+            {editingId ? "Edit Timetable" : "Add New Timetable"}
           </Typography>
 
           <Box
@@ -119,7 +112,7 @@ function RouteComponent() {
               children={(field) => (
                 <TextField
                   fullWidth
-                  label="Group Name"
+                  label="Timetable Name"
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
@@ -132,23 +125,7 @@ function RouteComponent() {
                       ? field.state.meta.errors.join(", ")
                       : ""
                   }
-                  placeholder="Enter group name"
-                />
-              )}
-            />
-
-            <form.Field
-              name="allowSimultaneous"
-              children={(field) => (
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.checked)}
-                    />
-                  }
-                  label="Allow Simultaneous Lectures"
-                  sx={{ mt: 1 }}
+                  placeholder="Enter timetable name"
                 />
               )}
             />
@@ -167,7 +144,7 @@ function RouteComponent() {
                       ? "Saving..."
                       : editingId
                         ? "Update"
-                        : "Add Group"}
+                        : "Add Timetable"}
                   </Button>
                 )}
               />
@@ -181,10 +158,9 @@ function RouteComponent() {
           </Box>
         </CardContent>
       </Card>
-
-      {/* Groups List */}
-      <GroupList
-        groups={groups}
+      {/* ----------- Timetable Form End  */}
+      <TimetableList
+        timetables={timetables}
         handleEdit={handleEdit}
         handleDelete={handleDelete}
       />
@@ -192,37 +168,41 @@ function RouteComponent() {
   );
 }
 
-/* ---------------- Group List Component ---------------- */
-function GroupList({
-  groups,
+/* ---------------- Timetable List Component ---------------- */
+function TimetableList({
+  timetables,
   handleEdit,
   handleDelete,
 }: {
-  groups: any[];
-  handleEdit: (group: any) => void;
+  timetables: Timetable[];
+  handleEdit: (timetable: Timetable) => void;
   handleDelete: (id: string) => void;
 }) {
   return (
     <Card>
       <CardContent>
         <Typography variant="h5" component="h2" gutterBottom>
-          Existing Groups
+          Existing Timetables
         </Typography>
 
-        {groups.length > 0 ? (
+        {timetables.length > 0 ? (
           <List>
-            {groups.map((group) => (
-              <ListItem key={group.id} divider>
-                <ListItemText
-                  primary={group.name}
-                  secondary={`Allow Simultaneous: ${group.allowSimultaneous ? `Yes` : `No`}`}
-                  primaryTypographyProps={{ variant: "h6" }}
-                />
+            {timetables.map((timetable) => (
+              <ListItem key={timetable.id} divider>
+                <Link
+                  to={"/tt/$timetableId/edit"}
+                  params={{ timetableId: timetable.id }}
+                >
+                  <ListItemText
+                    primary={timetable.name}
+                    primaryTypographyProps={{ variant: "h6" }}
+                  />
+                </Link>
                 <ListItemSecondaryAction>
                   <IconButton
                     edge="end"
                     aria-label="edit"
-                    onClick={() => handleEdit(group)}
+                    onClick={() => handleEdit(timetable)}
                     sx={{ mr: 1 }}
                     color="primary"
                   >
@@ -231,7 +211,7 @@ function GroupList({
                   <IconButton
                     edge="end"
                     aria-label="delete"
-                    onClick={() => handleDelete(group.id)}
+                    onClick={() => handleDelete(timetable.id)}
                     color="error"
                   >
                     <DeleteIcon />
@@ -242,7 +222,7 @@ function GroupList({
           </List>
         ) : (
           <Alert severity="info" sx={{ mt: 2 }}>
-            No groups found. Add your first group above.
+            No timetables found. Add your first timetable above.
           </Alert>
         )}
       </CardContent>
