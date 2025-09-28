@@ -15,6 +15,7 @@ export type TrpcContext = Awaited<ReturnType<typeof createContext>> & {
 // Context is populated in /api/trpc.$.tsx file by the fetchRequestHandler
 const t = initTRPC.context<TrpcContext>().create({
   transformer: superjson,
+  isDev: true,
 });
 
 export const createTRPCRouter = t.router;

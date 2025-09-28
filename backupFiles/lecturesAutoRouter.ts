@@ -35,7 +35,7 @@ export const lecturesRouter = {
         slotIds: z.optional(z.array(zodIdSchema)),
         classroomIds: z.optional(z.array(zodIdSchema)),
         subdivisionIds: z.optional(z.array(zodIdSchema)),
-        count: z.number().min(1).default(1),
+        count: z.number().min(0).default(1),
         duration: z.number().min(1).default(1),
       }),
     )
@@ -66,20 +66,20 @@ export const lecturesRouter = {
         });
       }
 
-      if (slotIds?.length) {
-        await prisma.lectureSlot.createMany({
-          data: slotIds.map((slotId) => ({
-            lectureId: lecture.id,
-            slotId,
-          })),
-        });
-      }
-
       if (subdivisionIds?.length) {
         await prisma.lectureSubdivision.createMany({
           data: subdivisionIds.map((subdivisionId) => ({
             lectureId: lecture.id,
             subdivisionId,
+          })),
+        });
+      }
+
+      if (slotIds?.length) {
+        await prisma.lectureSlot.createMany({
+          data: slotIds.map((slotId) => ({
+            lectureId: lecture.id,
+            slotId,
           })),
         });
       }
