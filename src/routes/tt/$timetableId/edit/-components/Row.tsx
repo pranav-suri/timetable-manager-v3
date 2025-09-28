@@ -58,18 +58,25 @@ export function DroppableCell({
   handleDrawerOpen,
   busySlots,
 }: DroppableCellProps) {
-  const { setNodeRef, isOver } = useDroppable({
+  const { setNodeRef, isOver, active } = useDroppable({
     id: slotId,
   });
-
+  const { lectureSlotCollection } = useCollections();
+  const lectureSlotId = active?.id.toString() ?? "";
+  const initialSlotId = lectureSlotCollection.get(lectureSlotId)?.slotId ?? "";
   const handleClick = () => {
     handleDrawerOpen();
   };
 
+  const isInitial = initialSlotId === slotId;
   const isBusy = busySlots.has(slotId);
   let bgColor: string;
 
-  if (isBusy && isOver) {
+  if (isInitial && isOver) {
+    bgColor = "rgba(0, 0, 0, 0.2)"; // same as hovering
+  } else if (isInitial) {
+    bgColor = "rgba(0, 0, 0, 0.15)"; // light black/grey when initial
+  } else if (isBusy && isOver) {
     bgColor = "rgba(255, 0, 0, 0.2)"; // darker red when busy and hovered
   } else if (isBusy) {
     bgColor = "rgba(255, 0, 0, 0.1)"; // light red when busy

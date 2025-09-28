@@ -25,7 +25,7 @@ export default function MuiTimetable({
 }: {
   handleDrawerOpen: () => void;
 }) {
-  const { activeLectureSlotId, sensors, handlers } = useTimetableDnD();
+  const { activeLectureSlotId, sensors: _sensor, handlers } = useTimetableDnD();
   const { slotDays, slotNumbers } = useSlotDaysAndNumbers();
   const busySlots = useBusySlots(activeLectureSlotId);
 
@@ -33,7 +33,7 @@ export default function MuiTimetable({
     <DndContext
       {...handlers}
       // autoScroll={false}
-      sensors={sensors}
+      // sensors={sensors}
     >
       <TableContainer component={Paper} className="printable">
         <Table size="small">

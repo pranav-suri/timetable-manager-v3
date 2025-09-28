@@ -6,11 +6,12 @@ export function useBusySlots(lectureSlotId: string | null) {
   const busySlotsByClassroom = useBusySlotsByClassroom(lectureSlotId);
   const busySlotsBySubdivision = useBusySlotsBySubdivision(lectureSlotId);
 
-  return new Set([
+  const busySlots = new Set([
     ...busySlotsByTeacher,
     ...busySlotsByClassroom,
     ...busySlotsBySubdivision,
   ]);
+  return busySlots;
 }
 
 export function useBusySlotsByTeacher(lectureSlotId: string | null) {
