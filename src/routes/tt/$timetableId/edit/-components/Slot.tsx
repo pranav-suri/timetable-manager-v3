@@ -2,18 +2,8 @@ import { eq, useLiveQuery } from "@tanstack/react-db";
 import LectureSlot from "./LectureSlot";
 import { useCollections } from "@/db-collections/providers/useCollections";
 
-function Slot({
-  slotId,
-  viewAllData,
-}: {
-  slotId: string;
-  viewAllData: boolean;
-}) {
-  const {
-    teacherCollection,
-    subjectCollection,
-    completeLectureOnlyCollection,
-  } = useCollections();
+function Slot({ slotId }: { slotId: string }) {
+  const { subjectCollection, completeLectureOnlyCollection } = useCollections();
 
   const { data: orderedCompleteLectures } = useLiveQuery(
     (q) =>
@@ -34,14 +24,6 @@ function Slot({
         <LectureSlot
           key={completeLecture.lectureSlotId}
           lectureSlotId={completeLecture.lectureSlotId}
-          lectureId={completeLecture.lectureId}
-          subjectName={
-            subjectCollection.get(completeLecture.subjectId)?.name ?? ""
-          }
-          teacherName={
-            teacherCollection.get(completeLecture.teacherId)?.name ?? ""
-          }
-          viewAllData={viewAllData}
         />
       ))}
     </div>

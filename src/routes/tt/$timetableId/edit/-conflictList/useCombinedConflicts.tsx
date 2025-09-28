@@ -2,7 +2,7 @@ import {
   useGroupedClassroomsBySlot,
   useGroupedSubdivisionsBySlot,
   useGroupedTeachersBySlot,
-} from "@/routes/timetable/$timetableId/-demoHooks";
+} from "./-hooks";
 
 export interface Conflict {
   teacherId?: string;

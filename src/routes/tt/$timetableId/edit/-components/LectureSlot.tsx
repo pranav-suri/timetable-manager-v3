@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { Card, CardContent, CardHeader } from "@mui/material";
+import { Card, CardContent, CardHeader, Typography } from "@mui/material";
 import { eq, useLiveQuery } from "@tanstack/react-db";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
@@ -8,26 +8,66 @@ import getColor from "@/utils/getColor";
 import { ThemeModeContext } from "@/context/ThemeModeContext";
 import { useCollections } from "@/db-collections/providers/useCollections";
 
-function LectureSlot({
-  lectureSlotId,
-  lectureId,
-  teacherName,
-  subjectName,
-  viewAllData,
-}: {
-  lectureSlotId: string;
-  lectureId: string;
-  teacherName: string;
-  subjectName: string;
-  viewAllData: boolean;
-}) {
+function LectureSlot({ lectureSlotId }: { lectureSlotId: string }) {
   const { themeMode } = useContext(ThemeModeContext);
+
+  const viewAllData = window.innerWidth > 1000; // TODO: Fetch from zustand store
+
+  const { classrooms, subdivisions, teacherName, subjectName } =
+    useLectureSlotInfo(lectureSlotId);
+
+  const { attributes, listeners, setNodeRef, transform, isDragging } =
+    useDraggable({ id: lectureSlotId });
+
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <Card
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}
+      sx={{
+        backgroundColor: getColor(subjectName, themeMode),
+        margin: "0.5rem",
+        cursor: "grab",
+        "&:active": {
+          cursor: "grabbing",
+        },
+      }}
+    >
+      <CardHeader
+        title={viewAllData ? subjectName : getInitials(subjectName)}
+        slotProps={{ title: { fontWeight: "500", fontSize: "1rem" } }}
+        sx={{ padding: 0, margin: "8px" }}
+      />
+      <CardContent sx={{ padding: 0, margin: "8px" }} style={{ padding: 0 }}>
+        <Typography>{viewAllData ? teacherName : getInitials(teacherName)}</Typography>
+        {viewAllData ? <br /> : ""}
+        <>{formatNames(subdivisions)}</>
+        <>{viewAllData ? <br /> : ""}</>
+        <>{formatNames(classrooms)}</>
+      </CardContent>
+    </Card>
+  );
+}
+
+function useLectureSlotInfo(lectureSlotId: string) {
   const {
     lectureClassroomCollection,
     lectureSubdivisionCollection,
+    lectureSlotCollection,
     classroomCollection,
+    teacherCollection,
     subdivisionCollection,
+    subjectCollection,
+    lectureCollection,
   } = useCollections();
+
+  const lectureId = lectureSlotCollection.get(lectureSlotId)?.lectureId ?? "";
 
   const { data: classrooms } = useLiveQuery(
     (q) =>
@@ -62,44 +102,13 @@ function LectureSlot({
     [lectureId, lectureSubdivisionCollection, subdivisionCollection],
   );
 
-  const { attributes, listeners, setNodeRef, transform, isDragging } =
-    useDraggable({ id: lectureSlotId });
+  const teacherId = lectureCollection.get(lectureId)?.teacherId ?? "";
+  const teacherName = teacherCollection.get(teacherId)?.name ?? "";
 
-  const style = {
-    transform: CSS.Translate.toString(transform),
-    opacity: isDragging ? 0.5 : 1,
-  };
+  const subjectId = lectureCollection.get(lectureId)?.subjectId ?? "";
+  const subjectName = subjectCollection.get(subjectId)?.name ?? "";
 
-  if (!teacherName || !subjectName) return <></>;
-
-  return (
-    <Card
-      ref={setNodeRef}
-      style={style}
-      {...listeners}
-      {...attributes}
-      sx={{
-        backgroundColor: getColor(subjectName, themeMode),
-        margin: "0.5rem",
-        cursor: "grab",
-        "&:active": {
-          cursor: "grabbing",
-        },
-      }}
-    >
-      <CardHeader
-        title={viewAllData ? subjectName : getInitials(subjectName)}
-        slotProps={{ title: { fontWeight: "500", fontSize: "1rem" } }}
-        sx={{ padding: 0, margin: "8px" }}
-      />
-      <CardContent sx={{ padding: 0, margin: "8px" }} style={{ padding: 0 }}>
-        {viewAllData ? teacherName : getInitials(teacherName)}
-        {viewAllData ? <br /> : ""}
-        <>{formatNames(subdivisions)}</> {viewAllData ? <br /> : <></>}
-        <>{formatNames(classrooms)}</>
-      </CardContent>
-    </Card>
-  );
+  return { classrooms, subdivisions, teacherName, subjectName };
 }
 
 export default LectureSlot;

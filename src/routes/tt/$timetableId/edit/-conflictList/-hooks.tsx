@@ -1,31 +1,12 @@
-import {
-  concat,
-  count,
-  createLiveQueryCollection,
-  eq,
-  gt,
-  useLiveQuery,
-} from "@tanstack/react-db";
+import { concat, count, eq, gt, useLiveQuery } from "@tanstack/react-db";
 import { useCollections } from "@/db-collections/providers/useCollections";
-
-export function useSubset() {
-  const { timetableCollection } = useCollections();
-
-  const stableCollection = createLiveQueryCollection((q) =>
-    q
-      .from({ tt: timetableCollection })
-      .orderBy(({ tt }) => tt.createdAt, "asc")
-      .limit(10),
-  );
-
-  return stableCollection;
-}
 
 export function useGroupedTeachersBySlot() {
   const { completeLectureOnlyCollection } = useCollections();
 
-  const { data } = useLiveQuery((q) =>
-    q.from({ completeLectureOnlyCollection }),
+  const { data } = useLiveQuery(
+    (q) => q.from({ completeLectureOnlyCollection }),
+    [completeLectureOnlyCollection],
   );
 
   const grouped: {
@@ -62,8 +43,9 @@ export function useGroupedTeachersBySlot() {
 export function useGroupedClassroomsBySlot() {
   const { lectureWithClassroomCollection } = useCollections();
 
-  const { data } = useLiveQuery((q) =>
-    q.from({ lectureWithClassroomCollection }),
+  const { data } = useLiveQuery(
+    (q) => q.from({ lectureWithClassroomCollection }),
+    [lectureWithClassroomCollection],
   );
 
   const grouped: {
@@ -100,8 +82,9 @@ export function useGroupedClassroomsBySlot() {
 export function useGroupedSubdivisionsWithoutElectiveBySlot() {
   const { lectureWithSubdivisionCollection } = useCollections();
 
-  const { data } = useLiveQuery((q) =>
-    q.from({ lectureWithSubdivisionCollection }),
+  const { data } = useLiveQuery(
+    (q) => q.from({ lectureWithSubdivisionCollection }),
+    [lectureWithSubdivisionCollection],
   );
 
   const grouped: {
@@ -139,8 +122,9 @@ export function useGroupedSubdivisionsWithoutElectiveBySlot() {
 export function useGroupedSubdivisionsBySlot() {
   const { lectureWithSubdivisionCollection } = useCollections();
 
-  const { data } = useLiveQuery((q) =>
-    q.from({ lectureWithSubdivisionCollection }),
+  const { data } = useLiveQuery(
+    (q) => q.from({ lectureWithSubdivisionCollection }),
+    [lectureWithSubdivisionCollection],
   );
 
   const grouped: {
@@ -208,29 +192,32 @@ export function useGroupedSubdivisionsBySlot() {
 export function useDbBasedGroupedTeachersBySlot() {
   const { completeLectureOnlyCollection } = useCollections();
 
-  const { data } = useLiveQuery((q) => {
-    const conflicted = q
-      .from({ comp: completeLectureOnlyCollection })
-      .groupBy(({ comp }) => [
-        comp.slotId,
-        comp.teacherId,
-        concat(comp.slotId, ":", comp.teacherId),
-      ])
-      .select(({ comp }) => ({
-        slotId: comp.slotId,
-        teacherId: comp.teacherId,
-        key: concat(comp.slotId, ":", comp.teacherId), // composite join key
-        lectureSlotCount: count(comp.lectureSlotId),
-      }))
-      .having(({ comp }) => gt(count(comp.lectureSlotId), 1));
+  const { data } = useLiveQuery(
+    (q) => {
+      const conflicted = q
+        .from({ comp: completeLectureOnlyCollection })
+        .groupBy(({ comp }) => [
+          comp.slotId,
+          comp.teacherId,
+          concat(comp.slotId, ":", comp.teacherId),
+        ])
+        .select(({ comp }) => ({
+          slotId: comp.slotId,
+          teacherId: comp.teacherId,
+          key: concat(comp.slotId, ":", comp.teacherId), // composite join key
+          lectureSlotCount: count(comp.lectureSlotId),
+        }))
+        .having(({ comp }) => gt(count(comp.lectureSlotId), 1));
 
-    return q
-      .from({ comp: completeLectureOnlyCollection })
-      .innerJoin({ conflicted }, ({ comp, conflicted: conf }) =>
-        eq(conf.key, concat(comp.slotId, ":", comp.teacherId)),
-      )
-      .select(({ comp }) => ({ ...comp })); // NOTE: This needs to be spread, otherwise returns empty object
-  });
+      return q
+        .from({ comp: completeLectureOnlyCollection })
+        .innerJoin({ conflicted }, ({ comp, conflicted: conf }) =>
+          eq(conf.key, concat(comp.slotId, ":", comp.teacherId)),
+        )
+        .select(({ comp }) => ({ ...comp })); // NOTE: This needs to be spread, otherwise returns empty object
+    },
+    [completeLectureOnlyCollection],
+  );
 
   const grouped: {
     [slotId: string]: {

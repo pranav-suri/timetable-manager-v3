@@ -25,7 +25,6 @@ export default function MuiTimetable({
 }: {
   handleDrawerOpen: () => void;
 }) {
-  const [{ viewAllData }] = useState({ viewAllData: true });
   const { activeLectureSlotId, sensors, handlers } = useTimetableDnD();
   const { slotDays, slotNumbers } = useSlotDaysAndNumbers();
   const busySlots = useBusySlots(activeLectureSlotId);
@@ -49,7 +48,6 @@ export default function MuiTimetable({
                 key={s.day}
                 day={s.day}
                 handleDrawerOpen={handleDrawerOpen}
-                viewAllData={viewAllData}
                 busySlots={busySlots}
               />
             ))}

@@ -5,27 +5,21 @@ import Slot from "./Slot";
 import { useCollections } from "@/db-collections/providers/useCollections";
 
 interface RowProps {
-  viewAllData: boolean;
   day: number;
   handleDrawerOpen: () => void;
   busySlots: Set<string>;
 }
 
-export function Row({
-  viewAllData,
-  day,
-  handleDrawerOpen,
-  busySlots,
-}: RowProps) {
-  const DAYS = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-  ];
+export const DAYS = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
 
+export function Row({ day, handleDrawerOpen, busySlots }: RowProps) {
   const { slotCollection } = useCollections();
 
   const { data: slotsOfDay } = useLiveQuery(
@@ -45,7 +39,6 @@ export function Row({
         <DroppableCell
           key={slot.id}
           slotId={slot.id}
-          viewAllData={viewAllData}
           handleDrawerOpen={handleDrawerOpen}
           busySlots={busySlots}
         />
@@ -56,14 +49,12 @@ export function Row({
 
 interface DroppableCellProps {
   slotId: string;
-  viewAllData: boolean;
   handleDrawerOpen: () => void;
   busySlots: Set<string>;
 }
 
 export function DroppableCell({
   slotId,
-  viewAllData,
   handleDrawerOpen,
   busySlots,
 }: DroppableCellProps) {
@@ -98,7 +89,7 @@ export function DroppableCell({
         transition: "background-color 0.2s ease",
       }}
     >
-      <Slot slotId={slotId} viewAllData={viewAllData} />
+      <Slot slotId={slotId} />
     </TableCell>
   );
 }

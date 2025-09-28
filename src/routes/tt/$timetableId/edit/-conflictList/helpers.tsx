@@ -1,10 +1,9 @@
 import { Typography } from "@mui/material";
 import { eq, useLiveQuery } from "@tanstack/react-db";
+import { DAYS } from "../-components/Row";
 import { useCollections } from "@/db-collections/providers/useCollections";
-
 // You would create a utility function for this
 const formatSlot = (day: number, number: number) => {
-  const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   return `${DAYS[day - 1] ?? "N/A"}, Period ${number}`;
 };
 
