@@ -1,5 +1,6 @@
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
-import { createCollection } from "@tanstack/db";
+import { createCollection } from "@tanstack/react-db";
+import { LectureSubdivisionSchema } from "generated/zod";
 import type { CollectionInput } from "./providers/CollectionProvider";
 
 export function getLectureSubdivisionCollection({
@@ -12,6 +13,7 @@ export function getLectureSubdivisionCollection({
     queryCollectionOptions({
       id: "lectureSubdivision:" + timetableId,
       startSync: true,
+      schema: LectureSubdivisionSchema,
       queryKey: trpc.lectureSubdivisions.list.queryKey({ timetableId }),
       queryFn: async () => {
         const { lectureSubdivisions } =

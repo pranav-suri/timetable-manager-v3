@@ -1,5 +1,6 @@
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
-import { createCollection } from "@tanstack/db";
+import { createCollection } from "@tanstack/react-db";
+import { TimetableSchema } from "generated/zod";
 import type { CollectionInput } from "./providers/CollectionProvider";
 
 export function getTimetableCollection({
@@ -11,6 +12,7 @@ export function getTimetableCollection({
     queryCollectionOptions({
       id: "timetable",
       startSync: true,
+      schema: TimetableSchema,
       queryKey: trpc.timetable.list.queryKey(),
       queryFn: async () => {
         const { timetables } = await trpcClient.timetable.list.query();
@@ -39,6 +41,5 @@ export function getTimetableCollection({
       },
     }),
   );
-
   return timetableCollection;
 }

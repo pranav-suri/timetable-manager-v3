@@ -103,6 +103,8 @@ function RouteComponent() {
     form.reset();
   };
 
+  if (!collectionsInitialized) return "LOADING ----->";
+
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h3" component="h1" gutterBottom>

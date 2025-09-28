@@ -7,7 +7,7 @@
     "vite.config.js"
   ],
 
-  "exclude": ["generated", "node_modules", "dist"],
+  "exclude": ["generated", "node_modules", "dist", "backupFiles"],
 
   "compilerOptions": {
     "target": "ES2022",

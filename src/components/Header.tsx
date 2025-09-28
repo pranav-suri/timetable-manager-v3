@@ -27,9 +27,6 @@ export default function Header() {
         <div className="px-2 font-bold">
           <Link to="/demo/mcp-todos">MCP</Link>
         </div>
-        <div className="px-2 font-bold">
-          <Link to="/timetable/$timetableId" params={{ timetableId: "wRRK" }}>Timetable</Link>
-        </div>
       </nav>
     </header>
   );

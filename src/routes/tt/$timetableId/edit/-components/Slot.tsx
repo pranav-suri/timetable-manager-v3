@@ -10,7 +10,7 @@ function Slot({ slotId }: { slotId: string }) {
       q
         .from({ item: completeLectureOnlyCollection })
         .where(({ item }) => eq(item.slotId, slotId))
-        .join({ subject: subjectCollection }, ({ item, subject }) =>
+        .innerJoin({ subject: subjectCollection }, ({ item, subject }) =>
           eq(item.subjectId, subject.id),
         )
         .orderBy(({ subject }) => subject.name)

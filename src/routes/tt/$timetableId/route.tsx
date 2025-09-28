@@ -37,6 +37,7 @@ function CollectionsLoader() {
       for (const col of Object.values(collections)) {
         col.preload();
         await col.stateWhenReady();
+        // console.log(col.id, await col.toArrayWhenReady())
       }
       setAllCollectionsReady(true);
     };

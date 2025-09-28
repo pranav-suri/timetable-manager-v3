@@ -1,5 +1,6 @@
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
-import { createCollection } from "@tanstack/db";
+import { createCollection } from "@tanstack/react-db";
+import { TeacherUnavailableSchema } from "generated/zod";
 import type { CollectionInput } from "./providers/CollectionProvider";
 
 export function getTeacherUnavailableCollection({
@@ -12,6 +13,7 @@ export function getTeacherUnavailableCollection({
     queryCollectionOptions({
       id: "teacherUnavailable:" + timetableId,
       startSync: true,
+      schema: TeacherUnavailableSchema,
       queryKey: trpc.teacherUnavailabilities.list.queryKey({ timetableId }),
       queryFn: async () => {
         const { teacherUnavailables } =
