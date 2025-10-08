@@ -40,6 +40,8 @@ export function getLectureCollection({
         await trpcClient.lectures.delete.mutate({
           id: original.id,
         });
+        // Invalidation done to refetch lectureClassrooms and lectureSubdivisions
+        // TODO: Optimize this to only refetch the above 2 collections
         queryClient.invalidateQueries();
         // return { refetch: false };
       },

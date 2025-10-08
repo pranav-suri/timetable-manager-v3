@@ -31,9 +31,15 @@ import {
   Edit as EditIcon,
 } from "@mui/icons-material";
 import type { Classroom, Lecture, Subdivision } from "generated/prisma/client";
-import type { InsertLectureParams } from "@/db-collections/transactions";
+import type {
+  InsertLectureParams,
+  UpdateLectureParams,
+} from "@/db-collections/transactions";
 import { useCollections } from "@/db-collections/providers/useCollections";
-import { useLectureInsert } from "@/db-collections/transactions";
+import {
+  useLectureInsert,
+  useLectureUpdate,
+} from "@/db-collections/transactions";
 
 export const Route = createFileRoute("/tt/$timetableId/lectures")({
   component: RouteComponent,
@@ -50,9 +56,10 @@ function RouteComponent() {
     lectureClassroomCollection,
   } = useCollections();
 
-  const { timetableId } = Route.useParams();
+  const {  timetableId } = Route.useParams();
   const [editingId, setEditingId] = useState<string | null>(null);
   const insertLecture = useLectureInsert();
+  const updateLecture = useLectureUpdate();
 
   const { data: teachers } = useLiveQuery(
     (q) => q.from({ teacherCollection }),
@@ -124,21 +131,23 @@ function RouteComponent() {
 
   const handleUpdate = () => {
     if (editingId) {
-      lectureCollection.update(editingId, (draft) => {
-        draft.teacherId = form.state.values.teacherId;
-        draft.subjectId = form.state.values.subjectId;
-        draft.count = form.state.values.count;
-        draft.duration = form.state.values.duration;
-      });
+      const updatedLecture = {
+        id: editingId,
+        teacherId: form.state.values.teacherId,
+        subjectId: form.state.values.subjectId,
+        count: form.state.values.count,
+        duration: form.state.values.duration,
+        classroomIds: form.state.values.classroomIds,
+        subdivisionIds: form.state.values.subdivisionIds,
+      } satisfies UpdateLectureParams;
+      updateLecture(updatedLecture);
       setEditingId(null);
       form.reset();
     }
   };
 
   const handleDelete = async (id: string) => {
-    console.time("DELETE " + id);
     await lectureCollection.delete(id).isPersisted.promise;
-    console.timeEnd("DELETE " + id);
     lectureSubdivisionCollection.utils.refetch();
     lectureClassroomCollection.utils.refetch();
   };

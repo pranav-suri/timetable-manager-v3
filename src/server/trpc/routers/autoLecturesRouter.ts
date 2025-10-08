@@ -11,7 +11,6 @@ export const autoLecturesRouter = {
         teacherId: zodIdSchema,
         subjectId: zodIdSchema,
         timetableId: zodIdSchema,
-        slotIds: z.optional(z.array(zodIdSchema)),
         classroomIds: z.optional(z.array(zodIdSchema)),
         subdivisionIds: z.optional(z.array(zodIdSchema)),
         count: z.number().min(0).default(1),
@@ -28,10 +27,8 @@ export const autoLecturesRouter = {
         duration,
         timetableId,
         classroomIds,
-        slotIds,
         subdivisionIds,
       } = input;
-
       const lecture = await prisma.lecture.create({
         data: { id, teacherId, subjectId, count, timetableId, duration },
       });
@@ -54,12 +51,59 @@ export const autoLecturesRouter = {
         });
       }
 
-      if (slotIds?.length) {
-        await prisma.lectureSlot.createMany({
-          data: slotIds.map((slotId) => ({
-            lectureId: lecture.id,
-            slotId,
-          })),
+      return { lecture };
+    }),
+  update: authedProcedure
+    .input(
+      z.object({
+        id: zodIdSchema,
+        teacherId: zodIdSchema,
+        subjectId: zodIdSchema,
+        duration: z.number(),
+        classroomIds: z.array(zodIdSchema),
+        subdivisionIds: z.array(zodIdSchema),
+        count: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { prisma } = ctx;
+      const { id, teacherId, subjectId, count, classroomIds, subdivisionIds } =
+        input;
+
+      const lecture = await prisma.lecture.update({
+        where: { id },
+        data: { teacherId, subjectId, count },
+      });
+
+      await prisma.lectureClassroom.deleteMany({
+        where: {
+          lectureId: id,
+          classroomId: { not: { in: classroomIds } },
+        },
+      });
+      for (const classroomId of classroomIds) {
+        await prisma.lectureClassroom.upsert({
+          where: {
+            lectureId_classroomId: { lectureId: id, classroomId },
+          },
+          update: {},
+          create: { lectureId: id, classroomId },
+        });
+      }
+
+      await prisma.lectureSubdivision.deleteMany({
+        where: {
+          lectureId: id,
+          subdivisionId: { not: { in: subdivisionIds } },
+        },
+      });
+      for (const subdivisionId of subdivisionIds) {
+        await prisma.lectureSubdivision.upsert({
+          where: {
+            lectureId_subdivisionId: { lectureId: id, subdivisionId },
+          },
+          update: {},
+          create: { lectureId: id, subdivisionId },
         });
       }
 
