@@ -20,16 +20,16 @@ if (process.env.NODE_ENV !== "production") {
 async function main() {
   // Create a new timetable if it doesn't exist
 
-  await prisma.timetable.upsert({
-    create: {
-      id: "abcde",
-      name: "Timetable 1",
-    },
-    update: {},
-    where: {
-      id: "abcde",
-    },
-  });
+  // await prisma.timetable.upsert({
+  //   create: {
+  //     id: "abcde",
+  //     name: "Timetable 1",
+  //   },
+  //   update: {},
+  //   where: {
+  //     id: "abcde",
+  //   },
+  // });
 
   // Inner Join,
   await prisma.timetable.findFirst({
@@ -43,8 +43,19 @@ async function main() {
   await prisma.timetable.findFirst();
   console.time(": Time taken for data upload");
   try {
-    await sampleDataUpload("ODD");
-    await sampleDataUpload("EVEN");
+    // Get or create default organization for sample data
+    const defaultOrg = await prisma.organization.upsert({
+      where: { id: "default-org" },
+      create: {
+        id: "default-org",
+        name: "Default Organization",
+        slug: "default-organization",
+      },
+      update: {},
+    });
+
+    await sampleDataUpload("ODD", defaultOrg.id);
+    await sampleDataUpload("EVEN", defaultOrg.id);
     return;
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {

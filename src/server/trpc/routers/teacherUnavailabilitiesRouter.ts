@@ -1,7 +1,8 @@
 import { z } from "zod";
-import { authedProcedure } from "../init";
+import { authedProcedure, editorProcedure } from "../init";
 import type { TRPCRouterRecord } from "@trpc/server";
 import { zodIdSchema } from "@/server/utils/zodIdSchema";
+import { verifyTimetableOwnership } from "../utils/verifyTimetableOwnership";
 
 export const teacherUnavailabilitiesRouter = {
   list: authedProcedure
@@ -9,6 +10,10 @@ export const teacherUnavailabilitiesRouter = {
     .query(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { timetableId } = input;
+
+      // Verify timetable ownership
+      await verifyTimetableOwnership(ctx, timetableId);
+
       const teachers = await prisma.teacher.findMany({
         where: { timetableId },
       });
@@ -17,27 +22,36 @@ export const teacherUnavailabilitiesRouter = {
       });
       return { teacherUnavailables };
     }),
-  add: authedProcedure
+  add: editorProcedure
     .input(
       z.object({
         id: zodIdSchema.optional(),
         slotId: zodIdSchema,
         teacherId: zodIdSchema,
+        timetableId: zodIdSchema,
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
-      const { id, slotId, teacherId } = input;
+      const { id, slotId, teacherId, timetableId } = input;
+
+      // Verify timetable ownership
+      await verifyTimetableOwnership(ctx, timetableId);
+
       const teacherUnavailable = await prisma.teacherUnavailable.create({
         data: { id, slotId, teacherId },
       });
       return { teacherUnavailable };
     }),
-  delete: authedProcedure
-    .input(z.object({ id: zodIdSchema }))
+  delete: editorProcedure
+    .input(z.object({ id: zodIdSchema, timetableId: zodIdSchema }))
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
-      const { id } = input;
+      const { id, timetableId } = input;
+
+      // Verify timetable ownership
+      await verifyTimetableOwnership(ctx, timetableId);
+
       const teacherUnavailable = await prisma.teacherUnavailable.delete({
         where: { id },
       });

@@ -25,7 +25,10 @@ export function getTeacherUnavailableCollection({
 
       onInsert: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
-        await trpcClient.teacherUnavailabilities.add.mutate(modified);
+        await trpcClient.teacherUnavailabilities.add.mutate({
+          ...modified,
+          timetableId,
+        });
         // return { refetch: false };
       },
 
@@ -33,6 +36,7 @@ export function getTeacherUnavailableCollection({
         const { original } = transaction.mutations[0];
         await trpcClient.teacherUnavailabilities.delete.mutate({
           id: original.id,
+          timetableId,
         });
         // return { refetch: false };
       },

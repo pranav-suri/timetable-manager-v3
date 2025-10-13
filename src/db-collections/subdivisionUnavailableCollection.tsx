@@ -25,7 +25,10 @@ export function getSubdivisionUnavailableCollection({
 
       onInsert: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
-        await trpcClient.subdivisionUnavailabilities.add.mutate(modified);
+        await trpcClient.subdivisionUnavailabilities.add.mutate({
+          ...modified,
+          timetableId,
+        });
         // return { refetch: false };
       },
 
@@ -33,6 +36,7 @@ export function getSubdivisionUnavailableCollection({
         const { original } = transaction.mutations[0];
         await trpcClient.subdivisionUnavailabilities.delete.mutate({
           id: original.id,
+          timetableId,
         });
         // return { refetch: false };
       },

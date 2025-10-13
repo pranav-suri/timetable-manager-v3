@@ -8,14 +8,18 @@ import { uploadSubjectAndTeacherData } from "./subjectAndTeacher";
 import { DIRNAME } from "./DIRNAME";
 import { prisma } from "@/server/prisma";
 
-async function sampleDataUpload(timetableName: string) {
+async function sampleDataUpload(timetableName: string, organizationId: string) {
   const timetable = await prisma.timetable.upsert({
     create: {
       name: timetableName,
+      organizationId,
     },
     update: {},
     where: {
-      name: timetableName,
+      name_organizationId: {
+        name: timetableName,
+        organizationId,
+      },
     },
   });
 

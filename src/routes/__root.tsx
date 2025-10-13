@@ -62,9 +62,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        {/* <Header /> */}
         <CssBaseline />
-        <ThemeModeContextProvider>{children}</ThemeModeContextProvider>
+        <ThemeModeContextProvider>
+          <Header />
+          {children}
+        </ThemeModeContextProvider>
         <TanstackDevtools
           config={{
             position: "bottom-left",

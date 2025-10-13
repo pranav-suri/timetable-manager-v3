@@ -25,13 +25,17 @@ export function getLectureSubdivisionCollection({
 
       onInsert: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
-        await trpcClient.lectureSubdivisions.add.mutate(modified);
+        await trpcClient.lectureSubdivisions.add.mutate({
+          ...modified,
+          timetableId,
+        });
         // return { refetch: false };
       },
       onDelete: async ({ transaction }) => {
         const { original } = transaction.mutations[0];
         await trpcClient.lectureSubdivisions.delete.mutate({
           id: original.id,
+          timetableId,
         });
         // return { refetch: false };
       },

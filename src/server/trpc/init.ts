@@ -2,6 +2,7 @@ import { TRPCError, initTRPC } from "@trpc/server";
 import superjson from "superjson";
 import type { UserRole } from "generated/prisma/client";
 import { prisma } from "@/server/prisma";
+import { logError } from "./errorLogger";
 
 export function createContext() {
   return {
@@ -22,6 +23,32 @@ export type TrpcContext = Awaited<ReturnType<typeof createContext>> & {
 // Context is populated in /api/trpc.$.tsx file by the fetchRequestHandler
 const t = initTRPC.context<TrpcContext>().create({
   transformer: superjson,
+  errorFormatter({ shape, error }) {
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    
+    // Log error to console during development
+    if (isDevelopment) {
+      const procedurePath = shape.data.path || 'unknown';
+      logError(error, `Procedure: ${procedurePath}`);
+    }
+    
+    return {
+      ...shape,
+      data: {
+        ...shape.data,
+        // In development, include full error details
+        ...(isDevelopment && {
+          stack: error.stack,
+          cause: error.cause,
+          originalError: error.cause instanceof Error ? {
+            name: error.cause.name,
+            message: error.cause.message,
+            stack: error.cause.stack,
+          } : undefined,
+        }),
+      },
+    };
+  },
 });
 
 export const createTRPCRouter = t.router;
