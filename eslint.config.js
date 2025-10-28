@@ -34,7 +34,7 @@ export default [
       "react-hooks/exhaustive-deps": [
         "warn",
         {
-          additionalHooks: "(useLiveQuery)",
+          additionalHooks: "useLiveQuery",
         },
       ],
       "@typescript-eslint/array-type": [

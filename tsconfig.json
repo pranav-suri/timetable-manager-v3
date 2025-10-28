@@ -7,7 +7,7 @@
     "vite.config.js"
   ],
 
-  "exclude": ["generated", "node_modules", "dist", "backupFiles"],
+  "exclude": ["**/generated/**", "node_modules", "dist", "backupFiles"],
 
   "compilerOptions": {
     "target": "ES2022",
@@ -30,8 +30,8 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
     "noUncheckedIndexedAccess": true,
-    "baseUrl": ".",
     "paths": {
+      "*": ["./*"],
       "@/*": ["./src/*"]
     }
   }
