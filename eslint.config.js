@@ -43,8 +43,8 @@ export default [
           default: "array-simple", // Allows T[]
         },
       ],
-      "import/order": "warn",
-      "sort-imports": "warn",
+      "import/order": "off",
+      "sort-imports": "off",
     },
   },
 ];
