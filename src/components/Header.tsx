@@ -12,20 +12,19 @@ import {
   Divider,
   ListItemIcon,
 } from "@mui/material";
-import {
-  AccountCircle,
-  Logout,
-  Settings,
-} from "@mui/icons-material";
-import { useState } from "react";
+import { AccountCircle, Logout, Settings } from "@mui/icons-material";
+import { useState, useContext } from "react";
 import { useAuthStore } from "@/zustand/authStore";
 import { useMutation } from "@tanstack/react-query";
 import { useTRPC } from "@/integrations/trpc";
+import { ThemeModeContext } from "@/context/ThemeModeContext";
+import { DarkMode as DarkModeSwitch } from "@/components/Buttons";
 
 export default function Header() {
   const { user, logout: localLogout } = useAuthStore();
   const trpc = useTRPC();
   const navigate = useNavigate();
+  const { themeMode } = useContext(ThemeModeContext);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const { mutate: logout } = useMutation({
@@ -54,7 +53,15 @@ export default function Header() {
   }
 
   return (
-    <AppBar position="static">
+    <AppBar
+      position="fixed"
+      sx={{
+        padding: "0.5rem",
+        backdropFilter: "blur(16px)",
+        backgroundColor: `hsla(0, 0%, ${themeMode === "dark" ? "30%" : "60%"}, 50%)`,
+      }}
+      color="transparent"
+    >
       <Toolbar>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           Timetable Manager
@@ -64,6 +71,8 @@ export default function Header() {
           <Button color="inherit" component={Link} to="/tt">
             Timetables
           </Button>
+
+          <DarkModeSwitch />
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <Typography variant="body2">
@@ -91,7 +100,8 @@ export default function Header() {
             color="inherit"
           >
             <Avatar sx={{ width: 32, height: 32 }}>
-              {user.firstName[0]}{user.lastName[0]}
+              {user.firstName[0]}
+              {user.lastName[0]}
             </Avatar>
           </IconButton>
 
@@ -117,7 +127,11 @@ export default function Header() {
               <Typography variant="caption" color="text.secondary">
                 {user.email}
               </Typography>
-              <Typography variant="caption" display="block" color="text.secondary">
+              <Typography
+                variant="caption"
+                display="block"
+                color="text.secondary"
+              >
                 {user.organizationName}
               </Typography>
             </Box>

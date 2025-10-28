@@ -7,7 +7,8 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { TanstackDevtools } from "@tanstack/react-devtools";
 
 import { CssBaseline } from "@mui/material";
-import Header from "../components/Header";
+import Header from "@/components/Header";
+import { DrawerHeader } from "@/components/Drawer";
 
 import TanStackQueryDevtools from "../integrations/reactQueryDevtools";
 
@@ -65,6 +66,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <CssBaseline />
         <ThemeModeContextProvider>
           <Header />
+          <DrawerHeader />
+
           {children}
         </ThemeModeContextProvider>
         <TanstackDevtools

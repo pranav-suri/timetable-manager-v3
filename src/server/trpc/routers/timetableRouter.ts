@@ -98,30 +98,6 @@ export const timetableRouter = {
 
       return getTimetable(ctx, timetableId, subdivisionIds);
     }),
-  /**
-   * Only for testing, gets the second timetable and 3 subdivisions, the selections were chosen according to sample data
-   */
-  getAny: authedProcedure.query(async ({ ctx }) => {
-    const { prisma, session } = ctx;
-    const tt = await prisma.timetable.findFirstOrThrow({
-      where: {
-        name: "ODD",
-        organizationId: session.organizationId
-      },
-    });
-
-    const subdiv = await prisma.subdivision.findMany({
-      where: {
-        timetableId: tt.id,
-        name: {
-          in: ["SY CS A1", "SY CS A2", "SY CS A3"],
-        },
-      },
-    });
-
-    const subdivIds = subdiv.map((s) => s.id);
-    return await getTimetable(ctx, tt.id, subdivIds);
-  }),
 } satisfies TRPCRouterRecord;
 
 async function getTimetable(

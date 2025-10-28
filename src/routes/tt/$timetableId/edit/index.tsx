@@ -3,8 +3,7 @@ import { useState } from "react";
 import { styled } from "@mui/material/styles";
 import { Box } from "@mui/material";
 import MuiTimetable from "./-MuiTimetable";
-import { NavBar } from "@/components/Navbar";
-import { DrawerHeader, DrawerRight } from "@/components/Drawer";
+import { DrawerRight } from "@/components/Drawer";
 
 export const Route = createFileRoute("/tt/$timetableId/edit/")({
   component: RouteComponent,
@@ -52,14 +51,12 @@ function RouteComponent() {
   };
 
   return (
-    <Box sx={{ display: "flex" }}>
-      <NavBar handleDrawerClose={handleDrawerClose} />
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
       <Main
         drawerState={drawerState}
         drawerwidth={drawerwidth}
         className="main"
       >
-        <DrawerHeader />
         <MuiTimetable handleDrawerOpen={handleDrawerOpen} />
       </Main>
       <DrawerRight

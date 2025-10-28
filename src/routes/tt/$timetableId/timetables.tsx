@@ -44,8 +44,8 @@ function RouteComponent() {
   const form = useForm({
     defaultValues: { name: "" },
     onSubmit: ({ value }) => {
-      if (!user?.organizationId) {
-        console.error("No organization ID found");
+      if (!user) {
+        console.error("User not signed in");
         return;
       }
 
