@@ -27,7 +27,10 @@ export function getSubjectClassroomCollection({
 
       onInsert: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
-        await trpcClient.subjectClassrooms.add.mutate(modified);
+        await trpcClient.subjectClassrooms.add.mutate({
+          ...modified,
+          timetableId,
+        });
         // return { refetch: false };
       },
 
@@ -35,6 +38,7 @@ export function getSubjectClassroomCollection({
         const { original } = transaction.mutations[0];
         await trpcClient.subjectClassrooms.delete.mutate({
           id: original.id,
+          timetableId,
         });
         // return { refetch: false };
       },

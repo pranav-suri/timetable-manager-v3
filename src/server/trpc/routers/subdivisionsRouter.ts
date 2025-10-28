@@ -1,7 +1,8 @@
 import { z } from "zod";
-import { authedProcedure } from "../init";
+import { authedProcedure, editorProcedure } from "../init";
 import type { TRPCRouterRecord } from "@trpc/server";
 import { zodIdSchema } from "@/server/utils/zodIdSchema";
+import { verifyTimetableOwnership, verifyEntityOwnership } from "../utils/verifyTimetableOwnership";
 
 export const subdivisionsRouter = {
   list: authedProcedure
@@ -10,12 +11,14 @@ export const subdivisionsRouter = {
       const { prisma } = ctx;
       const { timetableId } = input;
 
+      await verifyTimetableOwnership(ctx, timetableId);
+
       const subdivisions = await prisma.subdivision.findMany({
         where: { timetableId },
       });
       return { subdivisions };
     }),
-  add: authedProcedure
+  add: editorProcedure
     .input(
       z.object({
         id: zodIdSchema.optional(),
@@ -27,6 +30,8 @@ export const subdivisionsRouter = {
       const { prisma } = ctx;
       const { id, timetableId, name } = input;
 
+      await verifyTimetableOwnership(ctx, timetableId);
+
       const subdivision = await prisma.subdivision.create({
         data: {
           id,
@@ -36,7 +41,7 @@ export const subdivisionsRouter = {
       });
       return { subdivision };
     }),
-  update: authedProcedure
+  update: editorProcedure
     .input(
       z.object({
         id: zodIdSchema,
@@ -47,6 +52,10 @@ export const subdivisionsRouter = {
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { id, timetableId, name } = input;
+      
+      await verifyEntityOwnership(ctx, id, 'subdivision');
+      await verifyTimetableOwnership(ctx, timetableId);
+      
       const subdivision = await prisma.subdivision.update({
         where: { id },
         data: {
@@ -56,11 +65,14 @@ export const subdivisionsRouter = {
       });
       return { subdivision };
     }),
-  delete: authedProcedure
+  delete: editorProcedure
     .input(z.object({ id: zodIdSchema }))
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { id } = input;
+      
+      await verifyEntityOwnership(ctx, id, 'subdivision');
+      
       const subdivision = await prisma.subdivision.delete({
         where: { id },
       });

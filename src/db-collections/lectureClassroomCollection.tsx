@@ -27,13 +27,17 @@ export function getLectureClassroomCollection({
 
       onInsert: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
-        await trpcClient.lectureClassrooms.add.mutate(modified);
+        await trpcClient.lectureClassrooms.add.mutate({
+          ...modified,
+          timetableId,
+        });
         // return { refetch: false };
       },
       onDelete: async ({ transaction }) => {
         const { original } = transaction.mutations[0];
         await trpcClient.lectureClassrooms.delete.mutate({
           id: original.id,
+          timetableId,
         });
         // return { refetch: false };
       },

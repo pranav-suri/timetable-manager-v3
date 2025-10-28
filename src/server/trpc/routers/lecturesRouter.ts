@@ -1,7 +1,11 @@
 import { z } from "zod";
-import { authedProcedure } from "../init";
+import { authedProcedure, editorProcedure } from "../init";
 import type { TRPCRouterRecord } from "@trpc/server";
 import { zodIdSchema } from "@/server/utils/zodIdSchema";
+import {
+  verifyTimetableOwnership,
+  verifyEntityOwnership,
+} from "../utils/verifyTimetableOwnership";
 
 export const lecturesRouter = {
   list: authedProcedure
@@ -9,12 +13,16 @@ export const lecturesRouter = {
     .query(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { timetableId } = input;
+
+      // Verify timetable ownership
+      await verifyTimetableOwnership(ctx, timetableId);
+
       const lectures = await prisma.lecture.findMany({
         where: { timetableId },
       });
       return { lectures };
     }),
-  add: authedProcedure
+  add: editorProcedure
     .input(
       z.object({
         id: zodIdSchema.optional(),
@@ -28,12 +36,16 @@ export const lecturesRouter = {
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { id, teacherId, subjectId, timetableId, count, duration } = input;
+
+      // Verify timetable ownership
+      await verifyTimetableOwnership(ctx, timetableId);
+
       const lecture = await prisma.lecture.create({
         data: { id, teacherId, subjectId, timetableId, count, duration },
       });
       return { lecture };
     }),
-  update: authedProcedure
+  update: editorProcedure
     .input(
       z.object({
         id: zodIdSchema,
@@ -46,17 +58,25 @@ export const lecturesRouter = {
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { id, ...data } = input;
+
+      // Verify entity ownership
+      await verifyEntityOwnership(ctx, id, "lecture");
+
       const lecture = await prisma.lecture.update({
         where: { id },
         data,
       });
       return { lecture };
     }),
-  delete: authedProcedure
+  delete: editorProcedure
     .input(z.object({ id: zodIdSchema }))
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { id } = input;
+
+      // Verify entity ownership
+      await verifyEntityOwnership(ctx, id, "lecture");
+
       const lecture = await prisma.lecture.delete({ where: { id } });
       return { lecture };
     }),

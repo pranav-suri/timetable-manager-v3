@@ -26,19 +26,26 @@ export function getLectureSlotCollection({
 
       onInsert: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
-        await trpcClient.lectureSlots.add.mutate(modified);
+        await trpcClient.lectureSlots.add.mutate({
+          ...modified,
+          timetableId,
+        });
         // return { refetch: false };
       },
 
       onUpdate: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
-        await trpcClient.lectureSlots.update.mutate(modified);
+        await trpcClient.lectureSlots.update.mutate({
+          ...modified,
+          timetableId,
+        });
         // return { refetch: false };
       },
       onDelete: async ({ transaction }) => {
         const { original } = transaction.mutations[0];
         await trpcClient.lectureSlots.delete.mutate({
           id: original.id,
+          timetableId,
         });
         // return { refetch: false };
       },

@@ -1,0 +1,42 @@
+model User {
+  id              String       @id @default(nanoid(4))
+  email           String       @unique
+  passwordHash    String
+  firstName       String
+  lastName        String
+  role            UserRole     @default(VIEWER)
+  isActive        Boolean      @default(true)
+  organizationId  String
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  lastLoginAt     DateTime?
+  
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  sessions        Session[]
+  
+  @@unique([email, organizationId])
+  @@index([organizationId])
+  @@index([email])
+}
+
+enum UserRole {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+model Session {
+  id        String   @id @default(nanoid(4))
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+}

@@ -8,7 +8,20 @@ function handler({ request }: { request: Request }) {
     req: request,
     router: trpcRouter,
     endpoint: "/api/trpc",
-    createContext,
+    createContext: () => {
+      // Extract session token from cookie or header
+      const sessionToken =
+        request.headers.get('x-session-token') ||
+        request.headers.get('cookie')
+          ?.split('; ')
+          .find(row => row.startsWith('session='))
+          ?.split('=')[1];
+      
+      return {
+        ...createContext(),
+        sessionToken,
+      };
+    },
   });
 }
 
