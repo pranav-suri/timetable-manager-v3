@@ -4,6 +4,7 @@ import type { TRPCRouterRecord } from "@trpc/server";
 import { zodIdSchema } from "@/server/utils/zodIdSchema";
 import { executeGenerationJob } from "@/server/services/timetableGenerator/jobManager";
 import { JobStatus } from "generated/prisma/client";
+import { partialGAConfigSchema } from "@/server/services/timetableGenerator/zodSchemas";
 
 export const generateRouter = {
   // Start timetable generation
@@ -11,13 +12,12 @@ export const generateRouter = {
     .input(
       z.object({
         timetableId: zodIdSchema,
-        // TODO: Add back options with a proper zod schema for PartialGAConfig
-        // options: z.any().optional(),
+        config: partialGAConfigSchema.optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
-      const { timetableId } = input;
+      const { timetableId, config } = input;
 
       // Check if timetable exists
       const timetable = await prisma.timetable.findUnique({
@@ -52,7 +52,7 @@ export const generateRouter = {
       });
 
       // Start generation in background (fire and forget)
-      executeGenerationJob(job.id, timetableId).catch((error) => {
+      executeGenerationJob(job.id, timetableId, config).catch((error) => {
         console.error(`Job ${job.id} execution failed to start:`, error);
         // The error is already handled within executeGenerationJob,
         // but we log it here in case the async function itself fails.

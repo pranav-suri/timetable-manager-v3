@@ -41,6 +41,7 @@ export async function runGA(
   config: GAConfig,
   onProgress?: (stats: GenerationStats) => void,
 ): Promise<GAResult> {
+  console.log("Starting GA with config:", config);
   const startTime = Date.now();
   const fitnessCache = new FitnessCache();
 
