@@ -1,5 +1,8 @@
 import { Prisma, PrismaClient } from "generated/prisma/client";
 import sampleDataUpload from "./controllers/sampleData";
+import * as bcrypt from "bcrypt";
+
+const BCRYPT_ROUNDS = 12;
 
 // Declaring prisma as global to prevent multiple instances during hot reload
 declare global {
@@ -53,6 +56,23 @@ async function main() {
       },
       update: {},
     });
+
+    const defaultPassword = "ChangeMe123!";
+    const passwordHash = await bcrypt.hash(defaultPassword, BCRYPT_ROUNDS);
+
+    const adminUser = await prisma.user.create({
+      data: {
+        email: "admin@example.com",
+        passwordHash,
+        firstName: "Admin",
+        lastName: "User",
+        role: "ADMIN",
+        isActive: true,
+        organizationId: defaultOrg.id,
+      },
+    });
+
+    console.log(`✅ Created admin user: ${adminUser.email}\n`);
 
     await sampleDataUpload("ODD", defaultOrg.id);
     await sampleDataUpload("EVEN", defaultOrg.id);
