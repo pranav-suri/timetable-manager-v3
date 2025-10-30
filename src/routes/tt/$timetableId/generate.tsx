@@ -74,7 +74,7 @@ function RouteComponent() {
   // Load saved config when available
   useEffect(() => {
     if (savedConfig?.config) {
-      setConfig(savedConfig.config);
+      setConfig(JSON.parse(savedConfig.config));
     }
   }, [savedConfig]);
 
@@ -84,8 +84,8 @@ function RouteComponent() {
     // Save config to database
     if (savedConfig) {
       try {
-        await generationConfigCollection.update(savedConfig.id, (draft) => {
-          draft.config = newConfig;
+        generationConfigCollection.update(savedConfig.id, (draft) => {
+          draft.config = JSON.stringify(newConfig);
         });
       } catch (error) {
         console.error("Failed to save generation config:", error);
@@ -94,7 +94,7 @@ function RouteComponent() {
   };
 
   const handleStartGeneration = () => {
-    startGeneration();
+    startGeneration(config);
   };
 
   // Check if we have the minimum data to generate

@@ -35,7 +35,7 @@ export function getGenerationConfigCollection({
         const { modified } = transaction.mutations[0];
         await trpcClient.generationConfig.save.mutate({
           timetableId,
-          config: modified.config,
+          config: JSON.parse(modified.config),
         });
       },
     }),
