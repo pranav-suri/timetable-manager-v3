@@ -2,51 +2,119 @@
 
 ## Current Work Focus
 
-### Primary Focus: Timetable Management System
-The project is currently focused on building a comprehensive timetable management system for educational institutions. The core functionality revolves around:
+### PRIMARY MILESTONE: TIMETABLE GENERATION SYSTEM - COMPLETE ✅
 
-- **Data Management**: CRUD operations for teachers, subjects, classrooms, and student groups
-- **Timetable Generation**: Automated scheduling with constraint optimization
-- **Interactive Editing**: Drag-and-drop interface for manual timetable adjustments
-- **Multi-format Export**: PDF, CSV, and calendar integrations
+**Date**: October 30, 2025  
+**Status**: Production Ready
+
+The genetic algorithm-based timetable generation system is now **fully functional end-to-end**:
+
+- ✅ **All Core GA Components Implemented** (Phases 1-3)
+- ✅ **Complete User Interface** (Phase 5)
+- ✅ **Integration with Existing Editor** (Phase 5.2 - Simplified)
+- ⏳ **Optional Enhancements Available** (Phase 6)
+
+### Recent Completion: Step 5.2 - Collection Integration
+
+**What Changed**: Discovered that complete timetable viewing/editing infrastructure already existed. Only needed to add automatic collection refresh after generation.
+
+**Implementation**: Added collection invalidation in `GenerationResults.tsx` using `queryClient.invalidateQueries()` to trigger UI refresh when job completes.
+
+**Result**: Generated timetables now automatically appear in the existing drag-and-drop editor at `/tt/$timetableId/edit/`.
 
 ### Active Development Areas
-Based on current application structure, development includes:
+
+The timetable management system now includes:
+
 - **Complete Entity Management**: Full CRUD interfaces for teachers, subjects, classrooms, groups, subdivisions, and lectures
-- **Interactive Timetable Editor**: Drag-and-drop timetable editing with conflict detection
-- **Data Import/Export**: CSV/XLSX import functionality for bulk data management
-- **Real-time Synchronization**: Live data updates across all components using TanStack DB
-- **Advanced Form Handling**: Complex form validation and relationship management
+- **Genetic Algorithm Generation**: Automated timetable creation with configurable parameters (3 presets + advanced options)
+- **Interactive Timetable Editor**: Drag-and-drop editing with conflict detection (already existed)
+- **Job Management**: Async generation with progress tracking, cancellation, and history
+- **Lock/Unlock Functionality**: Preserve manual edits through regeneration
+- **Real-time Synchronization**: Live data updates via TanStack DB Collections
+- **Multi-format Export**: Ready for PDF, CSV, and calendar integrations
 
 ## Recent Changes
 
+### Timetable Generation System (October 2025)
+
+**Phase 1-3: Core GA Implementation** ✅
+
+- All genetic operators: selection, crossover, mutation, replacement
+- Constraint checking: 6 hard + 4 soft constraints
+- Fitness evaluation with hierarchical penalty system
+- Job management with database persistence
+- Configuration presets (Fast/Balanced/Thorough)
+
+**Phase 5.1: Generation UI** ✅
+
+- Generation control panel with parameter configuration
+- Real-time progress display with live statistics
+- Job history with quality reports
+- Error handling and user feedback
+
+**Phase 5.2: Collection Integration** ✅ (Simplified)
+
+- Automatic collection invalidation after generation
+- Integration with existing editor (no new components needed)
+- Link from results to edit view
+- Collections: lectureSlot, lectureClassroom already working
+
+**Key Discovery**: The project already had a complete timetable editor at `/tt/$timetableId/edit/` with:
+
+- Material-UI table-based grid layout
+- Drag-and-drop using @dnd-kit
+- Conflict detection in drawer
+- Lock/unlock support in schema
+- Full manual editing capabilities
+
+This eliminated ~800 lines of originally planned UI code. Only needed 30-line collection invalidation.
+
+## Recent Changes
+
+### Code Quality Improvements (October 2025)
+
+- **TypeScript Error Resolution**: Fixed all TypeScript compilation errors including:
+  - Corrected route paths in Header component (`/timetable/$timetableId` → `/tt/$timetableId`)
+  - Refactored `cognitiveLoadCollection.tsx` to follow standard query-based collection pattern
+  - Removed unused imports and functions across multiple files
+  - Achieved zero TypeScript errors in production build
+- **Cognitive Load Collection**: Successfully refactored to use `queryCollectionOptions` with server-side tRPC endpoint, treating it as a read-only computed collection without mutation handlers
+
 ### Database Schema Evolution
+
 - **Complex Relationships**: Implemented many-to-many relationships between teachers/subjects, subjects/classrooms, lectures/slots
 - **Availability Management**: Added unavailability tracking for teachers, classrooms, and subdivisions
 - **Timetable Structure**: Multi-level hierarchy (timetable → lectures → slots → assignments)
 
 ### API Architecture
+
 - **tRPC Integration**: Full type-safe API layer with automatic client generation
 - **Router Organization**: Modular router structure for different entity types
 - **Query Optimization**: Efficient data fetching with proper caching strategies
 
 ### Collection Pattern Implementation
+
 - **Provider Architecture**: Context-based data management for all entities
 - **Hook-based Access**: Custom hooks for CRUD operations with error handling
 - **State Synchronization**: Real-time updates across components
+- **Read-only Collections**: Implemented pattern for computed/derived data (e.g., `cognitiveLoadCollection`) without mutation handlers
 
 ### Optimistic Updates and Error Handling
+
 - **Cache Management**: Implemented manual cache updates in `onInsert`, `onUpdate`, and `onDelete` callbacks to avoid unnecessary refetches
 - **Error Propagation**: Added `try...catch` blocks in mutation handlers to ensure proper error handling and optimistic update rollbacks
 - **User Feedback**: Planned implementation of snackbar notifications for mutation failures
 - **Transaction Error Resolution**: Identified and planned fixes for `TransactionError` when network throttling causes mutation failures
 
 ### React Performance Optimization
+
 - **Memo Usage**: Discussed proper usage of `React.memo` to prevent unnecessary re-renders
 - **Component Optimization**: Identified that memoizing every component can hurt performance and should be targeted at expensive components
 - **State in Live Queries**: Confirmed that state variables can be used in `useLiveQuery` for dynamic, reactive data fetching
 
 ### UI/UX Improvements
+
 - **MUI v7 Integration**: Converted subdivisions, classrooms, subjects, groups, teachers, and lectures management pages from Tailwind CSS to Material-UI v7 components
 - **Design System Consistency**: Implemented Material Design principles across entity management pages
 - **Component Library**: Established patterns for using MUI components (Container, Card, Typography, Button, TextField, List, Alert, Select, FormControl, Switch, FormControlLabel, Chip, Checkbox, OutlinedInput)
@@ -64,6 +132,7 @@ Based on current application structure, development includes:
 ## Next Steps
 
 ### Immediate Priorities (Next Sprint)
+
 1. **Timetable Generation Algorithm**
    - Implement core scheduling logic
    - Add constraint validation
@@ -80,6 +149,7 @@ Based on current application structure, development includes:
    - Calendar integration (iCal)
 
 ### Medium-term Goals (1-2 months)
+
 1. **User Authentication & Authorization**
    - Role-based access control
    - User management system
@@ -98,6 +168,7 @@ Based on current application structure, development includes:
 ## Active Decisions and Considerations
 
 ### Technical Decisions
+
 - **State Management**: TanStack Query for server state, Zustand for client state
 - **Database Choice**: SQLite for development, PostgreSQL for production
 - **API Pattern**: tRPC for type safety over REST
@@ -106,16 +177,19 @@ Based on current application structure, development includes:
 ## Important Patterns and Preferences
 
 ### Code Organization
+
 - **File Naming**: kebab-case for files, PascalCase for components
 - **Import Order**: External libraries → internal modules → relative imports
 - **Export Pattern**: Named exports preferred over default exports
 
 ### Development Workflow
+
 - **Git Strategy**: Feature branches with descriptive commit messages
 - **Code Review**: Required for all changes with automated checks
 - **Testing**: Unit tests for critical logic, integration tests for workflows
 
 ### Performance Considerations
+
 - **Bundle Splitting**: Route-based code splitting for optimal loading
 - **Image Optimization**: Lazy loading and responsive images
 - **Database Queries**: N+1 query prevention with proper includes
@@ -123,11 +197,13 @@ Based on current application structure, development includes:
 ## Current Challenges
 
 ### Technical Challenges
+
 - **Algorithm Complexity**: Developing efficient timetable generation algorithm
 - **Type Safety**: Maintaining type safety across complex data relationships
 - **Performance**: Optimizing for large datasets with real-time updates
 
 ### Business Logic Challenges
+
 - **Constraint Management**: Handling complex scheduling constraints
 - **Conflict Resolution**: Automated conflict detection and resolution
 - **User Workflow**: Designing intuitive workflows for complex operations
@@ -135,11 +211,13 @@ Based on current application structure, development includes:
 ## Risk Mitigation
 
 ### Technical Risks
+
 - **Scalability**: Database design optimized for growth
 - **Maintainability**: Clean architecture with comprehensive documentation
 - **Security**: Input validation and proper authentication implementation
 
 ### Project Risks
+
 - **Scope Creep**: Clear requirements and phased development
 - **Timeline**: Realistic milestones with buffer time
 - **Resource Dependencies**: Modular design allowing parallel development
@@ -147,11 +225,13 @@ Based on current application structure, development includes:
 ## Success Metrics
 
 ### Development Metrics
+
 - **Code Coverage**: Target 80%+ test coverage
 - **Performance**: Sub-2 second load times for all pages
 - **Type Safety**: Zero TypeScript errors in production
 
 ### Product Metrics
+
 - **User Adoption**: Intuitive interface requiring minimal training
 - **Data Integrity**: 100% accuracy in timetable generation
 - **Reliability**: 99.9% uptime with graceful error handling
@@ -159,11 +239,13 @@ Based on current application structure, development includes:
 ## Communication and Collaboration
 
 ### Team Coordination
+
 - **Documentation**: Comprehensive memory bank for project continuity
 - **Code Standards**: Consistent patterns and conventions
 - **Knowledge Sharing**: Regular reviews and pair programming
 
 ### Stakeholder Management
+
 - **Progress Updates**: Regular status reports with clear milestones
 - **Feedback Integration**: User feedback incorporated into development
 - **Change Management**: Controlled process for requirement changes
