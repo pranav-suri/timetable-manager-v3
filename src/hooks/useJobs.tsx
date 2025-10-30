@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { trpcClient } from "@/integrations/trpc";
+import type { PartialGAConfig } from "@/server/services/timetableGenerator/types";
 
 export function useJobs(timetableId: string) {
   const queryClient = useQueryClient();
@@ -61,9 +62,10 @@ export function useJobs(timetableId: string) {
 
   // Start generation mutation
   const startGenerationMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (config?: PartialGAConfig) => {
       const result = await trpcClient.generate.start.mutate({
         timetableId,
+        config,
       });
       return result;
     },
