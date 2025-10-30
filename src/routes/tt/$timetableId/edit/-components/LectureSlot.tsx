@@ -45,7 +45,9 @@ function LectureSlot({ lectureSlotId }: { lectureSlotId: string }) {
         sx={{ padding: 0, margin: "8px" }}
       />
       <CardContent sx={{ padding: 0, margin: "8px" }} style={{ padding: 0 }}>
-        <Typography>{viewAllData ? teacherName : getInitials(teacherName)}</Typography>
+        <Typography>
+          {viewAllData ? teacherName : getInitials(teacherName)}
+        </Typography>
         {viewAllData ? <br /> : ""}
         <>{formatNames(subdivisions)}</>
         <>{viewAllData ? <br /> : ""}</>

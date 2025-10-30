@@ -14,6 +14,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import type { Classroom, Lecture, Subdivision } from "generated/prisma/client";
 import { useCollections } from "@/db-collections/providers/useCollections";
+import { LectureDetails } from "./edit/-conflictList/helpers";
 
 /* ---------------- Lecture List Component ---------------- */
 export function LectureList({
@@ -27,9 +28,16 @@ export function LectureList({
   }) => void;
   handleDelete: (id: string) => void;
 }) {
-  const { lectureCollection } = useCollections();
+  const { lectureCollection, subjectCollection } = useCollections();
   const { data: lectures } = useLiveQuery(
-    (q) => q.from({ lectureCollection }),
+    (q) =>
+      q
+        .from({ lecture: lectureCollection })
+        .innerJoin({ subject: subjectCollection }, ({ lecture, subject }) =>
+          eq(lecture.subjectId, subject.id),
+        )
+        .orderBy(({ subject }) => subject.name)
+        .select(({ lecture }) => ({ ...lecture })),
     [lectureCollection],
   );
 

@@ -13,7 +13,6 @@ import {
   IconButton,
   List,
   ListItem,
-  ListItemSecondaryAction,
   ListItemText,
   TextField,
   Typography,
@@ -48,6 +47,8 @@ function RouteComponent() {
         name: value.name,
         email: value.email,
         timetableId,
+        dailyMaxHours: 8,
+        weeklyMaxHours: 40,
       };
       teacherCollection.insert(newTeacher);
       form.reset();
@@ -200,7 +201,7 @@ function RouteComponent() {
         handleDelete={handleDelete}
       />
     </Container>
-  )
+  );
 }
 
 /* ---------------- Teacher List Component ---------------- */
@@ -223,31 +224,36 @@ function TeacherList({
         {teachers.length > 0 ? (
           <List>
             {teachers.map((teacher) => (
-              <ListItem key={teacher.id} divider>
+              <ListItem
+                key={teacher.id}
+                divider
+                secondaryAction={
+                  <>
+                    <IconButton
+                      edge="end"
+                      aria-label="edit"
+                      onClick={() => handleEdit(teacher)}
+                      sx={{ mr: 1 }}
+                      color="primary"
+                    >
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton
+                      edge="end"
+                      aria-label="delete"
+                      onClick={() => handleDelete(teacher.id)}
+                      color="error"
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </>
+                }
+              >
                 <ListItemText
                   primary={teacher.name}
                   secondary={teacher.email}
-                  primaryTypographyProps={{ variant: "h6" }}
+                  slotProps={{ primary: { variant: "h6" } }}
                 />
-                <ListItemSecondaryAction>
-                  <IconButton
-                    edge="end"
-                    aria-label="edit"
-                    onClick={() => handleEdit(teacher)}
-                    sx={{ mr: 1 }}
-                    color="primary"
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    edge="end"
-                    aria-label="delete"
-                    onClick={() => handleDelete(teacher.id)}
-                    color="error"
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </ListItemSecondaryAction>
               </ListItem>
             ))}
           </List>
