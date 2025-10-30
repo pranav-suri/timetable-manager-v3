@@ -4,8 +4,8 @@ import SchoolIcon from "@mui/icons-material/School";
 import ElectricBoltIcon from "@mui/icons-material/ElectricBolt";
 import EditIcon from "@mui/icons-material/Edit";
 import EventNoteIcon from "@mui/icons-material/EventNote";
-import GroupIcon from "@mui/icons-material/Group";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
+import CategoryIcon from "@mui/icons-material/Category";
 
 interface TimetableNavigationTabsProps {
   timetableId: string;
@@ -39,9 +39,9 @@ const TABS: TabConfig[] = [
     group: "data",
   },
   {
-    label: "Groups",
+    label: "Subject Types",
     path: "/tt/:timetableId/groups",
-    icon: <GroupIcon />,
+    icon: <CategoryIcon />,
     group: "data",
   },
   // Generation Group
