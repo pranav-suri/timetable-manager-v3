@@ -11,7 +11,7 @@
     "**/routeTree.gen.ts": true,
     "**/generated/**": true
   },
-  "typescript.experimental.useTsgo": true,
+  "typescript.experimental.useTsgo": false,
   "sqltools.connections": [
     {
       "ssh": "Disabled",

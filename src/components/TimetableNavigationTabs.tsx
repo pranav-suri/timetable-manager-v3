@@ -6,6 +6,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import EventNoteIcon from "@mui/icons-material/EventNote";
 import GroupIcon from "@mui/icons-material/Group";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
+import SmartToyIcon from "@mui/icons-material/SmartToy";
 
 interface TimetableNavigationTabsProps {
   timetableId: string;
@@ -15,7 +16,7 @@ interface TabConfig {
   label: string;
   path: string;
   icon: React.ReactNode;
-  group: "data" | "generate" | "edit";
+  group: "data" | "generate" | "edit" | "ai";
 }
 
 const TABS: TabConfig[] = [
@@ -57,6 +58,13 @@ const TABS: TabConfig[] = [
     path: "/tt/:timetableId/edit",
     icon: <EditIcon />,
     group: "edit",
+  },
+  // AI Group
+  {
+    label: "AI Assistant",
+    path: "/tt/:timetableId/chatbot",
+    icon: <SmartToyIcon />,
+    group: "ai",
   },
 ] as const;
 
