@@ -18,7 +18,6 @@ export function RequireAuth({ children }: RequireAuthProps) {
   const navigate = useNavigate();
   const { user, setUser, clearAuth, getSessionToken } = useAuthStore();
   const trpc = useTRPC();
-  
   const sessionToken = getSessionToken();
 
   // Check if session is valid by fetching current user

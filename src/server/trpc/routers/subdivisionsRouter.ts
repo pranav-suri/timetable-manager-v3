@@ -2,7 +2,10 @@ import { z } from "zod";
 import { authedProcedure, editorProcedure } from "../init";
 import type { TRPCRouterRecord } from "@trpc/server";
 import { zodIdSchema } from "@/server/utils/zodIdSchema";
-import { verifyTimetableOwnership, verifyEntityOwnership } from "../utils/verifyTimetableOwnership";
+import {
+  verifyTimetableOwnership,
+  verifyEntityOwnership,
+} from "../utils/verifyTimetableOwnership";
 
 export const subdivisionsRouter = {
   list: authedProcedure
@@ -52,10 +55,10 @@ export const subdivisionsRouter = {
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { id, timetableId, name } = input;
-      
-      await verifyEntityOwnership(ctx, id, 'subdivision');
+
+      await verifyEntityOwnership(ctx, id, "subdivision");
       await verifyTimetableOwnership(ctx, timetableId);
-      
+
       const subdivision = await prisma.subdivision.update({
         where: { id },
         data: {
@@ -70,9 +73,9 @@ export const subdivisionsRouter = {
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { id } = input;
-      
-      await verifyEntityOwnership(ctx, id, 'subdivision');
-      
+
+      await verifyEntityOwnership(ctx, id, "subdivision");
+
       const subdivision = await prisma.subdivision.delete({
         where: { id },
       });

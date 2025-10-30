@@ -2,7 +2,10 @@ import { z } from "zod";
 import { authedProcedure, editorProcedure } from "../init";
 import type { TRPCRouterRecord } from "@trpc/server";
 import { zodIdSchema } from "@/server/utils/zodIdSchema";
-import { verifyTimetableOwnership, verifyEntityOwnership } from "../utils/verifyTimetableOwnership";
+import {
+  verifyTimetableOwnership,
+  verifyEntityOwnership,
+} from "../utils/verifyTimetableOwnership";
 
 export const classroomsRouter = {
   list: authedProcedure
@@ -10,9 +13,9 @@ export const classroomsRouter = {
     .query(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { timetableId } = input;
-      
+
       await verifyTimetableOwnership(ctx, timetableId);
-      
+
       const classrooms = await prisma.classroom.findMany({
         where: { timetableId },
       });
@@ -29,9 +32,9 @@ export const classroomsRouter = {
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { id, timetableId, name } = input;
-      
+
       await verifyTimetableOwnership(ctx, timetableId);
-      
+
       const classroom = await prisma.classroom.create({
         data: { id, timetableId, name },
       });
@@ -44,10 +47,10 @@ export const classroomsRouter = {
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { id, timetableId, name } = input;
-      
-      await verifyEntityOwnership(ctx, id, 'classroom');
+
+      await verifyEntityOwnership(ctx, id, "classroom");
       await verifyTimetableOwnership(ctx, timetableId);
-      
+
       const classroom = await prisma.classroom.update({
         where: { id },
         data: { timetableId, name },
@@ -59,9 +62,9 @@ export const classroomsRouter = {
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { id } = input;
-      
-      await verifyEntityOwnership(ctx, id, 'classroom');
-      
+
+      await verifyEntityOwnership(ctx, id, "classroom");
+
       const classroom = await prisma.classroom.delete({ where: { id } });
       return { classroom };
     }),

@@ -826,11 +826,12 @@ export function checkConsecutivePreference(
 }
 
 /**
- * Check for excessive consecutive lectures: penalize when more than lecture.duration
- * lectures are scheduled consecutively for a subdivision.
- * This ensures students don't have overly long consecutive blocks of the same subject.
+ * Check for excessive daily lectures: penalize when more than lecture.duration
+ * lectures of the same subject are scheduled on the same day for a subdivision.
+ * This ensures students don't have too many instances of the same subject in one day,
+ * regardless of whether they're consecutive or not.
  */
-export function checkExcessiveConsecutiveLectures(
+export function checkExcessiveDailyLectures(
   chromosome: Chromosome,
   inputData: GAInputData,
 ): SoftViolation[] {
@@ -838,7 +839,7 @@ export function checkExcessiveConsecutiveLectures(
   const { lookupMaps, subdivisions } = inputData;
 
   // Group genes by subdivision, day, and lecture
-  const subdivisionDayLectureToSlots = new Map<string, Map<string, number[]>>();
+  const subdivisionDayLectureToCount = new Map<string, Map<string, number[]>>();
 
   chromosome.forEach((gene) => {
     const lecture = lookupMaps.eventToLecture.get(gene.lectureEventId);
@@ -852,11 +853,11 @@ export function checkExcessiveConsecutiveLectures(
 
     for (const subdivisionId of subdivisionIds) {
       const key = `${subdivisionId}::${slot.day}`;
-      if (!subdivisionDayLectureToSlots.has(key)) {
-        subdivisionDayLectureToSlots.set(key, new Map());
+      if (!subdivisionDayLectureToCount.has(key)) {
+        subdivisionDayLectureToCount.set(key, new Map());
       }
 
-      const lectureMap = subdivisionDayLectureToSlots.get(key)!;
+      const lectureMap = subdivisionDayLectureToCount.get(key)!;
       if (!lectureMap.has(lecture.id)) {
         lectureMap.set(lecture.id, []);
       }
@@ -865,8 +866,8 @@ export function checkExcessiveConsecutiveLectures(
     }
   });
 
-  // Check for excessive consecutive lectures for each subdivision-day-lecture combination
-  for (const [key, lectureMap] of subdivisionDayLectureToSlots) {
+  // Check for excessive daily lectures for each subdivision-day-lecture combination
+  for (const [key, lectureMap] of subdivisionDayLectureToCount) {
     const parts = key.split("::");
     const subdivisionId = parts[0];
     const dayStr = parts[1];
@@ -877,41 +878,11 @@ export function checkExcessiveConsecutiveLectures(
       const lecture = inputData.lectures.find((l) => l.id === lectureId);
       if (!lecture) continue;
 
-      const sortedPeriods = [...periods].sort((a, b) => a - b);
+      const totalCount = periods.length;
 
-      // Find consecutive sequences
-      let currentSequence: number[] = [];
-      let maxConsecutive = 0;
-      let violatingGeneIndices: number[] = [];
-
-      for (let i = 0; i < sortedPeriods.length; i++) {
-        const currentPeriod = sortedPeriods[i];
-        if (currentPeriod === undefined) continue;
-
-        if (currentSequence.length === 0) {
-          currentSequence = [currentPeriod];
-        } else {
-          const lastPeriod = currentSequence[currentSequence.length - 1];
-          if (lastPeriod !== undefined && currentPeriod === lastPeriod + 1) {
-            currentSequence.push(currentPeriod);
-          } else {
-            // Sequence broken, check if it was excessive
-            if (currentSequence.length > lecture.duration) {
-              maxConsecutive = Math.max(maxConsecutive, currentSequence.length);
-            }
-            currentSequence = [currentPeriod];
-          }
-        }
-      }
-
-      // Check final sequence
-      if (currentSequence.length > lecture.duration) {
-        maxConsecutive = Math.max(maxConsecutive, currentSequence.length);
-      }
-
-      // If we found excessive consecutive lectures, collect all involved genes
-      if (maxConsecutive > lecture.duration) {
-        violatingGeneIndices = chromosome
+      // If more lectures than duration are scheduled on the same day, create a violation
+      if (totalCount > lecture.duration) {
+        const violatingGeneIndices = chromosome
           .map((gene, idx) => {
             const geneLecture = lookupMaps.eventToLecture.get(
               gene.lectureEventId,
@@ -930,10 +901,10 @@ export function checkExcessiveConsecutiveLectures(
 
         const subdivision = subdivisions.find((s) => s.id === subdivisionId);
         violations.push({
-          type: SoftConstraintType.EXCESSIVE_CONSECUTIVE_LECTURES,
+          type: SoftConstraintType.EXCESSIVE_DAILY_LECTURES,
           geneIndices: violatingGeneIndices,
-          penalty: maxConsecutive - lecture.duration, // Penalty for each period beyond duration
-          description: `Subdivision ${subdivision?.name || subdivisionId} has ${maxConsecutive} consecutive lectures of ${lecture.subject.name} on day ${day}, exceeds recommended ${lecture.duration}`,
+          penalty: totalCount - lecture.duration, // Penalty for each lecture beyond duration
+          description: `Subdivision ${subdivision?.name || subdivisionId} has ${totalCount} lectures of ${lecture.subject.name} on day ${day}, exceeds recommended ${lecture.duration}`,
           entityIds: [subdivisionId, lectureId, `day-${day}`],
         });
       }
@@ -979,7 +950,7 @@ export function evaluateChromosome(
     ...checkTeacherDailyLimit(chromosome, inputData),
     ...checkTeacherWeeklyLimit(chromosome, inputData),
     ...checkConsecutivePreference(chromosome, inputData),
-    ...checkExcessiveConsecutiveLectures(chromosome, inputData),
+    ...checkExcessiveDailyLectures(chromosome, inputData),
   ];
 
   // Calculate penalties
@@ -999,8 +970,8 @@ export function evaluateChromosome(
         return sum + v.penalty * weights.teacherWeeklyLimit;
       case SoftConstraintType.COGNITIVE_LOAD:
         return sum + v.penalty * weights.cognitiveLoad;
-      case SoftConstraintType.EXCESSIVE_CONSECUTIVE_LECTURES:
-        return sum + v.penalty * weights.excessiveConsecutiveLectures;
+      case SoftConstraintType.EXCESSIVE_DAILY_LECTURES:
+        return sum + v.penalty * weights.excessiveDailyLectures;
       default:
         return sum + v.penalty;
     }

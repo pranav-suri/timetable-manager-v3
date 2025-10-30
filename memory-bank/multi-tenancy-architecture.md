@@ -1,6 +1,7 @@
 # Multi-Tenancy Architecture Plan
 
 ## Overview
+
 Adding organization-based multi-tenancy with complete data isolation to the timetable management system. Each organization (educational institution) will have isolated data with users belonging to a single organization.
 
 ## Architecture Model
@@ -8,6 +9,7 @@ Adding organization-based multi-tenancy with complete data isolation to the time
 **Type**: Organization-based multi-tenancy with shared database and application-level tenant filtering
 
 **Key Characteristics**:
+
 - Complete data isolation between organizations
 - Users belong to a single organization
 - Multiple timetables per organization
@@ -21,6 +23,7 @@ Adding organization-based multi-tenancy with complete data isolation to the time
 ### New Models
 
 #### 1. Organization Model
+
 ```prisma
 model Organization {
   id          String      @id @default(nanoid(4))
@@ -33,7 +36,7 @@ model Organization {
   isActive    Boolean     @default(true)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
-  
+
   // Relations
   users       User[]
   timetables  Timetable[]
@@ -41,6 +44,7 @@ model Organization {
 ```
 
 #### 2. User Model (Authentication & Authorization)
+
 ```prisma
 model User {
   id              String       @id @default(nanoid(4))
@@ -54,10 +58,10 @@ model User {
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
   lastLoginAt     DateTime?
-  
+
   organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   sessions        Session[]
-  
+
   @@unique([email, organizationId])
   @@index([organizationId])
   @@index([email])
@@ -77,9 +81,9 @@ model Session {
   ipAddress String?
   userAgent String?
   createdAt DateTime @default(now())
-  
+
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@index([userId])
   @@index([token])
   @@index([expiresAt])
@@ -89,6 +93,7 @@ model Session {
 ### Modified Existing Models
 
 #### Timetable Model (Updated)
+
 ```prisma
 model Timetable {
   id             String        @id @default(nanoid(4))
@@ -96,7 +101,7 @@ model Timetable {
   organizationId String        // NEW: Organization reference
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
-  
+
   organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   slots          Slot[]
   groups         Group[]
@@ -104,7 +109,7 @@ model Timetable {
   teachers       Teacher[]
   classrooms     Classroom[]
   lectures       Lecture[]
-  
+
   @@unique([name, organizationId])  // MODIFIED: Unique within organization
   @@index([organizationId])          // NEW: Performance index
 }
@@ -124,7 +129,7 @@ sequenceDiagram
     participant Frontend
     participant AuthAPI
     participant Database
-    
+
     User->>Frontend: Enter email/password
     Frontend->>AuthAPI: POST /api/auth/login
     AuthAPI->>Database: Find user by email
@@ -134,7 +139,7 @@ sequenceDiagram
     Database-->>AuthAPI: Session created
     AuthAPI-->>Frontend: Set httpOnly cookie + user data
     Frontend->>Frontend: Store org context
-    
+
     Note over Frontend,AuthAPI: Subsequent requests
     Frontend->>AuthAPI: Request with session cookie
     AuthAPI->>Database: Validate session
@@ -146,17 +151,20 @@ sequenceDiagram
 ### Authentication Components
 
 #### 1. Password Security
+
 - **Library**: `bcrypt` with cost factor 12
 - **Requirements**: Min 8 chars, mix of letters/numbers/symbols
 - **Storage**: Never store plain passwords, only hashes
 
 #### 2. Session Management
+
 - **Token**: Secure random 32-byte token (nanoid)
 - **Storage**: httpOnly cookies (prevents XSS attacks)
 - **Expiration**: 7 days default, configurable
 - **Refresh**: Optional refresh token for extended sessions
 
 #### 3. Security Measures
+
 - **Rate Limiting**: Max 5 login attempts per 15 minutes per IP
 - **CSRF Protection**: Token-based CSRF protection
 - **Session Fixation**: Regenerate session on login
@@ -166,12 +174,24 @@ sequenceDiagram
 
 ```typescript
 // Auth Router Structure
-/api/auth/register       // POST - Create new user (admin only)
-/api/auth/login          // POST - Authenticate user
-/api/auth/logout         // POST - Invalidate session
-/api/auth/me             // GET  - Get current user
-/api/auth/refresh        // POST - Refresh session (optional)
-/api/auth/change-password // POST - Change user password
+/api/ahtu /
+  register / // POST - Create new user (admin only)
+  api /
+  auth /
+  login / // POST - Authenticate user
+  api /
+  auth /
+  logout / // POST - Invalidate session
+  api /
+  auth /
+  me / // GET  - Get current user
+  api /
+  auth /
+  refresh / // POST - Refresh session (optional)
+  api /
+  auth /
+  change -
+  password; // POST - Change user password
 ```
 
 ---
@@ -194,24 +214,24 @@ export type TrpcContext = {
 // Middleware for authentication
 export const authedProcedure = t.procedure.use(async (opts) => {
   const sessionToken = opts.ctx.sessionToken; // From cookie
-  
+
   if (!sessionToken) {
-    throw new TRPCError({ code: 'UNAUTHORIZED' });
+    throw new TRPCError({ code: "UNAUTHORIZED" });
   }
-  
+
   const session = await opts.ctx.prisma.session.findUnique({
     where: { token: sessionToken },
-    include: { 
+    include: {
       user: {
-        include: { organization: true }
-      }
-    }
+        include: { organization: true },
+      },
+    },
   });
-  
+
   if (!session || session.expiresAt < new Date()) {
-    throw new TRPCError({ code: 'UNAUTHORIZED' });
+    throw new TRPCError({ code: "UNAUTHORIZED" });
   }
-  
+
   return opts.next({
     ctx: {
       ...opts.ctx,
@@ -219,15 +239,15 @@ export const authedProcedure = t.procedure.use(async (opts) => {
         userId: session.userId,
         organizationId: session.user.organizationId,
         userRole: session.user.role,
-      }
-    }
+      },
+    },
   });
 });
 
 // Middleware for admin-only operations
 export const adminProcedure = authedProcedure.use((opts) => {
-  if (opts.ctx.session!.userRole !== 'ADMIN') {
-    throw new TRPCError({ code: 'FORBIDDEN' });
+  if (opts.ctx.session!.userRole !== "ADMIN") {
+    throw new TRPCError({ code: "FORBIDDEN" });
   }
   return opts.next();
 });
@@ -238,28 +258,29 @@ export const adminProcedure = authedProcedure.use((opts) => {
 ```typescript
 // Example: Get all timetables for current organization
 export const timetableRouter = createTRPCRouter({
-  list: authedProcedure
-    .query(async ({ ctx }) => {
-      return ctx.prisma.timetable.findMany({
-        where: {
-          organizationId: ctx.session!.organizationId // Auto-filtered
-        },
-        orderBy: { createdAt: 'desc' }
-      });
-    }),
-    
+  list: authedProcedure.query(async ({ ctx }) => {
+    return ctx.prisma.timetable.findMany({
+      where: {
+        organizationId: ctx.session!.organizationId, // Auto-filtered
+      },
+      orderBy: { createdAt: "desc" },
+    });
+  }),
+
   create: authedProcedure
-    .input(z.object({
-      name: z.string()
-    }))
+    .input(
+      z.object({
+        name: z.string(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       return ctx.prisma.timetable.create({
         data: {
           name: input.name,
-          organizationId: ctx.session!.organizationId // Auto-scoped
-        }
+          organizationId: ctx.session!.organizationId, // Auto-scoped
+        },
       });
-    })
+    }),
 });
 ```
 
@@ -272,17 +293,19 @@ export const timetableRouter = createTRPCRouter({
 ### Changes Required in All Routers
 
 #### Pattern to Apply
+
 ```typescript
 // BEFORE (current)
 const timetables = await prisma.timetable.findMany();
 
 // AFTER (with tenant filtering)
 const timetables = await prisma.timetable.findMany({
-  where: { organizationId: ctx.session!.organizationId }
+  where: { organizationId: ctx.session!.organizationId },
 });
 ```
 
 #### Routers to Modify
+
 1. ✅ [`timetableRouter.ts`](src/server/trpc/routers/timetableRouter.ts) - Add organizationId filter
 2. ✅ [`teachersRouter.ts`](src/server/trpc/routers/teachersRouter.ts) - Filter via timetable
 3. ✅ [`subjectsRouter.ts`](src/server/trpc/routers/subjectsRouter.ts) - Filter via group → timetable
@@ -292,30 +315,33 @@ const timetables = await prisma.timetable.findMany({
 7. ✅ All other entity routers - Apply tenant filtering
 
 #### Example Router Update
+
 ```typescript
 // src/server/trpc/routers/teachersRouter.ts
 export const teachersRouter = createTRPCRouter({
   list: authedProcedure
-    .input(z.object({
-      timetableId: z.string()
-    }))
+    .input(
+      z.object({
+        timetableId: z.string(),
+      }),
+    )
     .query(async ({ ctx, input }) => {
       // Verify timetable belongs to user's organization
       const timetable = await ctx.prisma.timetable.findFirst({
         where: {
           id: input.timetableId,
-          organizationId: ctx.session!.organizationId // Tenant check
-        }
+          organizationId: ctx.session!.organizationId, // Tenant check
+        },
       });
-      
+
       if (!timetable) {
-        throw new TRPCError({ code: 'NOT_FOUND' });
+        throw new TRPCError({ code: "NOT_FOUND" });
       }
-      
+
       return ctx.prisma.teacher.findMany({
-        where: { timetableId: input.timetableId }
+        where: { timetableId: input.timetableId },
       });
-    })
+    }),
 });
 ```
 
@@ -326,6 +352,7 @@ export const teachersRouter = createTRPCRouter({
 ### 1. Authentication Pages
 
 #### Login Page (`/login`)
+
 ```typescript
 // Components needed:
 - Email input
@@ -337,6 +364,7 @@ export const teachersRouter = createTRPCRouter({
 ```
 
 #### User Profile Page (`/profile`)
+
 ```typescript
 // Display:
 - User info (name, email, role)
@@ -348,6 +376,7 @@ export const teachersRouter = createTRPCRouter({
 ### 2. Organization Management (Admin Only)
 
 #### Organization Settings Page (`/settings/organization`)
+
 ```typescript
 // Admin features:
 - Edit organization details (name, email, phone, address)
@@ -357,6 +386,7 @@ export const teachersRouter = createTRPCRouter({
 ```
 
 #### User Management Page (`/settings/users`)
+
 ```typescript
 // Admin features:
 - List all users in organization
@@ -369,6 +399,7 @@ export const teachersRouter = createTRPCRouter({
 ### 3. Navigation Updates
 
 #### Header Component Changes
+
 ```typescript
 // Add to Header:
 - User menu dropdown (top-right)
@@ -425,37 +456,37 @@ async function migrate() {
   // 1. Create default organization
   const defaultOrg = await prisma.organization.create({
     data: {
-      name: 'Default Organization',
-      slug: 'default',
-      email: 'admin@example.com'
-    }
+      name: "Default Organization",
+      slug: "default",
+      email: "admin@example.com",
+    },
   });
-  
+
   // 2. Update all existing timetables
   await prisma.timetable.updateMany({
     data: {
-      organizationId: defaultOrg.id
-    }
+      organizationId: defaultOrg.id,
+    },
   });
-  
+
   // 3. Create default admin user
-  const passwordHash = await bcrypt.hash('admin123', 12);
+  const passwordHash = await bcrypt.hash("admin123", 12);
   await prisma.user.create({
     data: {
-      email: 'admin@example.com',
+      email: "admin@example.com",
       passwordHash,
-      firstName: 'Admin',
-      lastName: 'User',
-      role: 'ADMIN',
-      organizationId: defaultOrg.id
-    }
+      firstName: "Admin",
+      lastName: "User",
+      role: "ADMIN",
+      organizationId: defaultOrg.id,
+    },
   });
-  
-  console.log('Migration complete!');
-  console.log('Default admin credentials:');
-  console.log('  Email: admin@example.com');
-  console.log('  Password: admin123');
-  console.log('  Please change this password immediately!');
+
+  console.log("Migration complete!");
+  console.log("Default admin credentials:");
+  console.log("  Email: admin@example.com");
+  console.log("  Password: admin123");
+  console.log("  Please change this password immediately!");
 }
 ```
 
@@ -466,36 +497,39 @@ async function migrate() {
 ### Data Isolation Enforcement
 
 #### 1. Database Level
+
 - Indexes on `organizationId` for performance
 - Unique constraints include `organizationId`
 - Cascade deletes properly configured
 
 #### 2. Application Level
+
 - **Mandatory**: All queries MUST include tenant filter
 - **Validation**: Verify tenant ownership before mutations
 - **Error Handling**: Never leak cross-tenant data in errors
 
 #### 3. API Level
+
 ```typescript
 // Security middleware pattern
 const verifyTenantAccess = async (
   ctx: TrpcContext,
   resourceId: string,
-  resourceType: 'timetable' | 'teacher' | etc
+  resourceType: "timetable" | "teacher" | etc,
 ) => {
   const resource = await ctx.prisma[resourceType].findFirst({
     where: {
       id: resourceId,
       timetable: {
-        organizationId: ctx.session!.organizationId
-      }
-    }
+        organizationId: ctx.session!.organizationId,
+      },
+    },
   });
-  
+
   if (!resource) {
-    throw new TRPCError({ code: 'NOT_FOUND' });
+    throw new TRPCError({ code: "NOT_FOUND" });
   }
-  
+
   return resource;
 };
 ```
@@ -503,20 +537,24 @@ const verifyTenantAccess = async (
 ### Attack Prevention
 
 #### 1. SQL Injection
+
 - ✅ Protected by Prisma ORM (parameterized queries)
 
 #### 2. Cross-Tenant Data Access
+
 - ✅ All queries filtered by organizationId
 - ✅ Validation before mutations
 - ✅ No direct ID-based access without tenant check
 
 #### 3. Authentication Attacks
+
 - ✅ Rate limiting on login endpoint
 - ✅ Password complexity requirements
 - ✅ Secure session tokens (httpOnly cookies)
 - ✅ CSRF protection
 
 #### 4. Authorization Bypass
+
 - ✅ Role-based access control (RBAC)
 - ✅ Admin procedures separate from regular procedures
 - ✅ Middleware enforces authorization
@@ -527,20 +565,20 @@ const verifyTenantAccess = async (
 
 ### Role Definitions
 
-| Role | Permissions |
-|------|-------------|
-| **ADMIN** | - Full access to organization settings<br>- User management (create, edit, delete users)<br>- All timetable operations<br>- Data import/export<br>- View audit logs |
+| Role       | Permissions                                                                                                                                                                            |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **ADMIN**  | - Full access to organization settings<br>- User management (create, edit, delete users)<br>- All timetable operations<br>- Data import/export<br>- View audit logs                    |
 | **EDITOR** | - Create/edit/delete timetables<br>- Manage teachers, subjects, classrooms, lectures<br>- Generate timetables<br>- Export timetables<br>- Cannot manage users or organization settings |
-| **VIEWER** | - View all timetables<br>- View teachers, subjects, classrooms<br>- Export timetables (read-only)<br>- Cannot create or modify anything |
+| **VIEWER** | - View all timetables<br>- View teachers, subjects, classrooms<br>- Export timetables (read-only)<br>- Cannot create or modify anything                                                |
 
 ### Permission Checks
 
 ```typescript
 // Helper functions for permission checks
 const can = {
-  manageUsers: (role: UserRole) => role === 'ADMIN',
-  manageOrganization: (role: UserRole) => role === 'ADMIN',
-  editTimetables: (role: UserRole) => ['ADMIN', 'EDITOR'].includes(role),
+  manageUsers: (role: UserRole) => role === "ADMIN",
+  manageOrganization: (role: UserRole) => role === "ADMIN",
+  editTimetables: (role: UserRole) => ["ADMIN", "EDITOR"].includes(role),
   viewTimetables: (role: UserRole) => true, // All roles can view
   exportData: (role: UserRole) => true, // All roles can export
 };
@@ -549,7 +587,7 @@ const can = {
 export const createUserProcedure = authedProcedure
   .use((opts) => {
     if (!can.manageUsers(opts.ctx.session!.userRole)) {
-      throw new TRPCError({ code: 'FORBIDDEN' });
+      throw new TRPCError({ code: "FORBIDDEN" });
     }
     return opts.next();
   })
@@ -563,18 +601,19 @@ export const createUserProcedure = authedProcedure
 ## 🧪 Testing Strategy
 
 ### Unit Tests
+
 ```typescript
 // Test tenant isolation
-describe('Tenant Isolation', () => {
-  it('should not return data from other organizations', async () => {
-    const org1 = await createOrganization('Org 1');
-    const org2 = await createOrganization('Org 2');
-    
+describe("Tenant Isolation", () => {
+  it("should not return data from other organizations", async () => {
+    const org1 = await createOrganization("Org 1");
+    const org2 = await createOrganization("Org 2");
+
     const timetable1 = await createTimetable(org1.id);
     const timetable2 = await createTimetable(org2.id);
-    
+
     const result = await getTimetables({ organizationId: org1.id });
-    
+
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe(timetable1.id);
   });
@@ -582,21 +621,23 @@ describe('Tenant Isolation', () => {
 ```
 
 ### Integration Tests
+
 ```typescript
 // Test authentication flow
-describe('Authentication', () => {
-  it('should authenticate and set session', async () => {
+describe("Authentication", () => {
+  it("should authenticate and set session", async () => {
     const response = await request(app)
-      .post('/api/auth/login')
-      .send({ email: 'user@org1.com', password: 'password123' });
-    
+      .post("/api/auth/login")
+      .send({ email: "user@org1.com", password: "password123" });
+
     expect(response.status).toBe(200);
-    expect(response.headers['set-cookie']).toBeDefined();
+    expect(response.headers["set-cookie"]).toBeDefined();
   });
 });
 ```
 
 ### Security Tests
+
 - Cross-tenant access attempts
 - Unauthorized access attempts
 - SQL injection attempts
@@ -608,6 +649,7 @@ describe('Authentication', () => {
 ## 📈 Performance Considerations
 
 ### Database Optimization
+
 ```sql
 -- Critical indexes for multi-tenancy
 CREATE INDEX idx_timetable_org ON Timetable(organizationId);
@@ -617,11 +659,13 @@ CREATE INDEX idx_session_expires ON Session(expiresAt);
 ```
 
 ### Caching Strategy
+
 - Cache organization data (rarely changes)
 - Cache user sessions (check expiration)
 - Invalidate caches on organization/user updates
 
 ### Query Optimization
+
 - Always include organizationId in WHERE clauses
 - Use proper indexes
 - Limit number of JOINs
@@ -632,6 +676,7 @@ CREATE INDEX idx_session_expires ON Session(expiresAt);
 ## 🚀 Implementation Phases
 
 ### Phase 1: Database & Auth (Week 1-2)
+
 - [ ] Create Organization, User, Session models
 - [ ] Update Timetable model with organizationId
 - [ ] Implement authentication system
@@ -639,6 +684,7 @@ CREATE INDEX idx_session_expires ON Session(expiresAt);
 - [ ] Test data isolation
 
 ### Phase 2: API Layer (Week 2-3)
+
 - [ ] Update tRPC context with tenant info
 - [ ] Create auth router
 - [ ] Update all existing routers with tenant filtering
@@ -646,6 +692,7 @@ CREATE INDEX idx_session_expires ON Session(expiresAt);
 - [ ] Test API security
 
 ### Phase 3: UI Components (Week 3-4)
+
 - [ ] Create login page
 - [ ] Create user management UI (admin)
 - [ ] Create organization settings UI (admin)
@@ -653,6 +700,7 @@ CREATE INDEX idx_session_expires ON Session(expiresAt);
 - [ ] Implement route guards
 
 ### Phase 4: Testing & Security (Week 4-5)
+
 - [ ] Write security tests
 - [ ] Penetration testing
 - [ ] Load testing
@@ -660,6 +708,7 @@ CREATE INDEX idx_session_expires ON Session(expiresAt);
 - [ ] Documentation
 
 ### Phase 5: Migration & Deployment (Week 5-6)
+
 - [ ] Run migration on staging
 - [ ] User acceptance testing
 - [ ] Production migration
@@ -671,6 +720,7 @@ CREATE INDEX idx_session_expires ON Session(expiresAt);
 ## 📝 Configuration
 
 ### Environment Variables
+
 ```bash
 # Authentication
 SESSION_SECRET=your-secret-key-here
@@ -708,6 +758,7 @@ SECURE_COOKIES=true # Set to false in development
 ## 📚 Additional Resources
 
 ### Documentation to Create
+
 1. **Admin Guide**: How to manage organizations and users
 2. **User Guide**: How to use the system within an organization
 3. **API Documentation**: Updated with authentication endpoints
@@ -715,6 +766,7 @@ SECURE_COOKIES=true # Set to false in development
 5. **Security Guide**: Best practices and security considerations
 
 ### Training Materials
+
 1. User onboarding for different roles
 2. Admin training for user management
 3. Security awareness training
@@ -724,23 +776,27 @@ SECURE_COOKIES=true # Set to false in development
 ## ✅ Success Criteria
 
 ### Security
+
 - ✅ No cross-tenant data leakage
 - ✅ All authentication tests pass
 - ✅ RBAC correctly enforced
 - ✅ Rate limiting working
 
 ### Functionality
+
 - ✅ Users can log in and out
 - ✅ Admins can manage users
 - ✅ All existing features work with tenant isolation
 - ✅ Data migration successful
 
 ### Performance
+
 - ✅ Login < 1 second
 - ✅ Page loads < 2 seconds
 - ✅ Database queries optimized with indexes
 
 ### User Experience
+
 - ✅ Intuitive login flow
 - ✅ Clear role indicators
 - ✅ Helpful error messages

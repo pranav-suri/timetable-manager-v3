@@ -19,14 +19,14 @@ export const trpcClient = createTRPCClient<TRPCRouter>({
       url: getUrl(),
       headers() {
         // Get session token from cookie
-        if (typeof document !== 'undefined') {
+        if (typeof document !== "undefined") {
           const token = document.cookie
-            .split('; ')
-            .find(row => row.startsWith('session='))
-            ?.split('=')[1];
-          
+            .split("; ")
+            .find((row) => row.startsWith("session="))
+            ?.split("=")[1];
+
           return {
-            'x-session-token': token || '',
+            "x-session-token": token || "",
           };
         }
         return {};

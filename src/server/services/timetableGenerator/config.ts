@@ -35,6 +35,7 @@ export const DEFAULT_GA_CONFIG: GAConfig = {
     teacherDailyLimit: 10,
     teacherWeeklyLimit: 15,
     cognitiveLoad: 7,
+    excessiveDailyLectures: 6,
   },
 };
 

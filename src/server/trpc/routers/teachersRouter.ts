@@ -2,7 +2,10 @@ import { z } from "zod";
 import { authedProcedure, editorProcedure } from "../init";
 import type { TRPCRouterRecord } from "@trpc/server";
 import { zodIdSchema } from "@/server/utils/zodIdSchema";
-import { verifyTimetableOwnership, verifyEntityOwnership } from "../utils/verifyTimetableOwnership";
+import {
+  verifyTimetableOwnership,
+  verifyEntityOwnership,
+} from "../utils/verifyTimetableOwnership";
 
 export const teachersRouter = {
   list: authedProcedure
@@ -57,10 +60,10 @@ export const teachersRouter = {
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { id, name, email } = input;
-      
+
       // Verify teacher belongs to user's organization
-      await verifyEntityOwnership(ctx, id, 'teacher');
-      
+      await verifyEntityOwnership(ctx, id, "teacher");
+
       const teacher = await prisma.teacher.update({
         where: { id },
         data: {
@@ -75,10 +78,10 @@ export const teachersRouter = {
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { id } = input;
-      
+
       // Verify teacher belongs to user's organization
-      await verifyEntityOwnership(ctx, id, 'teacher');
-      
+      await verifyEntityOwnership(ctx, id, "teacher");
+
       const teacher = await prisma.teacher.delete({
         where: { id },
       });

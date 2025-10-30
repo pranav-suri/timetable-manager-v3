@@ -1,7 +1,6 @@
 import { Prisma, PrismaClient } from "generated/prisma/client";
 import sampleDataUpload from "./controllers/sampleData";
 import * as bcrypt from "bcrypt";
-import { ca } from "node_modules/zod/v4/locales/index.cjs";
 
 const BCRYPT_ROUNDS = 12;
 

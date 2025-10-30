@@ -15,18 +15,20 @@ This document provides a comprehensive guide to the multi-tenancy implementation
 ## 🏗️ Architecture Summary
 
 ### Multi-Tenancy Model
+
 - **Type**: Organization-based multi-tenancy
 - **Isolation Level**: Complete data separation at the database level
 - **User Assignment**: Single organization per user (no cross-organization access)
 
 ### Key Features
+
 ✅ Email/password authentication with bcrypt hashing (12 rounds)  
 ✅ Session-based authentication with secure tokens (32-character nanoid)  
 ✅ Role-Based Access Control (RBAC): ADMIN, EDITOR, VIEWER  
 ✅ Automatic tenant filtering on all API endpoints  
 ✅ Protected routes with authentication guards  
 ✅ User-friendly UI with header menu and logout  
-✅ Type-safe implementation with tRPC and TypeScript  
+✅ Type-safe implementation with tRPC and TypeScript
 
 ---
 
@@ -35,6 +37,7 @@ This document provides a comprehensive guide to the multi-tenancy implementation
 ### Core Models
 
 #### Organization
+
 ```prisma
 model Organization {
   id        String   @id @default(cuid())
@@ -50,6 +53,7 @@ model Organization {
 ```
 
 #### User
+
 ```prisma
 model User {
   id             String   @id @default(cuid())
@@ -76,6 +80,7 @@ enum UserRole {
 ```
 
 #### Session
+
 ```prisma
 model Session {
   id        String   @id @default(cuid())
@@ -89,6 +94,7 @@ model Session {
 ```
 
 #### Updated Timetable
+
 ```prisma
 model Timetable {
   id             String   @id
@@ -98,7 +104,7 @@ model Timetable {
   updatedAt      DateTime @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  
+
   // ... other relations
 
   @@unique([name, organizationId])
@@ -147,6 +153,7 @@ model Timetable {
 **Location**: [`src/server/trpc/init.ts`](src/server/trpc/init.ts)
 
 #### Context Enhancement
+
 ```typescript
 export type TrpcContext = {
   prisma: PrismaClient;
@@ -184,12 +191,15 @@ export type TrpcContext = {
 **Location**: [`src/server/trpc/utils/verifyTimetableOwnership.ts`](src/server/trpc/utils/verifyTimetableOwnership.ts)
 
 #### `verifyTimetableOwnership(ctx, timetableId)`
+
 Verifies that a timetable belongs to the user's organization.
 
 #### `verifyEntityOwnership(ctx, entityId, entityType)`
+
 Verifies entity ownership through its timetable relationship.
 
 Supported entity types:
+
 - `teacher`, `classroom`, `group`, `subdivision`, `slot`, `lecture`
 - `subject` (special case - verified through group)
 
@@ -198,6 +208,7 @@ Supported entity types:
 All routers now include tenant filtering:
 
 **Direct Timetable Relations:**
+
 - ✅ [`timetableRouter.ts`](src/server/trpc/routers/timetableRouter.ts)
 - ✅ [`teachersRouter.ts`](src/server/trpc/routers/teachersRouter.ts)
 - ✅ [`classroomsRouter.ts`](src/server/trpc/routers/classroomsRouter.ts)
@@ -207,9 +218,11 @@ All routers now include tenant filtering:
 - ✅ [`lecturesRouter.ts`](src/server/trpc/routers/lecturesRouter.ts)
 
 **Indirect Relations (through Group):**
+
 - ✅ [`subjectsRouter.ts`](src/server/trpc/routers/subjectsRouter.ts)
 
 **Junction Tables:**
+
 - ✅ [`lectureSlotsRouter.ts`](src/server/trpc/routers/lectureSlotsRouter.ts)
 - ✅ [`lectureClassroomsRouter.ts`](src/server/trpc/routers/lectureClassroomsRouter.ts)
 - ✅ [`lectureSubdivisionsRouter.ts`](src/server/trpc/routers/lectureSubdivisionsRouter.ts)
@@ -217,6 +230,7 @@ All routers now include tenant filtering:
 - ✅ [`subjectTeachersRouter.ts`](src/server/trpc/routers/subjectTeachersRouter.ts)
 
 **Unavailability Tables:**
+
 - ✅ [`classroomUnavailabilitiesRouter.ts`](src/server/trpc/routers/classroomUnavailabilitiesRouter.ts)
 - ✅ [`teacherUnavailabilitiesRouter.ts`](src/server/trpc/routers/teacherUnavailabilitiesRouter.ts)
 - ✅ [`subdivisionUnavailabilitiesRouter.ts`](src/server/trpc/routers/subdivisionUnavailabilitiesRouter.ts)
@@ -224,55 +238,60 @@ All routers now include tenant filtering:
 #### Implementation Pattern
 
 **For List/Query Operations:**
+
 ```typescript
 list: authedProcedure
   .input(z.object({ timetableId: zodIdSchema }))
   .query(async ({ ctx, input }) => {
     // Verify timetable ownership
     await verifyTimetableOwnership(ctx, input.timetableId);
-    
+
     // Proceed with query
     const entities = await prisma.entity.findMany({
-      where: { timetableId: input.timetableId }
+      where: { timetableId: input.timetableId },
     });
     return { entities };
-  })
+  });
 ```
 
 **For Create Operations:**
+
 ```typescript
 add: editorProcedure
-  .input(z.object({ 
-    timetableId: zodIdSchema,
-    // ... other fields
-  }))
+  .input(
+    z.object({
+      timetableId: zodIdSchema,
+      // ... other fields
+    }),
+  )
   .mutation(async ({ ctx, input }) => {
     // Verify timetable ownership
     await verifyTimetableOwnership(ctx, input.timetableId);
-    
+
     // Create entity
     const entity = await prisma.entity.create({
-      data: input
+      data: input,
     });
     return { entity };
-  })
+  });
 ```
 
 **For Update/Delete Operations:**
+
 ```typescript
 update: editorProcedure
-  .input(z.object({ id: zodIdSchema, /* ... */ }))
+  .input(z.object({ id: zodIdSchema /* ... */ }))
   .mutation(async ({ ctx, input }) => {
     // Verify entity ownership through its timetable
-    await verifyEntityOwnership(ctx, input.id, 'entityType');
-    
+    await verifyEntityOwnership(ctx, input.id, "entityType");
+
     // Update entity
     const entity = await prisma.entity.update({
       where: { id: input.id },
-      data: input
+      data: input,
     });
     return { entity };
-  })
+  });
 ```
 
 ---
@@ -289,7 +308,7 @@ interface User {
   email: string;
   firstName: string;
   lastName: string;
-  role: 'ADMIN' | 'EDITOR' | 'VIEWER';
+  role: "ADMIN" | "EDITOR" | "VIEWER";
   organizationId: string;
   organizationName: string;
 }
@@ -305,6 +324,7 @@ interface AuthState {
 ```
 
 Features:
+
 - Persists user data to localStorage
 - Manages session cookie
 - Provides session token retrieval
@@ -314,6 +334,7 @@ Features:
 **Location**: [`src/routes/login.tsx`](src/routes/login.tsx)
 
 Features:
+
 - Email/password form
 - Displays default credentials
 - Auto-redirect after successful login
@@ -324,12 +345,14 @@ Features:
 **Component**: [`src/components/RequireAuth.tsx`](src/components/RequireAuth.tsx)
 
 Automatically:
+
 - Validates session on component mount
 - Redirects to login if not authenticated
 - Shows loading spinner during validation
 - Refreshes user data from server
 
 **Protected Routes**:
+
 - [`/tt`](src/routes/tt/index.tsx) - Timetables list
 - [`/tt/$timetableId/*`](src/routes/tt/$timetableId/route.tsx) - All timetable detail pages
 
@@ -338,6 +361,7 @@ Automatically:
 **Location**: [`src/components/Header.tsx`](src/components/Header.tsx)
 
 Features:
+
 - Displays user name and role
 - User menu with dropdown
 - Profile and settings options
@@ -359,12 +383,14 @@ Automatically includes session token in all API requests via `x-session-token` h
 **Script**: `scripts/migrate-to-multi-tenancy.ts`
 
 What it does:
+
 1. Creates "Default Organization"
 2. Creates default admin user
 3. Migrates existing 3 timetables to the organization
 4. Sets up proper relationships
 
 **Default Admin Credentials:**
+
 ```
 Email: admin@example.com
 Password: ChangeMe123!
@@ -387,6 +413,7 @@ npx tsx scripts/migrate-to-multi-tenancy.ts
 ## 🧪 Testing Checklist
 
 ### Authentication Flow
+
 - [ ] Login with correct credentials succeeds
 - [ ] Login with incorrect credentials fails with error
 - [ ] Session persists across page refreshes
@@ -394,24 +421,28 @@ npx tsx scripts/migrate-to-multi-tenancy.ts
 - [ ] Expired sessions redirect to login
 
 ### Authorization
+
 - [ ] ADMIN can access user management
 - [ ] EDITOR can create/edit/delete entities
 - [ ] VIEWER has read-only access
 - [ ] Users cannot access other organizations' data
 
 ### Route Protection
+
 - [ ] Accessing `/tt` without login redirects to `/login`
 - [ ] After login, redirects back to intended route
 - [ ] Header shows user info when authenticated
 - [ ] Header menu allows logout
 
 ### Data Isolation
+
 - [ ] Timetables list shows only organization's timetables
 - [ ] Cannot access timetable from different organization via URL
 - [ ] All entity APIs respect organization boundaries
 - [ ] Creating entities requires valid organization ownership
 
 ### UI/UX
+
 - [ ] Login page displays correctly
 - [ ] Loading states show during authentication
 - [ ] Error messages are user-friendly
@@ -423,28 +454,34 @@ npx tsx scripts/migrate-to-multi-tenancy.ts
 ## 🚀 Next Steps (Optional)
 
 ### 1. Admin User Management UI
+
 Create pages for:
+
 - List all users in organization
 - Create new users
 - Edit user roles
 - Deactivate users
 
 ### 2. Password Reset Flow
+
 - Forgot password functionality
 - Email verification
 - Password reset tokens
 
 ### 3. Organization Management
+
 - Organization settings page
 - Update organization name/slug
 - Organization branding
 
 ### 4. Audit Logging
+
 - Track user actions
 - Monitor data changes
 - Security event logging
 
 ### 5. Advanced Features
+
 - Two-factor authentication (2FA)
 - Single Sign-On (SSO) integration
 - API key management for integrations
@@ -495,18 +532,22 @@ Create pages for:
 ### Common Issues
 
 **Issue**: "Session not found" error
+
 - **Solution**: Clear cookies and login again
 - **Cause**: Session expired or invalid token
 
 **Issue**: Cannot access timetable
+
 - **Solution**: Verify timetable belongs to your organization
 - **Cause**: Attempting to access another organization's data
 
 **Issue**: "Unauthorized" on protected routes
+
 - **Solution**: Login again
 - **Cause**: Session expired or cleared
 
 **Issue**: New timetable missing organizationId
+
 - **Solution**: Ensure user is authenticated and organizationId is included
 - **Cause**: Creating timetable without proper context
 
@@ -515,6 +556,7 @@ Create pages for:
 ## 📚 Additional Documentation
 
 For more detailed information, see:
+
 - [`memory-bank/multi-tenancy-architecture.md`](memory-bank/multi-tenancy-architecture.md) - Complete architecture design
 - [`memory-bank/multi-tenancy-implementation-guide.md`](memory-bank/multi-tenancy-implementation-guide.md) - Step-by-step implementation
 - [`MULTI-TENANCY-IMPLEMENTATION.md`](MULTI-TENANCY-IMPLEMENTATION.md) - Previous implementation summary

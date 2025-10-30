@@ -59,7 +59,9 @@ function isPrismaError(error: unknown): error is PrismaClientKnownRequestError {
 /**
  * Format Prisma error for user-friendly display
  */
-export function formatPrismaError(error: PrismaClientKnownRequestError): string {
+export function formatPrismaError(
+  error: PrismaClientKnownRequestError,
+): string {
   switch (error.code) {
     case "P2002":
       return "A unique constraint violation occurred. This record already exists.";
@@ -83,7 +85,7 @@ export function formatPrismaError(error: PrismaClientKnownRequestError): string 
  */
 export function withErrorLogging<T extends (...args: any[]) => Promise<any>>(
   fn: T,
-  context?: string
+  context?: string,
 ): T {
   return (async (...args: Parameters<T>) => {
     try {

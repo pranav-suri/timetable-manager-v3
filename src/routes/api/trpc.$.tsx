@@ -11,12 +11,13 @@ function handler({ request }: { request: Request }) {
     createContext: () => {
       // Extract session token from cookie or header
       const sessionToken =
-        request.headers.get('x-session-token') ||
-        request.headers.get('cookie')
-          ?.split('; ')
-          .find(row => row.startsWith('session='))
-          ?.split('=')[1];
-      
+        request.headers.get("x-session-token") ||
+        request.headers
+          .get("cookie")
+          ?.split("; ")
+          .find((row) => row.startsWith("session="))
+          ?.split("=")[1];
+
       return {
         ...createContext(),
         sessionToken,

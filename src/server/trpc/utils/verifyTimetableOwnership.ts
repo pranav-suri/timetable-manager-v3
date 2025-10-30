@@ -7,28 +7,28 @@ import type { TrpcContext } from "../init";
  */
 export async function verifyTimetableOwnership(
   ctx: TrpcContext,
-  timetableId: string
+  timetableId: string,
 ): Promise<void> {
   const { prisma, session } = ctx;
-  
+
   if (!session) {
-    throw new TRPCError({ 
-      code: 'UNAUTHORIZED',
-      message: 'No active session' 
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "No active session",
     });
   }
-  
+
   const timetable = await prisma.timetable.findFirst({
-    where: { 
+    where: {
       id: timetableId,
-      organizationId: session.organizationId 
-    }
+      organizationId: session.organizationId,
+    },
   });
-  
+
   if (!timetable) {
-    throw new TRPCError({ 
-      code: 'NOT_FOUND',
-      message: 'Timetable not found or access denied'
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "Timetable not found or access denied",
     });
   }
 }
@@ -39,46 +39,56 @@ export async function verifyTimetableOwnership(
 export async function verifyEntityOwnership(
   ctx: TrpcContext,
   entityId: string,
-  entityType: 'teacher' | 'classroom' | 'group' | 'subdivision' | 'slot' | 'lecture' | 'subject'
+  entityType:
+    | "teacher"
+    | "classroom"
+    | "group"
+    | "subdivision"
+    | "slot"
+    | "lecture"
+    | "subject",
 ): Promise<void> {
   const { prisma, session } = ctx;
-  
+
   if (!session) {
     throw new TRPCError({
-      code: 'UNAUTHORIZED',
-      message: 'No active session'
+      code: "UNAUTHORIZED",
+      message: "No active session",
     });
   }
-  
+
   // Subject has a special case - it's related through group
-  if (entityType === 'subject') {
+  if (entityType === "subject") {
     const subject = await prisma.subject.findUnique({
       where: { id: entityId },
       include: {
         group: {
-          include: { timetable: true }
-        }
-      }
+          include: { timetable: true },
+        },
+      },
     });
-    
-    if (!subject || subject.group.timetable.organizationId !== session.organizationId) {
+
+    if (
+      !subject ||
+      subject.group.timetable.organizationId !== session.organizationId
+    ) {
       throw new TRPCError({
-        code: 'NOT_FOUND',
-        message: 'Subject not found or access denied'
+        code: "NOT_FOUND",
+        message: "Subject not found or access denied",
       });
     }
     return;
   }
-  
+
   const entity = await (prisma[entityType] as any).findUnique({
     where: { id: entityId },
-    include: { timetable: true }
+    include: { timetable: true },
   });
-  
+
   if (!entity || entity.timetable.organizationId !== session.organizationId) {
     throw new TRPCError({
-      code: 'NOT_FOUND',
-      message: `${entityType} not found or access denied`
+      code: "NOT_FOUND",
+      message: `${entityType} not found or access denied`,
     });
   }
 }

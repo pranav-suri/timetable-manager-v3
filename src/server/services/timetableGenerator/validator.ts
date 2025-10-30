@@ -26,7 +26,7 @@ export function validateSolution(
     teacherDailyLimit: 10,
     teacherWeeklyLimit: 15,
     cognitiveLoad: 7,
-    excessiveConsecutiveLectures: 6,
+    excessiveDailyLectures: 6,
   };
   return evaluateChromosome(chromosome, inputData, weights);
 }

@@ -133,7 +133,7 @@ export enum SoftConstraintType {
   TEACHER_DAILY_LIMIT = "TEACHER_DAILY_LIMIT", // Exceeded daily teaching hours
   TEACHER_WEEKLY_LIMIT = "TEACHER_WEEKLY_LIMIT", // Exceeded weekly teaching hours
   COGNITIVE_LOAD = "COGNITIVE_LOAD", // High cognitive load for students
-  EXCESSIVE_CONSECUTIVE_LECTURES = "EXCESSIVE_CONSECUTIVE_LECTURES", // More than lecture.duration lectures scheduled together
+  EXCESSIVE_DAILY_LECTURES = "EXCESSIVE_DAILY_LECTURES", // More than lecture.duration lectures on same day
 }
 
 /**
@@ -251,7 +251,7 @@ export interface ConstraintWeights {
   teacherDailyLimit: number; // Default: 10
   teacherWeeklyLimit: number; // Default: 15
   cognitiveLoad: number; // Default: 7
-  excessiveConsecutiveLectures: number; // Default: 6
+  excessiveDailyLectures: number; // Default: 6
 }
 
 /**

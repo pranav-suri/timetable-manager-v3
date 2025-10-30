@@ -1,12 +1,12 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 interface User {
   id: string;
   email: string;
   firstName: string;
   lastName: string;
-  role: 'ADMIN' | 'EDITOR' | 'VIEWER';
+  role: "ADMIN" | "EDITOR" | "VIEWER";
   organizationId: string;
   organizationName: string;
 }
@@ -28,25 +28,25 @@ export const useAuthStore = create<AuthState>()(
       setUser: (user) => set({ user, isAuthenticated: !!user }),
       logout: () => {
         // Clear session cookie
-        document.cookie = 'session=; Max-Age=0; path=/; SameSite=Strict';
+        document.cookie = "session=; Max-Age=0; path=/; SameSite=Strict";
         set({ user: null, isAuthenticated: false });
       },
       clearAuth: () => {
         // Clear session cookie
-        document.cookie = 'session=; Max-Age=0; path=/; SameSite=Strict';
+        document.cookie = "session=; Max-Age=0; path=/; SameSite=Strict";
         set({ user: null, isAuthenticated: false });
       },
       getSessionToken: () => {
-        if (typeof document === 'undefined') return null;
+        if (typeof document === "undefined") return null;
         const token = document.cookie
-          .split('; ')
-          .find(row => row.startsWith('session='))
-          ?.split('=')[1];
+          .split("; ")
+          .find((row) => row.startsWith("session="))
+          ?.split("=")[1];
         return token || null;
       },
     }),
     {
-      name: 'auth-storage',
-    }
-  )
+      name: "auth-storage",
+    },
+  ),
 );
