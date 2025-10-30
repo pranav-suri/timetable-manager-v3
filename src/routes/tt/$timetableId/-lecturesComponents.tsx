@@ -10,10 +10,8 @@ import {
   ListItemText,
   Typography,
 } from "@mui/material";
-import {
-  Delete as DeleteIcon,
-  Edit as EditIcon,
-} from "@mui/icons-material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import type { Classroom, Lecture, Subdivision } from "generated/prisma/client";
 import { useCollections } from "@/db-collections/providers/useCollections";
 

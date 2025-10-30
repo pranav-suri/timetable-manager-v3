@@ -12,7 +12,9 @@ import {
   Divider,
   ListItemIcon,
 } from "@mui/material";
-import { AccountCircle, Logout, Settings } from "@mui/icons-material";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import LogoutIcon from "@mui/icons-material/Logout";
+import SettingsIcon from "@mui/icons-material/Settings";
 import { useState, useContext } from "react";
 import { useAuthStore } from "@/zustand/authStore";
 import { useMutation } from "@tanstack/react-query";
@@ -138,20 +140,20 @@ export default function Header() {
             <Divider />
             <MenuItem onClick={handleClose}>
               <ListItemIcon>
-                <AccountCircle fontSize="small" />
+                <AccountCircleIcon fontSize="small" />
               </ListItemIcon>
               Profile
             </MenuItem>
             <MenuItem onClick={handleClose}>
               <ListItemIcon>
-                <Settings fontSize="small" />
+                <SettingsIcon fontSize="small" />
               </ListItemIcon>
               Settings
             </MenuItem>
             <Divider />
             <MenuItem onClick={handleLogout}>
               <ListItemIcon>
-                <Logout fontSize="small" />
+                <LogoutIcon fontSize="small" />
               </ListItemIcon>
               Logout
             </MenuItem>

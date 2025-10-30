@@ -18,11 +18,9 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import {
-  Add as AddIcon,
-  Delete as DeleteIcon,
-  Edit as EditIcon,
-} from "@mui/icons-material";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import type { Subdivision } from "generated/prisma/client";
 import { useCollections } from "@/db-collections/providers/useCollections";
 

@@ -19,7 +19,8 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { Add as AddIcon, Edit as EditIcon } from "@mui/icons-material";
+import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
 import { LectureList } from "./-lecturesComponents";
 import type { Classroom, Lecture, Subdivision } from "generated/prisma/client";
 import type {
