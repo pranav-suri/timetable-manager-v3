@@ -67,12 +67,12 @@ export const autoLecturesRouter = {
     )
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
-      const { id, teacherId, subjectId, count, classroomIds, subdivisionIds } =
+      const { id, teacherId, subjectId, count, classroomIds, subdivisionIds, duration } =
         input;
 
       const lecture = await prisma.lecture.update({
         where: { id },
-        data: { teacherId, subjectId, count },
+        data: { teacherId, subjectId, count, duration },
       });
 
       await prisma.lectureClassroom.deleteMany({

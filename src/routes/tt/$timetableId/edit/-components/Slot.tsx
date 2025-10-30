@@ -1,4 +1,4 @@
-import { useFilteredLecturesInSlot } from "@/hooks/useFilteredLecturesInSlot";
+import { useFilteredLecturesInSlot } from "../-hooks/-useFilteredLecturesInSlot";
 import LectureSlot from "./LectureSlot";
 
 function Slot({ slotId }: { slotId: string }) {

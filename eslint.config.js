@@ -38,7 +38,7 @@ export default [
         },
       ],
       "@typescript-eslint/array-type": [
-        "error",
+        "off",
         {
           default: "array-simple", // Allows T[]
         },

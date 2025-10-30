@@ -11,7 +11,7 @@ import { useLiveQuery } from "@tanstack/react-db";
 import { useDndContext } from "@dnd-kit/core";
 import { Row } from "./-components/Row";
 import Headers from "./-components/Headers";
-import { useBusySlots } from "./-hooks";
+import { useBusySlots } from "./-hooks/-busySlotHooks";
 import { FilterPanel } from "./-components/FilterPanel";
 import { useCollections } from "@/db-collections/providers/useCollections";
 
