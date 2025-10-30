@@ -7,6 +7,8 @@ import EventNoteIcon from "@mui/icons-material/EventNote";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import SmartToyIcon from "@mui/icons-material/SmartToy";
 import CategoryIcon from "@mui/icons-material/Category";
+import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
 
 interface TimetableNavigationTabsProps {
   timetableId: string;
@@ -24,7 +26,13 @@ const TABS: TabConfig[] = [
   {
     label: "Teachers",
     path: "/tt/:timetableId/teachers",
-    icon: <SchoolIcon />,
+    icon: <SupervisorAccountIcon />,
+    group: "data",
+  },
+  {
+    label: "Subject Types",
+    path: "/tt/:timetableId/groups",
+    icon: <CategoryIcon />,
     group: "data",
   },
   {
@@ -40,9 +48,9 @@ const TABS: TabConfig[] = [
     group: "data",
   },
   {
-    label: "Subject Types",
-    path: "/tt/:timetableId/groups",
-    icon: <CategoryIcon />,
+    label: "Lectures",
+    path: "/tt/:timetableId/lectures",
+    icon: <MenuBookIcon />,
     group: "data",
   },
   // Generation Group
