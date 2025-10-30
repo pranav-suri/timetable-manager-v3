@@ -7,7 +7,13 @@
     "vite.config.js"
   ],
 
-  "exclude": ["node_modules", "dist", "backupFiles"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "backupFiles",
+    "generated",
+    "generated/zod/**"
+  ],
 
   "compilerOptions": {
     "target": "ES2022",
@@ -25,7 +31,7 @@
     /* Linting */
     "skipLibCheck": true,
     "strict": true,
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,

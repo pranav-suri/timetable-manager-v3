@@ -81,6 +81,13 @@ This eliminated ~800 lines of originally planned UI code. Only needed 30-line co
   - Achieved zero TypeScript errors in production build
 - **Cognitive Load Collection**: Successfully refactored to use `queryCollectionOptions` with server-side tRPC endpoint, treating it as a read-only computed collection without mutation handlers
 
+### Refactors (October 2025)
+
+- Split large GA modules under `src/server/services/timetableGenerator/` into focused folders with barrels:
+  - `fitness/`, `repair/`, `initialization/`, `selection/`, `mutation/`, `crossover/`, `replacement/`
+  - Preserved public APIs and import paths via index barrels (e.g., `./fitness`, `./repair`)
+  - Removed legacy monolithic files to avoid path shadowing (kept `types.ts`, `algorithm.ts`, `jobManager.ts`, `validator.ts`, `decoder.ts` unchanged)
+
 ### Database Schema Evolution
 
 - **Complex Relationships**: Implemented many-to-many relationships between teachers/subjects, subjects/classrooms, lectures/slots
