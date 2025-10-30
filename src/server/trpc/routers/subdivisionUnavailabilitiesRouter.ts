@@ -17,9 +17,14 @@ export const subdivisionUnavailabilitiesRouter = {
       const subdivisions = await prisma.subdivision.findMany({
         where: { timetableId },
       });
-      const subdivisionUnavailables = await prisma.subdivisionUnavailable.findMany({
-        where: { subdivisionId: { in: subdivisions.map((subdivision) => subdivision.id) } },
-      });
+      const subdivisionUnavailables =
+        await prisma.subdivisionUnavailable.findMany({
+          where: {
+            subdivisionId: {
+              in: subdivisions.map((subdivision) => subdivision.id),
+            },
+          },
+        });
       return { subdivisionUnavailables };
     }),
   add: editorProcedure
@@ -38,9 +43,11 @@ export const subdivisionUnavailabilitiesRouter = {
       // Verify timetable ownership
       await verifyTimetableOwnership(ctx, timetableId);
 
-      const subdivisionUnavailable = await prisma.subdivisionUnavailable.create({
-        data: { id, slotId, subdivisionId },
-      });
+      const subdivisionUnavailable = await prisma.subdivisionUnavailable.create(
+        {
+          data: { id, slotId, subdivisionId },
+        },
+      );
       return { subdivisionUnavailable };
     }),
   delete: editorProcedure
@@ -52,9 +59,11 @@ export const subdivisionUnavailabilitiesRouter = {
       // Verify timetable ownership
       await verifyTimetableOwnership(ctx, timetableId);
 
-      const subdivisionUnavailable = await prisma.subdivisionUnavailable.delete({
-        where: { id },
-      });
+      const subdivisionUnavailable = await prisma.subdivisionUnavailable.delete(
+        {
+          where: { id },
+        },
+      );
       return { subdivisionUnavailable };
     }),
 } satisfies TRPCRouterRecord;

@@ -18,7 +18,9 @@ export const classroomUnavailabilitiesRouter = {
         where: { timetableId },
       });
       const classroomUnavailables = await prisma.classroomUnavailable.findMany({
-        where: { classroomId: { in: classrooms.map((classroom) => classroom.id) } },
+        where: {
+          classroomId: { in: classrooms.map((classroom) => classroom.id) },
+        },
       });
       return { classroomUnavailables };
     }),

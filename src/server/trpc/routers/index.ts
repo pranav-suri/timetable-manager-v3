@@ -2,7 +2,9 @@ import { createTRPCRouter } from "../init";
 import { authRouter } from "./authRouter";
 import { autoLecturesRouter } from "./autoLecturesRouter";
 import { classroomsRouter } from "./classroomsRouter";
+import { cognitiveLoadRouter } from "./cognitiveLoadRouter";
 import { todosRouter } from "./demo/todosRouter";
+import { generateRouter } from "./generateRouter";
 import { groupsRouter } from "./groupsRouter";
 import { lectureSlotsRouter } from "./lectureSlotsRouter";
 import { lecturesRouter } from "./lecturesRouter";
@@ -24,6 +26,8 @@ export const trpcRouter = createTRPCRouter({
   autoLectures: autoLecturesRouter,
   classrooms: classroomsRouter,
   classroomUnavailabilities: classroomUnavailabilitiesRouter,
+  cognitiveLoad: cognitiveLoadRouter,
+  generate: generateRouter,
   groups: groupsRouter,
   lectureSlots: lectureSlotsRouter,
   lectures: lecturesRouter,

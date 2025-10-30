@@ -67,7 +67,7 @@ export function validateCsvData(
 ) {
   // This function will handle errors with missing headings
   // This does not validate missing data in each row
-  if (!parsedCsv.data[0]) throw new Error("parsedCsv was empty.")
+  if (!parsedCsv.data[0]) throw new Error("parsedCsv was empty.");
   let expectedKeys: string[] = [];
   let dataKeys: string[] = [];
 
