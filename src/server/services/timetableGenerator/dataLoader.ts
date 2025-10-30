@@ -137,7 +137,7 @@ async function loadLectures(
       subdivisionId: ls.subdivisionId,
       lectureId: ls.lectureId,
     })),
-    allowedClassrooms: lecture.lectureClassrooms.map((lc) => ({
+    combinedClassrooms: lecture.lectureClassrooms.map((lc) => ({
       id: lc.id,
       classroomId: lc.classroomId,
       lectureId: lc.lectureId,
@@ -326,9 +326,9 @@ function validateInputData(data: {
       );
     }
 
-    if (lecture.allowedClassrooms.length === 0) {
+    if (lecture.combinedClassrooms.length === 0) {
       console.warn(
-        `Warning: Lecture ${lecture.id} has no allowed classrooms - will use all classrooms`,
+        `Warning: Lecture ${lecture.id} has no combined classrooms - needs at least one classroom`,
       );
     }
   }
@@ -360,7 +360,7 @@ function buildLookupMaps(data: {
   const teacherToLectures = new Map<string, string[]>();
   const subdivisionToLectures = new Map<string, string[]>();
   const lectureToSubdivisions = new Map<string, string[]>();
-  const lectureToAllowedClassrooms = new Map<string, string[]>();
+  const lectureToCombinedClassrooms = new Map<string, string[]>();
   const eventToLecture = new Map<string, GALecture>();
   const eventToSubdivisions = new Map<string, string[]>();
   const teacherUnavailable = new Map<string, Set<string>>();
@@ -371,10 +371,7 @@ function buildLookupMaps(data: {
   const linearToSlotId = new Map<number, string>();
   const classroomIdToClassroom = new Map<string, GAClassroom>();
   const classroomCapacity = new Map<string, number>(); // classroomId -> capacity
-  const lockedAssignments = new Map<
-    string,
-    { slotId: string; classroomId?: string }
-  >();
+  const lockedAssignments = new Map<string, { slotId: string }>();
 
   // Build teacher unavailability sets
   for (const teacher of teachers) {
@@ -425,12 +422,11 @@ function buildLookupMaps(data: {
       }
     }
 
-    // Lecture to allowed classrooms mapping
-    const allowedClassroomIds =
-      lecture.allowedClassrooms.length > 0
-        ? lecture.allowedClassrooms.map((lc) => lc.classroomId)
-        : classrooms.map((c) => c.id); // If none specified, allow all
-    lectureToAllowedClassrooms.set(lecture.id, allowedClassroomIds);
+    // Lecture to combined classrooms mapping (immutable)
+    const combinedClassroomIds = lecture.combinedClassrooms.map(
+      (lc) => lc.classroomId,
+    );
+    lectureToCombinedClassrooms.set(lecture.id, combinedClassroomIds);
 
     // Expand lecture into individual events
     for (let eventIndex = 0; eventIndex < lecture.count; eventIndex++) {
@@ -455,7 +451,6 @@ function buildLookupMaps(data: {
       if (lockedSlot?.isLocked) {
         lockedAssignments.set(lectureEventId, {
           slotId: lockedSlot.slotId,
-          classroomId: undefined, // Classroom may not be locked
         });
       }
     }
@@ -472,7 +467,7 @@ function buildLookupMaps(data: {
     teacherToLectures,
     subdivisionToLectures,
     lectureToSubdivisions,
-    lectureToAllowedClassrooms,
+    lectureToCombinedClassrooms,
     eventToLecture,
     eventToSubdivisions,
     teacherUnavailable,

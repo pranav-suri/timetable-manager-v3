@@ -31,16 +31,16 @@ import {
  * Initialize a single chromosome with random assignments.
  *
  * Strategy:
- * - For each event, randomly select timeslot and classroom
+ * - For each event, randomly select timeslot
  * - Respect locked assignments (pre-assigned slots)
- * - Ensure classrooms are from allowed list
+ * - Classrooms are immutable (stored in lecture.combinedClassrooms)
  *
  * @param inputData - Complete timetable input data
  * @returns A randomly initialized chromosome
  */
 export function initializeRandomChromosome(inputData: GAInputData): Chromosome {
   const chromosome: Chromosome = [];
-  const { eventIds, lookupMaps, slots, classrooms } = inputData;
+  const { eventIds, lookupMaps, slots } = inputData;
 
   for (let i = 0; i < eventIds.length; i++) {
     const eventId = eventIds[i]!;
@@ -54,34 +54,21 @@ export function initializeRandomChromosome(inputData: GAInputData): Chromosome {
     const lockedAssignment = lookupMaps.lockedAssignments.get(eventId);
 
     let timeslotId: string;
-    let classroomId: string;
     let isLocked = false;
 
     if (lockedAssignment) {
       // Use locked timeslot
       timeslotId = lockedAssignment.slotId;
       isLocked = true;
-
-      // Classroom might or might not be locked
-      if (lockedAssignment.classroomId) {
-        classroomId = lockedAssignment.classroomId;
-      } else {
-        // Random classroom from allowed list
-        classroomId = selectRandomClassroom(lecture.id, lookupMaps, classrooms);
-      }
     } else {
       // Random timeslot
       timeslotId = selectRandomSlot(slots);
-
-      // Random classroom from allowed list
-      classroomId = selectRandomClassroom(lecture.id, lookupMaps, classrooms);
     }
 
     const gene: Gene = {
       lectureEventId: eventId,
       lectureId: lecture.id,
       timeslotId,
-      classroomId,
       isLocked,
       duration: lecture.duration,
     };
@@ -100,25 +87,6 @@ function selectRandomSlot(slots: GAInputData["slots"]): string {
   return slots[randomIndex]!.id;
 }
 
-/**
- * Select a random classroom from allowed classrooms for a lecture.
- */
-function selectRandomClassroom(
-  lectureId: string,
-  lookupMaps: GAInputData["lookupMaps"],
-  allClassrooms: GAInputData["classrooms"],
-): string {
-  let allowedClassrooms = lookupMaps.lectureToAllowedClassrooms.get(lectureId);
-
-  // If no restrictions, use all classrooms
-  if (!allowedClassrooms || allowedClassrooms.length === 0) {
-    allowedClassrooms = allClassrooms.map((c) => c.id);
-  }
-
-  const randomIndex = Math.floor(Math.random() * allowedClassrooms.length);
-  return allowedClassrooms[randomIndex]!;
-}
-
 // ============================================================================
 // HEURISTIC CHROMOSOME INITIALIZATION
 // ============================================================================
@@ -127,9 +95,10 @@ function selectRandomClassroom(
  * Initialize a single chromosome using greedy heuristic.
  *
  * Strategy:
- * - Schedule most constrained events first (fewer allowed classrooms)
- * - For each event, select slot/classroom that minimizes conflicts
+ * - Schedule most constrained events first (locked, then by duration)
+ * - For each event, select slot that minimizes conflicts
  * - This produces better starting solutions than pure random
+ * - Classrooms are immutable (stored in lecture.combinedClassrooms)
  *
  * @param inputData - Complete timetable input data
  * @returns A heuristically initialized chromosome
@@ -137,7 +106,7 @@ function selectRandomClassroom(
 export function initializeHeuristicChromosome(
   inputData: GAInputData,
 ): Chromosome {
-  const { eventIds, lookupMaps, slots, classrooms } = inputData;
+  const { eventIds, lookupMaps, slots } = inputData;
 
   // Create event metadata for sorting
   interface EventMeta {
@@ -145,13 +114,10 @@ export function initializeHeuristicChromosome(
     lectureId: string;
     lecture: GAInputData["lectures"][0];
     isLocked: boolean;
-    numAllowedClassrooms: number;
   }
 
   const eventMetas: EventMeta[] = eventIds.map((eventId) => {
     const lecture = lookupMaps.eventToLecture.get(eventId)!;
-    const allowedClassrooms =
-      lookupMaps.lectureToAllowedClassrooms.get(lecture.id) || [];
     const isLocked = lookupMaps.lockedAssignments.has(eventId);
 
     return {
@@ -159,17 +125,13 @@ export function initializeHeuristicChromosome(
       lectureId: lecture.id,
       lecture,
       isLocked,
-      numAllowedClassrooms: allowedClassrooms.length || classrooms.length,
     };
   });
 
-  // Sort by constraints: locked first, then by fewest options, then by duration
+  // Sort by constraints: locked first, then by duration
   eventMetas.sort((a, b) => {
     if (a.isLocked && !b.isLocked) return -1;
     if (!a.isLocked && b.isLocked) return 1;
-    if (a.numAllowedClassrooms !== b.numAllowedClassrooms) {
-      return a.numAllowedClassrooms - b.numAllowedClassrooms;
-    }
     return b.lecture.duration - a.lecture.duration;
   });
 
@@ -182,14 +144,10 @@ export function initializeHeuristicChromosome(
     const lockedAssignment = lookupMaps.lockedAssignments.get(eventId);
 
     let timeslotId: string;
-    let classroomId: string;
 
     if (lockedAssignment) {
       // Use locked assignment
       timeslotId = lockedAssignment.slotId;
-      classroomId =
-        lockedAssignment.classroomId ||
-        selectRandomClassroom(lecture.id, lookupMaps, classrooms);
     } else {
       // Heuristic: find slot with minimal conflicts
       const bestSlot = findBestSlotForEvent(
@@ -200,16 +158,12 @@ export function initializeHeuristicChromosome(
         lookupMaps,
       );
       timeslotId = bestSlot;
-
-      // Select classroom (simple: random from allowed)
-      classroomId = selectRandomClassroom(lecture.id, lookupMaps, classrooms);
     }
 
     const gene: Gene = {
       lectureEventId: eventId,
       lectureId: lecture.id,
       timeslotId,
-      classroomId,
       isLocked,
       duration: lecture.duration,
     };

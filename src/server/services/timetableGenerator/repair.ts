@@ -159,11 +159,14 @@ function repairSubdivisionClashes(
 // ============================================================================
 
 /**
- * Repair room clash violations by changing classroom OR slot.
+ * Repair room clash violations by changing slot.
  *
  * Strategy:
- * - First try to change classroom (faster)
- * - If no valid classroom, try changing slot
+ * - Change timeslot to avoid classroom conflicts
+ * - Classrooms are immutable (defined per lecture), so we can only change timing
+ *
+ * NOTE: With immutable combined classrooms, room clashes occur when two lectures
+ * sharing ANY classroom are scheduled in the same slot.
  */
 function repairRoomClashes(
   chromosome: Chromosome,
@@ -183,16 +186,10 @@ function repairRoomClashes(
       continue;
     }
 
-    // Try 1: Change classroom
-    const newClassroom = findValidClassroomForGene(gene, chromosome, inputData);
-    if (newClassroom) {
-      chromosome[geneIndex]!.classroomId = newClassroom;
-    } else {
-      // Try 2: Change slot
-      const newSlot = findValidSlotForGene(gene, chromosome, inputData);
-      if (newSlot) {
-        chromosome[geneIndex]!.timeslotId = newSlot;
-      }
+    // Change slot to avoid classroom conflict
+    const newSlot = findValidSlotForGene(gene, chromosome, inputData);
+    if (newSlot) {
+      chromosome[geneIndex]!.timeslotId = newSlot;
     }
 
     attempts++;
@@ -267,20 +264,11 @@ function repairAvailabilityViolations(
       const gene = chromosome[geneIndex]!;
 
       if (!gene.isLocked) {
-        // Try changing classroom first
-        const newClassroom = findValidClassroomForGene(
-          gene,
-          chromosome,
-          inputData,
-        );
-        if (newClassroom) {
-          chromosome[geneIndex]!.classroomId = newClassroom;
-        } else {
-          // Fall back to changing slot
-          const newSlot = findValidSlotForGene(gene, chromosome, inputData);
-          if (newSlot) {
-            chromosome[geneIndex]!.timeslotId = newSlot;
-          }
+        // Change slot to avoid classroom unavailability
+        // (classrooms are immutable, can't be changed)
+        const newSlot = findValidSlotForGene(gene, chromosome, inputData);
+        if (newSlot) {
+          chromosome[geneIndex]!.timeslotId = newSlot;
         }
       }
     }
@@ -386,52 +374,4 @@ function findValidSlotForGene(
   }
 
   return null; // No valid slot found
-}
-
-/**
- * Find a valid classroom for a gene that doesn't create room clash.
- *
- * Strategy:
- * - Try classrooms from allowed list
- * - Check: classroom available, not creating room clash
- *
- * @returns New classroom ID if found, null otherwise
- */
-function findValidClassroomForGene(
-  gene: Gene,
-  chromosome: Chromosome,
-  inputData: GAInputData,
-): string | null {
-  const { lookupMaps } = inputData;
-  const allowedClassrooms =
-    lookupMaps.lectureToAllowedClassrooms.get(gene.lectureId) || [];
-
-  // Shuffle allowed classrooms for randomness
-  const shuffled = [...allowedClassrooms].sort(() => Math.random() - 0.5);
-
-  for (const classroomId of shuffled) {
-    // Check classroom availability
-    const classroomUnavailable =
-      lookupMaps.classroomUnavailable.get(classroomId);
-    if (classroomUnavailable?.has(gene.timeslotId)) {
-      continue;
-    }
-
-    // Check if this would create a room clash
-    let wouldCreateClash = false;
-    for (const otherGene of chromosome) {
-      if (otherGene.lectureEventId === gene.lectureEventId) continue;
-      if (otherGene.timeslotId !== gene.timeslotId) continue;
-      if (otherGene.classroomId === classroomId) {
-        wouldCreateClash = true;
-        break;
-      }
-    }
-
-    if (!wouldCreateClash) {
-      return classroomId;
-    }
-  }
-
-  return null; // No valid classroom found
 }

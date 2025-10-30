@@ -32,7 +32,7 @@ import type { Chromosome, GAInputData, GAConfig } from "./types";
  * Algorithm:
  * 1. Select two random gene indices i and j
  * 2. If either gene is locked, try different pair (max 10 attempts)
- * 3. Swap their timeslot and classroom assignments
+ * 3. Swap their timeslot assignments
  * 4. Return mutated chromosome
  *
  * Why swap mutation?
@@ -41,11 +41,13 @@ import type { Chromosome, GAInputData, GAConfig } from "./types";
  * - Maintains good building blocks
  * - Fast exploration of nearby solutions
  *
+ * NOTE: Classrooms are NOT swapped as they are immutable per lecture.
+ *
  * Research reference: Section 4.4
  *
  * @param chromosome - Chromosome to mutate (will be cloned, not modified)
  * @param inputData - GA input data (not used but kept for consistency)
- * @returns Mutated chromosome with swapped assignments
+ * @returns Mutated chromosome with swapped timeslot assignments
  */
 export function swapMutation(
   chromosome: Chromosome,
@@ -76,15 +78,10 @@ export function swapMutation(
       continue;
     }
 
-    // Swap timeslot and classroom assignments
+    // Swap timeslot assignments only (classrooms are immutable)
     const tempTimeslot = gene1.timeslotId;
-    const tempClassroom = gene1.classroomId;
-
     gene1.timeslotId = gene2.timeslotId;
-    gene1.classroomId = gene2.classroomId;
-
     gene2.timeslotId = tempTimeslot;
-    gene2.classroomId = tempClassroom;
 
     swapped = true;
     break;
@@ -108,9 +105,7 @@ export function swapMutation(
  * Algorithm:
  * 1. Select one random gene index
  * 2. If gene is locked, try different gene (max 10 attempts)
- * 3. Assign completely new random values:
- *    - timeslotId = random from available slots
- *    - classroomId = random from allowed classrooms for this lecture
+ * 3. Assign completely new random timeslot
  * 4. Return mutated chromosome
  *
  * Why random reset mutation?
@@ -119,11 +114,13 @@ export function swapMutation(
  * - Creates more diverse offspring
  * - Used less frequently because it's more disruptive
  *
+ * NOTE: Classrooms are NOT reset as they are immutable per lecture.
+ *
  * Research reference: Section 4.4
  *
  * @param chromosome - Chromosome to mutate (will be cloned, not modified)
- * @param inputData - GA input data for accessing available slots and classrooms
- * @returns Mutated chromosome with one gene randomly reset
+ * @param inputData - GA input data for accessing available slots
+ * @returns Mutated chromosome with one gene's timeslot randomly reset
  */
 export function randomResetMutation(
   chromosome: Chromosome,
@@ -146,34 +143,18 @@ export function randomResetMutation(
       continue;
     }
 
-    // Get allowed classrooms for this lecture
-    const allowedClassrooms =
-      inputData.lookupMaps.lectureToAllowedClassrooms.get(gene.lectureId) || [];
-
-    if (allowedClassrooms.length === 0) {
-      // No allowed classrooms, skip this gene
-      continue;
-    }
-
     // Assign random slot
     const randomSlotIndex = Math.floor(Math.random() * inputData.slots.length);
     const randomSlot = inputData.slots[randomSlotIndex]!;
 
-    // Assign random allowed classroom
-    const randomClassroomIndex = Math.floor(
-      Math.random() * allowedClassrooms.length,
-    );
-    const randomClassroomId = allowedClassrooms[randomClassroomIndex]!;
-
-    // Update gene with new assignments
+    // Update gene with new timeslot (classroom is immutable)
     gene.timeslotId = randomSlot.id;
-    gene.classroomId = randomClassroomId;
 
     reset = true;
     break;
   }
 
-  // If all genes are locked or no valid assignments found, return unchanged
+  // If all genes are locked, return unchanged
   if (!reset) {
     return mutated;
   }

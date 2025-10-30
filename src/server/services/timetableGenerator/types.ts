@@ -16,12 +16,15 @@ import type {
 
 /**
  * Lecture with all necessary relationships loaded for GA processing.
- * This includes subdivisions, allowed classrooms, and locked slots.
+ * This includes subdivisions, combined classrooms (immutable), and locked slots.
+ *
+ * Combined Classrooms: Represents classrooms that can be "opened and combined"
+ * to form a larger space. The lecture MUST use all these classrooms together.
  */
 export interface GALecture extends Lecture {
   teacher: GATeacher;
   subdivisions: LectureSubdivision[];
-  allowedClassrooms: LectureClassroom[];
+  combinedClassrooms: LectureClassroom[]; // Fixed set of classrooms for this lecture
   lockedSlots: LectureSlot[];
   subject: Subject & {
     group: Group;
@@ -69,15 +72,16 @@ export interface GASlot extends Slot {
  *   (e.g., "lec1-evt0", "lec1-evt1" for a lecture with count=2)
  * - lectureId: The original lecture ID from database
  * - timeslotId: The assigned slot ID (MUTABLE during evolution)
- * - classroomId: The assigned classroom ID (MUTABLE during evolution)
  * - isLocked: Whether this assignment is locked (from LectureSlot)
  * - duration: Number of consecutive slots required
+ *
+ * NOTE: classroomId is NOT stored in the gene because classrooms are
+ * immutable and fixed per lecture (stored in GALecture.combinedClassrooms).
  */
 export interface Gene {
   lectureEventId: string; // Unique identifier for this event instance
   lectureId: string; // Original lecture ID
   timeslotId: string; // Assigned slot (mutable)
-  classroomId: string; // Assigned classroom (mutable)
   isLocked: boolean; // True if this is a pre-assigned (locked) slot
   duration: number; // Number of consecutive slots needed
 }
@@ -129,6 +133,7 @@ export enum SoftConstraintType {
   TEACHER_DAILY_LIMIT = "TEACHER_DAILY_LIMIT", // Exceeded daily teaching hours
   TEACHER_WEEKLY_LIMIT = "TEACHER_WEEKLY_LIMIT", // Exceeded weekly teaching hours
   COGNITIVE_LOAD = "COGNITIVE_LOAD", // High cognitive load for students
+  EXCESSIVE_CONSECUTIVE_LECTURES = "EXCESSIVE_CONSECUTIVE_LECTURES", // More than lecture.duration lectures scheduled together
 }
 
 /**
@@ -203,7 +208,7 @@ export interface LookupMaps {
   teacherToLectures: Map<string, string[]>; // teacherId -> lectureEventIds[]
   subdivisionToLectures: Map<string, string[]>; // subdivisionId -> lectureEventIds[]
   lectureToSubdivisions: Map<string, string[]>; // lectureId -> subdivisionIds[]
-  lectureToAllowedClassrooms: Map<string, string[]>; // lectureId -> classroomIds[]
+  lectureToCombinedClassrooms: Map<string, string[]>; // lectureId -> classroomIds[] (immutable combined set)
 
   // Event metadata
   eventToLecture: Map<string, GALecture>; // lectureEventId -> GALecture
@@ -224,7 +229,7 @@ export interface LookupMaps {
   classroomCapacity: Map<string, number>; // classroomId -> capacity
 
   // Locked slots
-  lockedAssignments: Map<string, { slotId: string; classroomId?: string }>; // lectureEventId -> locked assignment
+  lockedAssignments: Map<string, { slotId: string }>; // lectureEventId -> locked slot assignment (classroom is immutable)
 }
 
 // ============================================================================
@@ -246,6 +251,7 @@ export interface ConstraintWeights {
   teacherDailyLimit: number; // Default: 10
   teacherWeeklyLimit: number; // Default: 15
   cognitiveLoad: number; // Default: 7
+  excessiveConsecutiveLectures: number; // Default: 6
 }
 
 /**
