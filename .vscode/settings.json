@@ -11,5 +11,18 @@
     "**/routeTree.gen.ts": true,
     "**/generated/**": true
   },
-  "typescript.experimental.useTsgo": true
+  "typescript.experimental.useTsgo": true,
+  "sqltools.connections": [
+    {
+      "ssh": "Disabled",
+      "previewLimit": 50,
+      "server": "localhost",
+      "port": 5432,
+      "driver": "PostgreSQL",
+      "name": "Primary",
+      "database": "timetable_manager_v3",
+      "username": "postgres",
+      "password": ""
+    }
+  ]
 }
