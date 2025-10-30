@@ -32,7 +32,7 @@ export function Row({ day, handleDrawerOpen, busySlots }: RowProps) {
   );
 
   return (
-    <TableRow>
+    <TableRow sx={{ height: 100 }}>
       <TableCell>{DAYS[day - 1]}</TableCell>
 
       {slotsOfDay.map((slot) => (

@@ -39,7 +39,21 @@ export default function MuiTimetable({
 
       {/* Timetable Grid */}
       <TableContainer component={Paper}>
-        <Table size="small">
+        <Table
+          size="small"
+          sx={{
+            borderCollapse: "separate",
+            borderSpacing: 0,
+            td: {
+              borderRight: `1px solid`,
+              borderRightColor: "divider",
+            },
+            th: {
+              borderRight: `1px solid`,
+              borderRightColor: "divider",
+            },
+          }}
+        >
           <TableHead>
             <TableRow>
               <Headers slotNumbers={slotNumbers.map((s) => s.number)} />
