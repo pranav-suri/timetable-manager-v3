@@ -58,31 +58,31 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <CssBaseline />
-        <ThemeModeContextProvider>
+    <ThemeModeContextProvider>
+      <html lang="en">
+        <head>
+          <HeadContent />
+          <CssBaseline />
+        </head>
+        <body>
           <Header />
           <DrawerHeader />
           {children}
-        </ThemeModeContextProvider>
-        <TanstackDevtools
-          config={{
-            position: "bottom-left",
-          }}
-          plugins={[
-            {
-              name: "Tanstack Router",
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-            TanStackQueryDevtools,
-          ]}
-        />
-        <Scripts />
-      </body>
-    </html>
+          <TanstackDevtools
+            config={{
+              position: "bottom-left",
+            }}
+            plugins={[
+              {
+                name: "Tanstack Router",
+                render: <TanStackRouterDevtoolsPanel />,
+              },
+              TanStackQueryDevtools,
+            ]}
+          />
+          <Scripts />
+        </body>
+      </html>
+    </ThemeModeContextProvider>
   );
 }

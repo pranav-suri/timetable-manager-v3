@@ -4,18 +4,12 @@ import { nanoid } from "nanoid";
 import { useLiveQuery } from "@tanstack/react-db";
 import { useForm } from "@tanstack/react-form";
 import {
+  Autocomplete,
   Box,
   Button,
   Card,
   CardContent,
-  Checkbox,
-  Chip,
   Container,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  OutlinedInput,
-  Select,
   TextField,
   Typography,
 } from "@mui/material";
@@ -75,8 +69,6 @@ function useLectureHandlers() {
   const updateLecture = useLectureUpdate();
   const {
     lectureCollection,
-    subdivisionCollection,
-    classroomCollection,
     lectureSubdivisionCollection,
     lectureClassroomCollection,
   } = useCollections();
@@ -157,24 +149,12 @@ function useLectureHandlers() {
     form.reset();
   };
 
-  const getSubdivisionName = (subdivisionId: string) => {
-    const subdivision = subdivisionCollection.get(subdivisionId);
-    return subdivision ? subdivision.name : "Unknown Subdivision";
-  };
-
-  const getClassroomName = (classroomId: string) => {
-    const classroom = classroomCollection.get(classroomId);
-    return classroom ? classroom.name : "Unknown Classroom";
-  };
-
   return {
     form,
     handleEdit,
     handleUpdate,
     handleDelete,
     cancelEdit,
-    getSubdivisionName,
-    getClassroomName,
     editingId,
   };
 }
@@ -188,8 +168,6 @@ function RouteComponent() {
     handleUpdate,
     handleDelete,
     cancelEdit,
-    getSubdivisionName,
-    getClassroomName,
     editingId,
   } = useLectureHandlers();
 
@@ -226,31 +204,41 @@ function RouteComponent() {
                   !value ? "Teacher is required" : undefined,
               }}
               children={(field) => (
-                <FormControl fullWidth>
-                  <InputLabel>Teacher</InputLabel>
-                  <Select
-                    value={field.state.value}
-                    label="Teacher"
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    onBlur={field.handleBlur}
-                    error={
-                      field.state.meta.isTouched &&
-                      field.state.meta.errors.length > 0
-                    }
-                  >
-                    {teachers.map((teacher) => (
-                      <MenuItem key={teacher.id} value={teacher.id}>
-                        {teacher.name} ({teacher.email})
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  {field.state.meta.isTouched &&
-                  field.state.meta.errors.length ? (
-                    <Typography variant="caption" color="error" sx={{ mt: 1 }}>
-                      {field.state.meta.errors.join(", ")}
-                    </Typography>
-                  ) : null}
-                </FormControl>
+                <Autocomplete
+                  options={teachers}
+                  getOptionLabel={(option) =>
+                    typeof option === "string"
+                      ? option
+                      : `${option.name} (${option.email})`
+                  }
+                  value={
+                    teachers.find((t) => t.id === field.state.value) || null
+                  }
+                  onChange={(_, newValue) => {
+                    field.handleChange(newValue?.id || "");
+                  }}
+                  onBlur={field.handleBlur}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Teacher"
+                      error={
+                        field.state.meta.isTouched &&
+                        field.state.meta.errors.length > 0
+                      }
+                      helperText={
+                        field.state.meta.isTouched &&
+                        field.state.meta.errors.length
+                          ? field.state.meta.errors.join(", ")
+                          : ""
+                      }
+                    />
+                  )}
+                  fullWidth
+                  isOptionEqualToValue={(option, value) =>
+                    option.id === value.id
+                  }
+                />
               )}
             />
 
@@ -261,33 +249,93 @@ function RouteComponent() {
                   !value ? "Subject is required" : undefined,
               }}
               children={(field) => (
-                <FormControl fullWidth>
-                  <InputLabel>Subject</InputLabel>
-                  <Select
-                    value={field.state.value}
-                    label="Subject"
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    onBlur={field.handleBlur}
-                    error={
-                      field.state.meta.isTouched &&
-                      field.state.meta.errors.length > 0
-                    }
-                  >
-                    {subjects.map((subject) => (
-                      <MenuItem key={subject.id} value={subject.id}>
-                        {subject.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  {field.state.meta.isTouched &&
-                  field.state.meta.errors.length ? (
-                    <Typography variant="caption" color="error" sx={{ mt: 1 }}>
-                      {field.state.meta.errors.join(", ")}
-                    </Typography>
-                  ) : null}
-                </FormControl>
+                <Autocomplete
+                  options={subjects}
+                  getOptionLabel={(option) =>
+                    typeof option === "string" ? option : option.name
+                  }
+                  value={
+                    subjects.find((s) => s.id === field.state.value) || null
+                  }
+                  onChange={(_, newValue) => {
+                    field.handleChange(newValue?.id || "");
+                  }}
+                  onBlur={field.handleBlur}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Subject"
+                      error={
+                        field.state.meta.isTouched &&
+                        field.state.meta.errors.length > 0
+                      }
+                      helperText={
+                        field.state.meta.isTouched &&
+                        field.state.meta.errors.length
+                          ? field.state.meta.errors.join(", ")
+                          : ""
+                      }
+                    />
+                  )}
+                  fullWidth
+                  isOptionEqualToValue={(option, value) =>
+                    option.id === value.id
+                  }
+                />
               )}
             />
+
+            {/* Subdivisions Selection */}
+            <form.Field name="subdivisionIds">
+              {(field) => (
+                <Autocomplete
+                  multiple
+                  options={subdivisions}
+                  getOptionLabel={(option) =>
+                    typeof option === "string" ? option : option.name
+                  }
+                  value={subdivisions.filter((s) =>
+                    field.state.value.includes(s.id),
+                  )}
+                  onChange={(_, newValue) => {
+                    field.handleChange(newValue.map((v) => v.id));
+                  }}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Subdivisions" />
+                  )}
+                  fullWidth
+                  isOptionEqualToValue={(option, value) =>
+                    option.id === (value as any)?.id
+                  }
+                />
+              )}
+            </form.Field>
+
+            {/* Classrooms Selection */}
+            <form.Field name="classroomIds">
+              {(field) => (
+                <Autocomplete
+                  multiple
+                  options={classrooms}
+                  getOptionLabel={(option) =>
+                    typeof option === "string" ? option : option.name
+                  }
+                  value={classrooms.filter((c) =>
+                    form.state.values.classroomIds.includes(c.id),
+                  )}
+                  onChange={(_, newValue) => {
+                    field.handleChange(newValue.map((v) => v.id));
+                  }}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Classrooms" />
+                  )}
+                  fullWidth
+                  isOptionEqualToValue={(option, value) =>
+                    option.id === (value as any)?.id
+                  }
+                />
+              )}
+            </form.Field>
 
             <form.Field
               name="count"
@@ -348,90 +396,6 @@ function RouteComponent() {
                 />
               )}
             />
-
-            {/* Subdivisions Selection */}
-            <form.Field name="subdivisionIds">
-              {(field) => (
-                <FormControl fullWidth>
-                  <InputLabel>Subdivisions</InputLabel>
-                  <Select
-                    multiple
-                    value={field.state.value}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      field.handleChange(
-                        typeof value === "string" ? value.split(",") : value,
-                      );
-                    }}
-                    input={<OutlinedInput label="Subdivisions" />}
-                    renderValue={(selected) => (
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                        {selected.map((value) => (
-                          <Chip
-                            key={value}
-                            label={getSubdivisionName(value)}
-                            size="small"
-                          />
-                        ))}
-                      </Box>
-                    )}
-                  >
-                    {subdivisions.map((subdivision) => (
-                      <MenuItem key={subdivision.id} value={subdivision.id}>
-                        <Checkbox
-                          checked={field.state.value.includes(subdivision.id)}
-                        />
-                        {subdivision.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              )}
-            </form.Field>
-
-            {/* Classrooms Selection */}
-            <form.Field name="classroomIds">
-              {(field) => (
-                <FormControl fullWidth>
-                  <InputLabel>Classrooms</InputLabel>
-                  <Select
-                    multiple
-                    value={form.state.values.classroomIds}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      field.handleChange(
-                        typeof value === "string" ? value.split(",") : value,
-                      );
-                    }}
-                    input={<OutlinedInput label="Classrooms" />}
-                    renderValue={(selected) => (
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                        {selected.map((value) => (
-                          <Chip
-                            key={value}
-                            label={getClassroomName(value)}
-                            size="small"
-                          />
-                        ))}
-                      </Box>
-                    )}
-                  >
-                    {classrooms.map((classroom) => (
-                      <MenuItem key={classroom.id} value={classroom.id}>
-                        <Checkbox
-                          checked={
-                            form.state.values.classroomIds.indexOf(
-                              classroom.id,
-                            ) > -1
-                          }
-                        />
-                        {classroom.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              )}
-            </form.Field>
 
             <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
               <form.Subscribe

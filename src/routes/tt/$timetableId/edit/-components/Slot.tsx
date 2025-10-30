@@ -3,7 +3,6 @@ import LectureSlot from "./LectureSlot";
 
 function Slot({ slotId }: { slotId: string }) {
   const orderedCompleteLectures = useFilteredLecturesInSlot(slotId);
-  console.log("Ordered Complete Lectures:", orderedCompleteLectures);
   return (
     <div>
       {orderedCompleteLectures.map((completeLecture) => (

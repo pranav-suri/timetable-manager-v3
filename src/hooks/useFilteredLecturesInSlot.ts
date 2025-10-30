@@ -53,8 +53,6 @@ export function useFilteredLecturesInSlot(slotId: string) {
     ],
   );
 
-  console.log(baseLectures);
-
   // // Get subdivision data for active filters
   const { data: lecturesWithSubdivisions } = useLiveQuery(
     (q) =>
@@ -80,7 +78,6 @@ export function useFilteredLecturesInSlot(slotId: string) {
         })),
     [slotId, lectureWithClassroomCollection],
   );
-  console.log(lecturesWithClassrooms);
 
   // // Apply subdivision and classroom filters on the client side
   const filteredLectures = baseLectures.filter((lecture) => {
@@ -114,7 +111,6 @@ export function useFilteredLecturesInSlot(slotId: string) {
 
     return true;
   });
-  console.log("Filtered Lectures:", filteredLectures);
 
   return filteredLectures;
 }
