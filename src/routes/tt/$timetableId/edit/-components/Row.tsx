@@ -58,9 +58,10 @@ export function DroppableCell({
   handleDrawerOpen,
   busySlots,
 }: DroppableCellProps) {
-  const { setNodeRef, isOver, active } = useDroppable({
+  const { setNodeRef, isOver, active, over } = useDroppable({
     id: slotId,
   });
+
   const { lectureSlotCollection } = useCollections();
   const lectureSlotId = active?.id.toString() ?? "";
   const initialSlotId = lectureSlotCollection.get(lectureSlotId)?.slotId ?? "";

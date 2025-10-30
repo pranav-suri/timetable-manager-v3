@@ -13,6 +13,7 @@ import { Row } from "./-components/Row";
 import Headers from "./-components/Headers";
 import { useBusySlots } from "./-hooks/-busySlotHooks";
 import { FilterPanel } from "./-components/FilterPanel";
+import { InventorySidebar } from "./-components/InventorySidebar";
 import { useCollections } from "@/db-collections/providers/useCollections";
 
 export default function MuiTimetable({
@@ -28,7 +29,7 @@ export default function MuiTimetable({
     <Box
       sx={{
         display: "grid",
-        gridTemplateColumns: "280px 1fr",
+        gridTemplateColumns: "280px 1fr 280px",
         gap: 2,
         height: "100%",
       }}
@@ -56,6 +57,9 @@ export default function MuiTimetable({
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Inventory Sidebar */}
+      <InventorySidebar />
     </Box>
   );
 }

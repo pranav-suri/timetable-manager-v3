@@ -2,9 +2,10 @@ import type { DndContextProps, DragEndEvent } from "@dnd-kit/core";
 import { useSensor, PointerSensor } from "@dnd-kit/core";
 import { useCollections } from "@/db-collections/providers/useCollections";
 import { moveLectureSlot } from "../-components/utils";
+import { nanoid } from "nanoid";
 
 export function useTimetableDnD() {
-  const { lectureSlotCollection } = useCollections();
+  const { lectureSlotCollection, lectureCollection } = useCollections();
   type Handlers = Pick<
     DndContextProps,
     "onDragStart" | "onDragEnd" | "onDragCancel"
@@ -16,6 +17,7 @@ export function useTimetableDnD() {
 
   // @ts-ignore Ignore unused variable warning
   const onDragStart = (event: DragStartEvent) => {
+    console.log("Drag start active", event.active?.id);
     // Check if the lecture slot is locked
     const lectureSlot = lectureSlotCollection.get(event.active.id.toString());
     if (lectureSlot?.isLocked) {
@@ -32,20 +34,41 @@ export function useTimetableDnD() {
 
   const onDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+    console.log("Drag end active", event.over);
+
     if (!over) return;
 
-    // Double-check that the lecture slot isn't locked (shouldn't happen with disabled drag)
-    const lectureSlot = lectureSlotCollection.get(active.id.toString());
-    if (lectureSlot?.isLocked) {
-      console.warn(`Attempted to move locked lectureSlot ${active.id}`);
+    const activeId = active.id.toString();
+    const overId = over.id.toString();
+
+    // Handle dropping lectureSlots on inventory area (delete them)
+    if (overId === "inventory-drop-zone") {
+      const lectureSlot = lectureSlotCollection.get(activeId);
+      // Delete the lectureSlot from collection
+      if (lectureSlot) lectureSlotCollection.delete(activeId);
+      else {
+        const lecture = lectureCollection.get(activeId);
+        if (lecture) console.log(`Lecture ${activeId} is already in inventory`);
+      }
+      console.log(`Dropped on inventory zone`);
       return;
     }
 
-    moveLectureSlot(
-      lectureSlotCollection,
-      active.id.toString(),
-      over.id.toString(),
-    );
+    const lectureSlot = lectureSlotCollection.get(activeId);
+    if (lectureSlot) {
+      moveLectureSlot(lectureSlotCollection, activeId, overId);
+    } else {
+      const lecture = lectureCollection.get(activeId);
+      if (lecture)
+        lectureSlotCollection.insert({
+          id: nanoid(4),
+          lectureId: lecture.id,
+          slotId: overId,
+          isLocked: false,
+        });
+      console.log(`Scheduled lecture ${lecture?.id} to slot ${overId}`);
+    }
+    console.log(`Dropped on ${overId}`);
   };
 
   return {
