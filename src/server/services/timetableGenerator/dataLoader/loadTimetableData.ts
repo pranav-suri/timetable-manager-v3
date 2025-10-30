@@ -8,6 +8,7 @@ import {
   loadSlots,
 } from "./loaders";
 import { buildLookupMaps } from "./lookupMaps";
+import { DEFAULT_GA_CONFIG } from "../config";
 
 export async function loadTimetableData(
   timetableId: string,
@@ -55,5 +56,6 @@ export async function loadTimetableData(
     totalEvents,
     eventIds,
     lookupMaps,
+    config: DEFAULT_GA_CONFIG,
   };
 }

@@ -27,6 +27,12 @@ export function validateSolution(
     teacherWeeklyLimit: 15,
     cognitiveLoad: 7,
     excessiveDailyLectures: 6,
+    excessivelyEmptyDay: 4,
+    excessivelyFilledDay: 4,
+    multiDurationLate: 5,
+    deprioritizedDay: 3,
+    deprioritizedSlot: 2,
+    deprioritizedDaySlot: 5,
   };
   return evaluateChromosome(chromosome, inputData, weights);
 }
