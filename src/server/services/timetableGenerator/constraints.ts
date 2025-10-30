@@ -142,44 +142,70 @@ export function checkSubdivisionClash(
 }
 
 /**
- * Check for room clash: classroom double-booked in same timeslot.
+ * Check for room clash: lectures sharing combined classrooms in same timeslot.
  * HC3 from research Section 1.2.1
+ *
+ * NOTE: With immutable combined classrooms, a room clash occurs when two lectures
+ * that share ANY classroom in their combinedClassrooms list are scheduled in the same slot.
+ * Since classrooms can be "opened and combined", we need to check for any overlap.
  */
 export function checkRoomClash(
   chromosome: Chromosome,
   inputData: GAInputData,
 ): HardViolation[] {
   const violations: HardViolation[] = [];
+  const { lookupMaps } = inputData;
 
-  // Group genes by (timeslot, classroom) pair
-  const slotRoomKey = (slotId: string, roomId: string) =>
-    `${slotId}::${roomId}`;
-  const slotRoomToGenes = new Map<string, number[]>();
-
+  // Group genes by timeslot for efficient checking
+  const slotToGenes = new Map<string, number[]>();
   chromosome.forEach((gene, index) => {
-    const key = slotRoomKey(gene.timeslotId, gene.classroomId);
-    if (!slotRoomToGenes.has(key)) {
-      slotRoomToGenes.set(key, []);
+    if (!slotToGenes.has(gene.timeslotId)) {
+      slotToGenes.set(gene.timeslotId, []);
     }
-    slotRoomToGenes.get(key)!.push(index);
+    slotToGenes.get(gene.timeslotId)!.push(index);
   });
 
-  // Report violations for double-booked rooms
-  for (const [key, indices] of slotRoomToGenes) {
-    if (indices.length > 1) {
-      const parts = key.split("::");
-      const slotId = parts[0];
-      const classroomId = parts[1];
-      if (!slotId || !classroomId) continue;
-      const classroom = inputData.classrooms.find((c) => c.id === classroomId);
+  // Check each timeslot for classroom conflicts
+  for (const [slotId, geneIndices] of slotToGenes) {
+    // Build a map of classroomId -> gene indices using that classroom
+    const classroomToGenes = new Map<string, number[]>();
 
-      violations.push({
-        type: HardConstraintType.ROOM_CLASH,
-        geneIndices: indices,
-        severity: indices.length,
-        description: `Classroom ${classroom?.name || classroomId} double-booked with ${indices.length} lectures in slot ${slotId}`,
-        entityIds: [classroomId, slotId],
-      });
+    for (const geneIndex of geneIndices) {
+      const gene = chromosome[geneIndex];
+      if (!gene) continue;
+
+      // Get the combined classrooms for this lecture
+      const combinedClassrooms =
+        lookupMaps.lectureToCombinedClassrooms.get(gene.lectureId) || [];
+
+      // Add this gene index to all its combined classrooms
+      for (const classroomId of combinedClassrooms) {
+        if (!classroomToGenes.has(classroomId)) {
+          classroomToGenes.set(classroomId, []);
+        }
+        classroomToGenes.get(classroomId)!.push(geneIndex);
+      }
+    }
+
+    // Report violations for classrooms with multiple lectures
+    for (const [classroomId, indices] of classroomToGenes) {
+      if (indices.length > 1) {
+        const classroom = inputData.classrooms.find(
+          (c) => c.id === classroomId,
+        );
+        // Remove duplicates (same lecture might appear multiple times if it has multiple combined classrooms)
+        const uniqueIndices = [...new Set(indices)];
+
+        if (uniqueIndices.length > 1) {
+          violations.push({
+            type: HardConstraintType.ROOM_CLASH,
+            geneIndices: uniqueIndices,
+            severity: uniqueIndices.length,
+            description: `Classroom ${classroom?.name || classroomId} has ${uniqueIndices.length} lectures scheduled simultaneously in slot ${slotId}`,
+            entityIds: [classroomId, slotId],
+          });
+        }
+      }
     }
   }
 
@@ -255,8 +281,11 @@ export function checkSubdivisionUnavailability(
 }
 
 /**
- * Check for room unavailability: classroom used during unavailable time.
+ * Check for room unavailability: any combined classroom used during unavailable time.
  * HC6 from research Section 1.2.1
+ *
+ * NOTE: With immutable combined classrooms, we check if ANY of the lecture's
+ * combined classrooms are unavailable during the assigned slot.
  */
 export function checkRoomUnavailability(
   chromosome: Chromosome,
@@ -266,19 +295,24 @@ export function checkRoomUnavailability(
   const { lookupMaps, classrooms } = inputData;
 
   chromosome.forEach((gene, index) => {
-    const unavailableSlots = lookupMaps.classroomUnavailable.get(
-      gene.classroomId,
-    );
+    // Get the combined classrooms for this lecture
+    const combinedClassrooms =
+      lookupMaps.lectureToCombinedClassrooms.get(gene.lectureId) || [];
 
-    if (unavailableSlots?.has(gene.timeslotId)) {
-      const classroom = classrooms.find((c) => c.id === gene.classroomId);
-      violations.push({
-        type: HardConstraintType.ROOM_UNAVAILABLE,
-        geneIndices: [index],
-        severity: 1,
-        description: `Classroom ${classroom?.name || gene.classroomId} used during unavailable slot ${gene.timeslotId}`,
-        entityIds: [gene.classroomId, gene.timeslotId],
-      });
+    // Check if any of the combined classrooms are unavailable
+    for (const classroomId of combinedClassrooms) {
+      const unavailableSlots = lookupMaps.classroomUnavailable.get(classroomId);
+
+      if (unavailableSlots?.has(gene.timeslotId)) {
+        const classroom = classrooms.find((c) => c.id === classroomId);
+        violations.push({
+          type: HardConstraintType.ROOM_UNAVAILABLE,
+          geneIndices: [index],
+          severity: 1,
+          description: `Lecture ${gene.lectureId} uses classroom ${classroom?.name || classroomId} which is unavailable during slot ${gene.timeslotId}`,
+          entityIds: [classroomId, gene.timeslotId],
+        });
+      }
     }
   });
 
@@ -286,8 +320,10 @@ export function checkRoomUnavailability(
 }
 
 /**
- * Check for room capacity constraint: lecture assigned to too-small classroom.
+ * Check for room capacity constraint: lecture assigned to combined classrooms with insufficient total capacity.
  * HC7 from research Section 1.2.1
+ *
+ * NOTE: With combined classrooms, we sum the capacities of all classrooms in the combination.
  * Note: Current schema doesn't have classroom capacity, using default placeholder.
  */
 export function checkRoomCapacity(
@@ -298,20 +334,33 @@ export function checkRoomCapacity(
   const { lookupMaps } = inputData;
 
   chromosome.forEach((gene, index) => {
-    const capacity = lookupMaps.classroomCapacity.get(gene.classroomId) || 100;
+    // Get the combined classrooms for this lecture
+    const combinedClassrooms =
+      lookupMaps.lectureToCombinedClassrooms.get(gene.lectureId) || [];
+
+    // Calculate total capacity of all combined classrooms
+    let totalCapacity = 0;
+    const classroomNames: string[] = [];
+
+    for (const classroomId of combinedClassrooms) {
+      const capacity = lookupMaps.classroomCapacity.get(classroomId) || 100;
+      totalCapacity += capacity;
+      const classroom = inputData.classrooms.find((c) => c.id === classroomId);
+      if (classroom) classroomNames.push(classroom.name);
+    }
 
     // Calculate enrollment from subdivisions
     // Note: We don't have subdivision size in schema, so skip for now
     // This can be enhanced when subdivision capacity is added to schema
     const enrollment = 0; // Placeholder
 
-    if (enrollment > capacity) {
+    if (enrollment > totalCapacity) {
       violations.push({
         type: HardConstraintType.ROOM_CAPACITY,
         geneIndices: [index],
-        severity: Math.ceil((enrollment - capacity) / 10), // Proportional to overflow
-        description: `Lecture requires ${enrollment} seats but classroom ${gene.classroomId} has ${capacity}`,
-        entityIds: [gene.classroomId, gene.lectureEventId],
+        severity: Math.ceil((enrollment - totalCapacity) / 10), // Proportional to overflow
+        description: `Lecture requires ${enrollment} seats but combined classrooms (${classroomNames.join(" + ")}) have total capacity ${totalCapacity}`,
+        entityIds: [gene.lectureId, ...combinedClassrooms],
       });
     }
   });
@@ -320,40 +369,17 @@ export function checkRoomCapacity(
 }
 
 /**
- * Check for allowed classroom constraint: lecture assigned to non-allowed classroom.
- * HC8 from research (implied by lectureClassrooms relationship)
+ * NOTE: checkAllowedClassroom has been REMOVED.
+ *
+ * Reason: With immutable combined classrooms, lectures have a fixed set of classrooms
+ * defined in GALecture.combinedClassrooms. The classrooms are not assigned during
+ * timetable generation - they are predetermined. Therefore, there's no concept of
+ * "allowed" vs "not allowed" classrooms during the GA process. The classrooms are
+ * simply part of the lecture definition.
+ *
+ * The constraint that previously checked HC8 (allowed classroom) is now implicitly
+ * satisfied by the data structure itself.
  */
-export function checkAllowedClassroom(
-  chromosome: Chromosome,
-  inputData: GAInputData,
-): HardViolation[] {
-  const violations: HardViolation[] = [];
-  const { lookupMaps } = inputData;
-
-  chromosome.forEach((gene, index) => {
-    const lecture = lookupMaps.eventToLecture.get(gene.lectureEventId);
-    if (!lecture) return;
-
-    const allowedClassrooms =
-      lookupMaps.lectureToAllowedClassrooms.get(lecture.id) || [];
-
-    // If allowedClassrooms is empty, all classrooms are allowed
-    if (
-      allowedClassrooms.length > 0 &&
-      !allowedClassrooms.includes(gene.classroomId)
-    ) {
-      violations.push({
-        type: HardConstraintType.ROOM_FEATURES,
-        geneIndices: [index],
-        severity: 1,
-        description: `Lecture ${lecture.id} assigned to non-allowed classroom ${gene.classroomId}`,
-        entityIds: [lecture.id, gene.classroomId],
-      });
-    }
-  });
-
-  return violations;
-}
 
 /**
  * Check for consecutive slots constraint: multi-slot lectures must be in consecutive periods.
@@ -799,6 +825,124 @@ export function checkConsecutivePreference(
   return violations;
 }
 
+/**
+ * Check for excessive consecutive lectures: penalize when more than lecture.duration
+ * lectures are scheduled consecutively for a subdivision.
+ * This ensures students don't have overly long consecutive blocks of the same subject.
+ */
+export function checkExcessiveConsecutiveLectures(
+  chromosome: Chromosome,
+  inputData: GAInputData,
+): SoftViolation[] {
+  const violations: SoftViolation[] = [];
+  const { lookupMaps, subdivisions } = inputData;
+
+  // Group genes by subdivision, day, and lecture
+  const subdivisionDayLectureToSlots = new Map<string, Map<string, number[]>>();
+
+  chromosome.forEach((gene) => {
+    const lecture = lookupMaps.eventToLecture.get(gene.lectureEventId);
+    if (!lecture) return;
+
+    const slot = lookupMaps.slotIdToSlot.get(gene.timeslotId);
+    if (!slot) return;
+
+    const subdivisionIds =
+      lookupMaps.eventToSubdivisions.get(gene.lectureEventId) || [];
+
+    for (const subdivisionId of subdivisionIds) {
+      const key = `${subdivisionId}::${slot.day}`;
+      if (!subdivisionDayLectureToSlots.has(key)) {
+        subdivisionDayLectureToSlots.set(key, new Map());
+      }
+
+      const lectureMap = subdivisionDayLectureToSlots.get(key)!;
+      if (!lectureMap.has(lecture.id)) {
+        lectureMap.set(lecture.id, []);
+      }
+
+      lectureMap.get(lecture.id)!.push(slot.number);
+    }
+  });
+
+  // Check for excessive consecutive lectures for each subdivision-day-lecture combination
+  for (const [key, lectureMap] of subdivisionDayLectureToSlots) {
+    const parts = key.split("::");
+    const subdivisionId = parts[0];
+    const dayStr = parts[1];
+    if (!subdivisionId || !dayStr) continue;
+    const day = parseInt(dayStr);
+
+    for (const [lectureId, periods] of lectureMap) {
+      const lecture = inputData.lectures.find((l) => l.id === lectureId);
+      if (!lecture) continue;
+
+      const sortedPeriods = [...periods].sort((a, b) => a - b);
+
+      // Find consecutive sequences
+      let currentSequence: number[] = [];
+      let maxConsecutive = 0;
+      let violatingGeneIndices: number[] = [];
+
+      for (let i = 0; i < sortedPeriods.length; i++) {
+        const currentPeriod = sortedPeriods[i];
+        if (currentPeriod === undefined) continue;
+
+        if (currentSequence.length === 0) {
+          currentSequence = [currentPeriod];
+        } else {
+          const lastPeriod = currentSequence[currentSequence.length - 1];
+          if (lastPeriod !== undefined && currentPeriod === lastPeriod + 1) {
+            currentSequence.push(currentPeriod);
+          } else {
+            // Sequence broken, check if it was excessive
+            if (currentSequence.length > lecture.duration) {
+              maxConsecutive = Math.max(maxConsecutive, currentSequence.length);
+            }
+            currentSequence = [currentPeriod];
+          }
+        }
+      }
+
+      // Check final sequence
+      if (currentSequence.length > lecture.duration) {
+        maxConsecutive = Math.max(maxConsecutive, currentSequence.length);
+      }
+
+      // If we found excessive consecutive lectures, collect all involved genes
+      if (maxConsecutive > lecture.duration) {
+        violatingGeneIndices = chromosome
+          .map((gene, idx) => {
+            const geneLecture = lookupMaps.eventToLecture.get(
+              gene.lectureEventId,
+            );
+            const geneSlot = lookupMaps.slotIdToSlot.get(gene.timeslotId);
+            const geneSubdivisions =
+              lookupMaps.eventToSubdivisions.get(gene.lectureEventId) || [];
+
+            return geneLecture?.id === lectureId &&
+              geneSlot?.day === day &&
+              geneSubdivisions.includes(subdivisionId)
+              ? idx
+              : -1;
+          })
+          .filter((idx) => idx !== -1);
+
+        const subdivision = subdivisions.find((s) => s.id === subdivisionId);
+        violations.push({
+          type: SoftConstraintType.EXCESSIVE_CONSECUTIVE_LECTURES,
+          geneIndices: violatingGeneIndices,
+          penalty: maxConsecutive - lecture.duration, // Penalty for each period beyond duration
+          description: `Subdivision ${subdivision?.name || subdivisionId} has ${maxConsecutive} consecutive lectures of ${lecture.subject.name} on day ${day}, exceeds recommended ${lecture.duration}`,
+          entityIds: [subdivisionId, lectureId, `day-${day}`],
+        });
+      }
+    }
+  }
+
+  return violations;
+}
+
 // ============================================================================
 // MASTER CONSTRAINT EVALUATION
 // ============================================================================
@@ -823,7 +967,7 @@ export function evaluateChromosome(
     ...checkSubdivisionUnavailability(chromosome, inputData),
     ...checkRoomUnavailability(chromosome, inputData),
     ...checkRoomCapacity(chromosome, inputData),
-    ...checkAllowedClassroom(chromosome, inputData),
+    // checkAllowedClassroom REMOVED - classrooms are now immutable per lecture
     ...checkConsecutiveSlots(chromosome, inputData),
     ...checkLockedSlots(chromosome, inputData),
     ...checkDailyDistribution(chromosome, inputData),
@@ -835,6 +979,7 @@ export function evaluateChromosome(
     ...checkTeacherDailyLimit(chromosome, inputData),
     ...checkTeacherWeeklyLimit(chromosome, inputData),
     ...checkConsecutivePreference(chromosome, inputData),
+    ...checkExcessiveConsecutiveLectures(chromosome, inputData),
   ];
 
   // Calculate penalties
@@ -854,6 +999,8 @@ export function evaluateChromosome(
         return sum + v.penalty * weights.teacherWeeklyLimit;
       case SoftConstraintType.COGNITIVE_LOAD:
         return sum + v.penalty * weights.cognitiveLoad;
+      case SoftConstraintType.EXCESSIVE_CONSECUTIVE_LECTURES:
+        return sum + v.penalty * weights.excessiveConsecutiveLectures;
       default:
         return sum + v.penalty;
     }
