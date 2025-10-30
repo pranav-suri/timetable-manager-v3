@@ -6,6 +6,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Box,
 } from "@mui/material";
 import { useLiveQuery } from "@tanstack/react-db";
 import { DndContext, PointerSensor, useSensor } from "@dnd-kit/core";
@@ -13,6 +14,7 @@ import { Row } from "./-components/Row";
 import Headers from "./-components/Headers";
 import { useBusySlots } from "./-hooks";
 import { moveLectureSlot } from "./-components/utils";
+import { FilterPanel } from "./-components/FilterPanel";
 import type {
   DndContextProps,
   DragEndEvent,
@@ -30,31 +32,44 @@ export default function MuiTimetable({
   const busySlots = useBusySlots(activeLectureSlotId);
 
   return (
-    <DndContext
-      {...handlers}
-      // autoScroll={false}
-      // sensors={sensors}
+    <Box
+      sx={{
+        display: "grid",
+        gridTemplateColumns: "280px 1fr",
+        gap: 2,
+        height: "100%",
+      }}
     >
-      <TableContainer component={Paper} className="printable">
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <Headers slotNumbers={slotNumbers.map((s) => s.number)} />
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {slotDays.map((s) => (
-              <Row
-                key={s.day}
-                day={s.day}
-                handleDrawerOpen={handleDrawerOpen}
-                busySlots={busySlots}
-              />
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </DndContext>
+      {/* Filter Panel Sidebar */}
+      <FilterPanel />
+
+      {/* Timetable Grid */}
+      <DndContext
+        {...handlers}
+        // autoScroll={false}
+        // sensors={sensors}
+      >
+        <TableContainer component={Paper} className="printable">
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <Headers slotNumbers={slotNumbers.map((s) => s.number)} />
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {slotDays.map((s) => (
+                <Row
+                  key={s.day}
+                  day={s.day}
+                  handleDrawerOpen={handleDrawerOpen}
+                  busySlots={busySlots}
+                />
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </DndContext>
+    </Box>
   );
 }
 

@@ -65,9 +65,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         <CssBaseline />
         <ThemeModeContextProvider>
-          <Header />
+          {/* <Header /> */}
           <DrawerHeader />
-
+<DrawerHeader />
           {children}
         </ThemeModeContextProvider>
         <TanstackDevtools

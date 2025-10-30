@@ -1,23 +1,9 @@
-import { eq, useLiveQuery } from "@tanstack/react-db";
+import { useFilteredLecturesInSlot } from "@/hooks/useFilteredLecturesInSlot";
 import LectureSlot from "./LectureSlot";
-import { useCollections } from "@/db-collections/providers/useCollections";
 
 function Slot({ slotId }: { slotId: string }) {
-  const { subjectCollection, completeLectureOnlyCollection } = useCollections();
-
-  const { data: orderedCompleteLectures } = useLiveQuery(
-    (q) =>
-      q
-        .from({ item: completeLectureOnlyCollection })
-        .where(({ item }) => eq(item.slotId, slotId))
-        .innerJoin({ subject: subjectCollection }, ({ item, subject }) =>
-          eq(item.subjectId, subject.id),
-        )
-        .orderBy(({ subject }) => subject.name)
-        .select(({ item }) => ({ ...item })),
-    [slotId, completeLectureOnlyCollection, subjectCollection],
-  );
-
+  const orderedCompleteLectures = useFilteredLecturesInSlot(slotId);
+  console.log("Ordered Complete Lectures:", orderedCompleteLectures);
   return (
     <div>
       {orderedCompleteLectures.map((completeLecture) => (
