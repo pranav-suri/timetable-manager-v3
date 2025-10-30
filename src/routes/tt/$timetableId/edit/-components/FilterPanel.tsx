@@ -6,11 +6,11 @@ import {
   Typography,
   Button,
   Box,
-  FormControlLabel,
-  Checkbox,
   Stack,
   Divider,
   Alert,
+  Autocomplete,
+  TextField,
 } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 
@@ -34,10 +34,6 @@ export function FilterPanel({ className }: FilterPanelProps) {
     subjectIds,
     subdivisionIds,
     classroomIds,
-    toggleTeacherId,
-    toggleSubjectId,
-    toggleSubdivisionId,
-    toggleClassroomId,
     clearAllFilters,
     hasActiveFilters,
   } = useLectureSlotFiltersStore();
@@ -119,28 +115,25 @@ export function FilterPanel({ className }: FilterPanelProps) {
         {/* Teacher Filter */}
         {allTeachers.length > 0 && (
           <>
-            <Box>
-              <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-                Teachers ({teacherIds.length})
-              </Typography>
-              <Stack spacing={0.5}>
-                {allTeachers.map((teacher) => (
-                  <FormControlLabel
-                    key={teacher.id}
-                    control={
-                      <Checkbox
-                        size="small"
-                        checked={teacherIds.includes(teacher.id)}
-                        onChange={() => toggleTeacherId(teacher.id)}
-                      />
-                    }
-                    label={
-                      <Typography variant="body2">{teacher.name}</Typography>
-                    }
-                  />
-                ))}
-              </Stack>
-            </Box>
+            <Autocomplete
+              multiple
+              options={allTeachers}
+              getOptionLabel={(option) => option.name}
+              value={allTeachers.filter((t) => teacherIds.includes(t.id))}
+              onChange={(_, newValue) => {
+                const newIds = newValue.map((item) => item.id);
+                useLectureSlotFiltersStore.setState({ teacherIds: newIds });
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Teachers"
+                  size="small"
+                  placeholder="Search teachers..."
+                />
+              )}
+              sx={{ width: "100%" }}
+            />
             <Divider />
           </>
         )}
@@ -148,28 +141,25 @@ export function FilterPanel({ className }: FilterPanelProps) {
         {/* Subject Filter */}
         {allSubjects.length > 0 && (
           <>
-            <Box>
-              <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-                Subjects ({subjectIds.length})
-              </Typography>
-              <Stack spacing={0.5}>
-                {allSubjects.map((subject) => (
-                  <FormControlLabel
-                    key={subject.id}
-                    control={
-                      <Checkbox
-                        size="small"
-                        checked={subjectIds.includes(subject.id)}
-                        onChange={() => toggleSubjectId(subject.id)}
-                      />
-                    }
-                    label={
-                      <Typography variant="body2">{subject.name}</Typography>
-                    }
-                  />
-                ))}
-              </Stack>
-            </Box>
+            <Autocomplete
+              multiple
+              options={allSubjects}
+              getOptionLabel={(option) => option.name}
+              value={allSubjects.filter((s) => subjectIds.includes(s.id))}
+              onChange={(_, newValue) => {
+                const newIds = newValue.map((item) => item.id);
+                useLectureSlotFiltersStore.setState({ subjectIds: newIds });
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Subjects"
+                  size="small"
+                  placeholder="Search subjects..."
+                />
+              )}
+              sx={{ width: "100%" }}
+            />
             <Divider />
           </>
         )}
@@ -177,58 +167,52 @@ export function FilterPanel({ className }: FilterPanelProps) {
         {/* Subdivision Filter */}
         {allSubdivisions.length > 0 && (
           <>
-            <Box>
-              <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-                Subdivisions ({subdivisionIds.length})
-              </Typography>
-              <Stack spacing={0.5}>
-                {allSubdivisions.map((subdivision) => (
-                  <FormControlLabel
-                    key={subdivision.id}
-                    control={
-                      <Checkbox
-                        size="small"
-                        checked={subdivisionIds.includes(subdivision.id)}
-                        onChange={() => toggleSubdivisionId(subdivision.id)}
-                      />
-                    }
-                    label={
-                      <Typography variant="body2">
-                        {subdivision.name}
-                      </Typography>
-                    }
-                  />
-                ))}
-              </Stack>
-            </Box>
+            <Autocomplete
+              multiple
+              options={allSubdivisions}
+              getOptionLabel={(option) => option.name}
+              value={allSubdivisions.filter((s) =>
+                subdivisionIds.includes(s.id),
+              )}
+              onChange={(_, newValue) => {
+                const newIds = newValue.map((item) => item.id);
+                useLectureSlotFiltersStore.setState({ subdivisionIds: newIds });
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Subdivisions"
+                  size="small"
+                  placeholder="Search subdivisions..."
+                />
+              )}
+              sx={{ width: "100%" }}
+            />
             <Divider />
           </>
         )}
 
         {/* Classroom Filter */}
         {allClassrooms.length > 0 && (
-          <Box>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-              Classrooms ({classroomIds.length})
-            </Typography>
-            <Stack spacing={0.5}>
-              {allClassrooms.map((classroom) => (
-                <FormControlLabel
-                  key={classroom.id}
-                  control={
-                    <Checkbox
-                      size="small"
-                      checked={classroomIds.includes(classroom.id)}
-                      onChange={() => toggleClassroomId(classroom.id)}
-                    />
-                  }
-                  label={
-                    <Typography variant="body2">{classroom.name}</Typography>
-                  }
-                />
-              ))}
-            </Stack>
-          </Box>
+          <Autocomplete
+            multiple
+            options={allClassrooms}
+            getOptionLabel={(option) => option.name}
+            value={allClassrooms.filter((c) => classroomIds.includes(c.id))}
+            onChange={(_, newValue) => {
+              const newIds = newValue.map((item) => item.id);
+              useLectureSlotFiltersStore.setState({ classroomIds: newIds });
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Classrooms"
+                size="small"
+                placeholder="Search classrooms..."
+              />
+            )}
+            sx={{ width: "100%" }}
+          />
         )}
       </Stack>
 
