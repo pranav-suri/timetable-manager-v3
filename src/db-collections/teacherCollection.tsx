@@ -26,21 +26,19 @@ export function getTeacherCollection({
 
       onInsert: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
-        await trpcClient.teachers.add.mutate(modified);
-        // return { refetch: false };
+        await trpcClient.teachers.add.mutate({ ...modified, timetableId });
       },
 
       onUpdate: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
         await trpcClient.teachers.update.mutate(modified);
-        // return { refetch: false };
       },
+
       onDelete: async ({ transaction }) => {
         const { original } = transaction.mutations[0];
         await trpcClient.teachers.delete.mutate({
           id: original.id,
         });
-        // return { refetch: false };
       },
     }),
   );

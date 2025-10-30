@@ -26,15 +26,14 @@ export function getLectureCollection({
 
       onInsert: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
-        await trpcClient.lectures.add.mutate(modified);
-        // return { refetch: false };
+        await trpcClient.lectures.add.mutate({ ...modified, timetableId });
       },
 
       onUpdate: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
         await trpcClient.lectures.update.mutate(modified);
-        // return { refetch: false };
       },
+
       onDelete: async ({ transaction }) => {
         const { original } = transaction.mutations[0];
         await trpcClient.lectures.delete.mutate({
@@ -42,8 +41,6 @@ export function getLectureCollection({
         });
         // Invalidation done to refetch lectureClassrooms and lectureSubdivisions
         // TODO: Optimize this to only refetch the above 2 collections
-        queryClient.invalidateQueries();
-        // return { refetch: false };
       },
     }),
   );
