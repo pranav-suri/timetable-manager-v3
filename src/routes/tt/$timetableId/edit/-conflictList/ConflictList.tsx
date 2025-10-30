@@ -8,6 +8,7 @@ import {
   CardContent,
   Typography,
 } from "@mui/material";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   ClassroomInfo,
@@ -55,7 +56,7 @@ export function ConflictList() {
   const conflictSlots = Object.entries(combinedConflicts);
 
   if (conflictSlots.length === 0) {
-    return <Typography>No conflicts found. Well done!</Typography>;
+    return <NoConflicts />;
   }
 
   return (
@@ -78,6 +79,37 @@ export function ConflictList() {
           </AccordionDetails>
         </Accordion>
       ))}
+    </Box>
+  );
+}
+
+export function NoConflicts() {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "100%",
+        py: 6,
+        textAlign: "center",
+      }}
+    >
+      <CheckCircleIcon
+        sx={{
+          fontSize: 80,
+          color: "success.light",
+          mb: 2,
+          opacity: 0.7,
+        }}
+      />
+      <Typography variant="h5" sx={{ fontWeight: 600, mb: 1 }}>
+        No Conflicts Found
+      </Typography>
+      <Typography variant="body2" color="textSecondary">
+        Timetable is perfectly scheduled.
+      </Typography>
     </Box>
   );
 }

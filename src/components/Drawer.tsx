@@ -32,6 +32,7 @@ export function DrawerRight({
         "& .MuiDrawer-paper": {
           width: drawerwidth,
         },
+        zIndex: theme.zIndex.drawer,
       }}
       variant="persistent"
       anchor="right"

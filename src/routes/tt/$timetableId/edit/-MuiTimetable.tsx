@@ -37,8 +37,7 @@ export default function MuiTimetable({
       <FilterPanel />
 
       {/* Timetable Grid */}
-
-      <TableContainer component={Paper} className="printable">
+      <TableContainer component={Paper}>
         <Table size="small">
           <TableHead>
             <TableRow>

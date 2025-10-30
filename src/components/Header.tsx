@@ -32,7 +32,6 @@ export default function Header() {
   const { mutate: logout } = useMutation({
     ...trpc.auth.logout.mutationOptions(),
     onSuccess: () => {
-      localLogout();
       navigate({ to: "/login" });
     },
   });
@@ -47,6 +46,7 @@ export default function Header() {
 
   const handleLogout = () => {
     handleClose();
+    localLogout();
     logout();
   };
 
@@ -58,11 +58,9 @@ export default function Header() {
     <AppBar
       position="fixed"
       sx={{
-        padding: "0.5rem",
         backdropFilter: "blur(16px)",
         backgroundColor: `hsla(0, 0%, ${themeMode === "dark" ? "30%" : "60%"}, 50%)`,
       }}
-      color="transparent"
     >
       <Toolbar>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>

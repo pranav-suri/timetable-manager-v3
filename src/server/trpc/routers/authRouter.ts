@@ -98,13 +98,9 @@ export const authRouter = createTRPCRouter({
   // Logout
   logout: authedProcedure.mutation(async ({ ctx }) => {
     if (ctx.sessionToken) {
-      await ctx.prisma.session
-        .delete({
-          where: { token: ctx.sessionToken },
-        })
-        .catch(() => {
-          // Session might not exist, ignore error
-        });
+      await ctx.prisma.session.delete({
+        where: { token: ctx.sessionToken },
+      });
     }
     return { success: true };
   }),

@@ -5,9 +5,11 @@
  */
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { Box } from "@mui/material";
 import { CollectionsProvider } from "@/db-collections/providers/CollectionProvider";
 import { useCollections } from "@/db-collections/providers/useCollections";
 import { RequireAuth } from "@/components/RequireAuth";
+import { TimetableNavigationTabs } from "@/components/TimetableNavigationTabs";
 
 export const Route = createFileRoute("/tt/$timetableId")({
   component: () => (
@@ -29,6 +31,7 @@ function RouteComponent() {
 
 // Define a new component that handles the loading state
 function CollectionsLoader() {
+  const { timetableId } = Route.useParams();
   const [allCollectionsReady, setAllCollectionsReady] =
     useState<boolean>(false);
 
@@ -52,5 +55,10 @@ function CollectionsLoader() {
   if (!allCollectionsReady) return <>Loading Collections.</>;
 
   // Render the child routes once collections are ready
-  return <Outlet />;
+  return (
+    <Box>
+      <TimetableNavigationTabs timetableId={timetableId} />
+      <Outlet />
+    </Box>
+  );
 }

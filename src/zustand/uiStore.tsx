@@ -1,17 +1,16 @@
 // src/zustand/uiStore.ts
+import type { PaletteMode } from "@mui/material";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-type ThemeMode = "light" | "dark";
-
 interface UiState {
-  themeMode: ThemeMode;
-  setThemeMode: (mode: ThemeMode) => void;
+  themeMode: PaletteMode;
+  setThemeMode: (mode: PaletteMode) => void;
   toggleThemeMode: () => void;
 }
 
 // Function to get the system preference
-const getSystemTheme = (): ThemeMode => {
+const getSystemTheme = (): PaletteMode => {
   if (
     typeof window !== "undefined" &&
     window.matchMedia("(prefers-color-scheme: dark)").matches

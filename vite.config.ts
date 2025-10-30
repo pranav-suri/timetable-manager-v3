@@ -16,7 +16,7 @@ const config = defineConfig({
     tanstackStart({
       customViteReactPlugin: true,
       spa: {
-        enabled: true, // This turns off SSR
+        enabled: true, // True turns off SSR
       },
     }),
     viteReact({

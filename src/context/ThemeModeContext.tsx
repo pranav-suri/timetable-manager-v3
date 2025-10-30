@@ -1,6 +1,7 @@
-import React, { createContext, useState } from "react";
+import React, { createContext } from "react";
 import { ThemeProvider, createTheme } from "@mui/material";
 import type { PaletteMode } from "@mui/material";
+import { useUiStore } from "src/zustand/uiStore";
 
 type ThemeModeContextType = {
   themeMode: PaletteMode;
@@ -42,10 +43,15 @@ const getTheme = (mode: PaletteMode) => {
 const ThemeModeContextProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [themeMode, setThemeMode] = useState<PaletteMode>("light");
+  const { themeMode, setThemeMode } = useUiStore();
+  const setThemeModeWrapper = setThemeMode as any;
 
   return (
-    <ThemeModeContext.Provider value={{ themeMode, setThemeMode }}>
+    <ThemeModeContext.Provider
+      // Required Wrapper to pass zustand function to context
+      // it required Dispatch functions
+      value={{ themeMode, setThemeMode: setThemeModeWrapper }}
+    >
       <ThemeProvider theme={getTheme(themeMode)}>{children}</ThemeProvider>
     </ThemeModeContext.Provider>
   );
