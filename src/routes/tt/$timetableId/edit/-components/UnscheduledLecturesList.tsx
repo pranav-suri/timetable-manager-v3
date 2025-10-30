@@ -39,13 +39,17 @@ export function UnscheduledLecturesList() {
     [lectureSlotCollection]
   );
 
-  // Filter to only unscheduled lectures (those with no lecture slots)
-  const scheduledLectureIds = new Set(
-    allLectureSlots.map((ls) => ls.lectureId)
-  );
+  // Count lecture slots per lecture
+  const lectureSlotCounts = new Map<string, number>();
+  allLectureSlots.forEach((ls) => {
+    lectureSlotCounts.set(ls.lectureId, (lectureSlotCounts.get(ls.lectureId) || 0) + 1);
+  });
 
-  const unscheduledLectures =
-    allLectures.filter((lecture) => !scheduledLectureIds.has(lecture.id));
+  // Filter to only unscheduled lectures (those with slot count < duration * count)
+  const unscheduledLectures = allLectures.filter((lecture) => {
+    const slotCount = lectureSlotCounts.get(lecture.id) || 0;
+    return slotCount < lecture.duration * lecture.count;
+  });
 
   if (unscheduledLectures.length === 0) {
     return (
