@@ -85,14 +85,14 @@ function RouteComponent() {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h3" component="h1" gutterBottom>
-        Groups Management
+        Subject Type Management
       </Typography>
 
       {/* Group Form */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Typography variant="h5" component="h2" gutterBottom>
-            {editingId ? "Edit Group" : "Add New Group"}
+            {editingId ? "Edit Subject Type" : "Add New Subject Type"}
           </Typography>
 
           <Box
@@ -117,7 +117,7 @@ function RouteComponent() {
               children={(field) => (
                 <TextField
                   fullWidth
-                  label="Group Name"
+                  label="Subject Type"
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
@@ -130,7 +130,7 @@ function RouteComponent() {
                       ? field.state.meta.errors.join(", ")
                       : ""
                   }
-                  placeholder="Enter group name"
+                  placeholder="Enter Subject Type"
                 />
               )}
             />
@@ -165,7 +165,7 @@ function RouteComponent() {
                       ? "Saving..."
                       : editingId
                         ? "Update"
-                        : "Add Group"}
+                        : "Add Subject Type"}
                   </Button>
                 )}
               />
@@ -181,7 +181,7 @@ function RouteComponent() {
       </Card>
 
       {/* Groups List */}
-      <GroupList
+      <SubjectTypeList
         groups={groups}
         handleEdit={handleEdit}
         handleDelete={handleDelete}
@@ -191,7 +191,7 @@ function RouteComponent() {
 }
 
 /* ---------------- Group List Component ---------------- */
-function GroupList({
+function SubjectTypeList({
   groups,
   handleEdit,
   handleDelete,
@@ -204,7 +204,7 @@ function GroupList({
     <Card>
       <CardContent>
         <Typography variant="h5" component="h2" gutterBottom>
-          Existing Groups
+          Existing Subject Types
         </Typography>
 
         {groups.length > 0 ? (
