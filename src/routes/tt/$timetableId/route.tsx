@@ -7,9 +7,14 @@ import { Outlet, createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { CollectionsProvider } from "@/db-collections/providers/CollectionProvider";
 import { useCollections } from "@/db-collections/providers/useCollections";
+import { RequireAuth } from "@/components/RequireAuth";
 
 export const Route = createFileRoute("/tt/$timetableId")({
-  component: RouteComponent,
+  component: () => (
+    <RequireAuth>
+      <RouteComponent />
+    </RequireAuth>
+  ),
   ssr: false,
 });
 
@@ -37,6 +42,7 @@ function CollectionsLoader() {
       for (const col of Object.values(collections)) {
         col.preload();
         await col.stateWhenReady();
+        // console.log(col.id, await col.toArrayWhenReady())
       }
       setAllCollectionsReady(true);
     };

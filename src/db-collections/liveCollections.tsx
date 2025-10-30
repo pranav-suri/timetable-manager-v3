@@ -11,6 +11,7 @@ import type { getSubjectCollection } from "./subjectCollection";
 import type { getLectureClassroomCollection } from "./lectureClassroomCollection";
 
 type GetLiveCollectionsInput = {
+  timetableId: string;
   lectureSlotCollection: ReturnType<typeof getLectureSlotCollection>;
   lectureCollection: ReturnType<typeof getLectureCollection>;
   groupCollection: ReturnType<typeof getGroupCollection>;
@@ -22,6 +23,7 @@ type GetLiveCollectionsInput = {
 };
 
 export function getLiveCollections({
+  timetableId,
   lectureSlotCollection,
   lectureCollection,
   groupCollection,
@@ -31,9 +33,9 @@ export function getLiveCollections({
 }: GetLiveCollectionsInput) {
   const completeLectureOnlyCollection = createCollection(
     liveQueryCollectionOptions({
-      id: "completeLectureOnly",
+      id: "completeLectureOnly:" + timetableId,
       query: (q) => {
-        const completeLectureWithoutGroup = q
+        const completeLecture = q
           .from({ lecture: lectureCollection })
           .innerJoin(
             { lectureSlot: lectureSlotCollection },
@@ -42,22 +44,16 @@ export function getLiveCollections({
           .innerJoin({ subject: subjectCollection }, ({ lecture, subject }) =>
             eq(lecture.subjectId, subject.id),
           )
-          .select(({ lecture, lectureSlot, subject }) => ({
+          .innerJoin({ group: groupCollection }, ({ subject, group }) =>
+            eq(subject.groupId, group.id),
+          )
+          .select(({ lecture, lectureSlot, subject, group }) => ({
             lectureSlotId: lectureSlot.id,
             slotId: lectureSlot.slotId,
             lectureId: lecture.id,
             subjectId: subject.id,
             teacherId: lecture.teacherId,
             groupId: subject.groupId,
-          }));
-
-        const completeLecture = q
-          .from({ item: completeLectureWithoutGroup })
-          .innerJoin({ group: groupCollection }, ({ item, group }) =>
-            eq(item.groupId, group.id),
-          )
-          .select(({ item, group }) => ({
-            ...item,
             allowSimultaneous: group.allowSimultaneous,
           }));
 
@@ -70,7 +66,7 @@ export function getLiveCollections({
 
   const lectureWithSubdivisionCollection = createCollection(
     liveQueryCollectionOptions({
-      id: "lectureWithSubdivision",
+      id: "lectureWithSubdivision:" + timetableId,
       query: (q) =>
         q.from({ completeLectureOnly: completeLectureOnlyCollection }).join(
           // No inner join here because we want lectures that may not have any subdivisions allotted
@@ -83,7 +79,7 @@ export function getLiveCollections({
 
   const lectureWithClassroomCollection = createCollection(
     liveQueryCollectionOptions({
-      id: "lectureWithClassroom",
+      id: "lectureWithClassroom:" + timetableId,
       query: (q) =>
         q.from({ completeLectureOnly: completeLectureOnlyCollection }).join(
           // No inner join here because we want lectures that may not have any classroom allotted

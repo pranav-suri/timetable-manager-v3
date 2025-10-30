@@ -1,10 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { nanoid } from "nanoid";
-import { eq, useLiveQuery } from "@tanstack/react-db";
+import { useLiveQuery } from "@tanstack/react-db";
 import { useForm } from "@tanstack/react-form";
 import {
-  Alert,
   Box,
   Button,
   Card,
@@ -13,47 +12,38 @@ import {
   Chip,
   Container,
   FormControl,
-  IconButton,
   InputLabel,
-  List,
-  ListItem,
-  ListItemSecondaryAction,
-  ListItemText,
   MenuItem,
   OutlinedInput,
   Select,
   TextField,
   Typography,
 } from "@mui/material";
-import {
-  Add as AddIcon,
-  Delete as DeleteIcon,
-  Edit as EditIcon,
-} from "@mui/icons-material";
-import type { Lecture, Subject, Teacher } from "generated/prisma/client";
+import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
+import { LectureList } from "./-lecturesComponents";
+import type { Classroom, Lecture, Subdivision } from "generated/prisma/client";
+import type {
+  InsertLectureParams,
+  UpdateLectureParams,
+} from "@/db-collections/transactions";
 import { useCollections } from "@/db-collections/providers/useCollections";
+import {
+  useLectureInsert,
+  useLectureUpdate,
+} from "@/db-collections/transactions";
 
 export const Route = createFileRoute("/tt/$timetableId/lectures")({
   component: RouteComponent,
 });
 
-function RouteComponent() {
+function useCollectionQueries() {
   const {
-    lectureCollection,
     teacherCollection,
     subjectCollection,
     subdivisionCollection,
     classroomCollection,
-    lectureSubdivisionCollection,
-    lectureClassroomCollection,
   } = useCollections();
-  const { timetableId } = Route.useParams();
-  const [editingId, setEditingId] = useState<string | null>(null);
-
-  const { data: lectures } = useLiveQuery(
-    (q) => q.from({ lectureCollection }),
-    [lectureCollection],
-  );
 
   const { data: teachers } = useLiveQuery(
     (q) => q.from({ teacherCollection }),
@@ -75,6 +65,22 @@ function RouteComponent() {
     [classroomCollection],
   );
 
+  return { teachers, subjects, subdivisions, classrooms };
+}
+
+function useLectureHandlers() {
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const { timetableId } = Route.useParams();
+  const insertLecture = useLectureInsert();
+  const updateLecture = useLectureUpdate();
+  const {
+    lectureCollection,
+    subdivisionCollection,
+    classroomCollection,
+    lectureSubdivisionCollection,
+    lectureClassroomCollection,
+  } = useCollections();
+
   const form = useForm({
     defaultValues: {
       teacherId: "",
@@ -92,14 +98,20 @@ function RouteComponent() {
         timetableId,
         count: value.count,
         duration: value.duration,
-        createdAt: new Date(),
-      };
-      lectureCollection.insert(newLecture);
+        classroomIds: value.classroomIds,
+        subdivisionIds: value.subdivisionIds,
+      } satisfies InsertLectureParams;
+      insertLecture(newLecture);
       form.reset();
     },
   });
 
-  const handleEdit = (lecture: Lecture) => {
+  const handleEdit = (input: {
+    lecture: Lecture;
+    classroomsOfLecture: Classroom[];
+    subdivisionsOfLecture: Subdivision[];
+  }) => {
+    const { lecture, classroomsOfLecture, subdivisionsOfLecture } = input;
     setEditingId(lecture.id);
     form.setFieldValue("teacherId", lecture.teacherId);
     form.setFieldValue("subjectId", lecture.subjectId);
@@ -107,25 +119,35 @@ function RouteComponent() {
     form.setFieldValue("duration", lecture.duration);
     // Note: For editing, we'd need to fetch the related subdivisions and classrooms
     // For now, we'll just reset them to empty arrays
-    form.setFieldValue("subdivisionIds", []);
-    form.setFieldValue("classroomIds", []);
+    form.setFieldValue(
+      "subdivisionIds",
+      subdivisionsOfLecture.map((ls) => ls.id),
+    );
+    form.setFieldValue(
+      "classroomIds",
+      classroomsOfLecture.map((lc) => lc.id),
+    );
   };
 
   const handleUpdate = () => {
     if (editingId) {
-      lectureCollection.update(editingId, (draft) => {
-        draft.teacherId = form.state.values.teacherId;
-        draft.subjectId = form.state.values.subjectId;
-        draft.count = form.state.values.count;
-        draft.duration = form.state.values.duration;
-      });
+      const updatedLecture = {
+        id: editingId,
+        teacherId: form.state.values.teacherId,
+        subjectId: form.state.values.subjectId,
+        count: form.state.values.count,
+        duration: form.state.values.duration,
+        classroomIds: form.state.values.classroomIds,
+        subdivisionIds: form.state.values.subdivisionIds,
+      } satisfies UpdateLectureParams;
+      updateLecture(updatedLecture);
       setEditingId(null);
       form.reset();
     }
   };
 
-  const handleDelete = (id: string) => {
-    lectureCollection.delete(id);
+  const handleDelete = async (id: string) => {
+    await lectureCollection.delete(id).isPersisted.promise;
     lectureSubdivisionCollection.utils.refetch();
     lectureClassroomCollection.utils.refetch();
   };
@@ -135,26 +157,41 @@ function RouteComponent() {
     form.reset();
   };
 
-  // Helper functions to get names
-  const getTeacherName = (teacherId: string) => {
-    const teacher = teachers.find((t) => t.id === teacherId);
-    return teacher ? teacher.name : "Unknown Teacher";
-  };
-
-  const getSubjectName = (subjectId: string) => {
-    const subject = subjects.find((s) => s.id === subjectId);
-    return subject ? subject.name : "Unknown Subject";
-  };
-
   const getSubdivisionName = (subdivisionId: string) => {
-    const subdivision = subdivisions.find((s) => s.id === subdivisionId);
+    const subdivision = subdivisionCollection.get(subdivisionId);
     return subdivision ? subdivision.name : "Unknown Subdivision";
   };
 
   const getClassroomName = (classroomId: string) => {
-    const classroom = classrooms.find((c) => c.id === classroomId);
+    const classroom = classroomCollection.get(classroomId);
     return classroom ? classroom.name : "Unknown Classroom";
   };
+
+  return {
+    form,
+    handleEdit,
+    handleUpdate,
+    handleDelete,
+    cancelEdit,
+    getSubdivisionName,
+    getClassroomName,
+    editingId,
+  };
+}
+
+function RouteComponent() {
+  const { classrooms, subdivisions, subjects, teachers } =
+    useCollectionQueries();
+  const {
+    form,
+    handleEdit,
+    handleUpdate,
+    handleDelete,
+    cancelEdit,
+    getSubdivisionName,
+    getClassroomName,
+    editingId,
+  } = useLectureHandlers();
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -313,80 +350,88 @@ function RouteComponent() {
             />
 
             {/* Subdivisions Selection */}
-            <FormControl fullWidth>
-              <InputLabel>Subdivisions</InputLabel>
-              <Select
-                multiple
-                value={form.state.values.subdivisionIds}
-                onChange={(e) =>
-                  form.setFieldValue(
-                    "subdivisionIds",
-                    e.target.value as string[],
-                  )
-                }
-                input={<OutlinedInput label="Subdivisions" />}
-                renderValue={(selected) => (
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                    {selected.map((value) => (
-                      <Chip
-                        key={value}
-                        label={getSubdivisionName(value)}
-                        size="small"
-                      />
+            <form.Field name="subdivisionIds">
+              {(field) => (
+                <FormControl fullWidth>
+                  <InputLabel>Subdivisions</InputLabel>
+                  <Select
+                    multiple
+                    value={field.state.value}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      field.handleChange(
+                        typeof value === "string" ? value.split(",") : value,
+                      );
+                    }}
+                    input={<OutlinedInput label="Subdivisions" />}
+                    renderValue={(selected) => (
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                        {selected.map((value) => (
+                          <Chip
+                            key={value}
+                            label={getSubdivisionName(value)}
+                            size="small"
+                          />
+                        ))}
+                      </Box>
+                    )}
+                  >
+                    {subdivisions.map((subdivision) => (
+                      <MenuItem key={subdivision.id} value={subdivision.id}>
+                        <Checkbox
+                          checked={field.state.value.includes(subdivision.id)}
+                        />
+                        {subdivision.name}
+                      </MenuItem>
                     ))}
-                  </Box>
-                )}
-              >
-                {subdivisions.map((subdivision) => (
-                  <MenuItem key={subdivision.id} value={subdivision.id}>
-                    <Checkbox
-                      checked={
-                        form.state.values.subdivisionIds.indexOf(
-                          subdivision.id,
-                        ) > -1
-                      }
-                    />
-                    {subdivision.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+                  </Select>
+                </FormControl>
+              )}
+            </form.Field>
 
             {/* Classrooms Selection */}
-            <FormControl fullWidth>
-              <InputLabel>Classrooms</InputLabel>
-              <Select
-                multiple
-                value={form.state.values.classroomIds}
-                onChange={(e) =>
-                  form.setFieldValue("classroomIds", e.target.value as string[])
-                }
-                input={<OutlinedInput label="Classrooms" />}
-                renderValue={(selected) => (
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                    {selected.map((value) => (
-                      <Chip
-                        key={value}
-                        label={getClassroomName(value)}
-                        size="small"
-                      />
+            <form.Field name="classroomIds">
+              {(field) => (
+                <FormControl fullWidth>
+                  <InputLabel>Classrooms</InputLabel>
+                  <Select
+                    multiple
+                    value={form.state.values.classroomIds}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      field.handleChange(
+                        typeof value === "string" ? value.split(",") : value,
+                      );
+                    }}
+                    input={<OutlinedInput label="Classrooms" />}
+                    renderValue={(selected) => (
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                        {selected.map((value) => (
+                          <Chip
+                            key={value}
+                            label={getClassroomName(value)}
+                            size="small"
+                          />
+                        ))}
+                      </Box>
+                    )}
+                  >
+                    {classrooms.map((classroom) => (
+                      <MenuItem key={classroom.id} value={classroom.id}>
+                        <Checkbox
+                          checked={
+                            form.state.values.classroomIds.indexOf(
+                              classroom.id,
+                            ) > -1
+                          }
+                        />
+                        {classroom.name}
+                      </MenuItem>
                     ))}
-                  </Box>
-                )}
-              >
-                {classrooms.map((classroom) => (
-                  <MenuItem key={classroom.id} value={classroom.id}>
-                    <Checkbox
-                      checked={
-                        form.state.values.classroomIds.indexOf(classroom.id) >
-                        -1
-                      }
-                    />
-                    {classroom.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+                  </Select>
+                </FormControl>
+              )}
+            </form.Field>
 
             <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
               <form.Subscribe
@@ -418,151 +463,7 @@ function RouteComponent() {
       </Card>
 
       {/* Lectures List */}
-      <LectureList
-        lectures={lectures}
-        teachers={teachers}
-        subjects={subjects}
-        handleEdit={handleEdit}
-        handleDelete={handleDelete}
-      />
+      <LectureList handleEdit={handleEdit} handleDelete={handleDelete} />
     </Container>
-  );
-}
-
-/* ---------------- Lecture List Component ---------------- */
-function LectureList({
-  lectures,
-  teachers,
-  subjects,
-  handleEdit,
-  handleDelete,
-}: {
-  lectures: Lecture[];
-  teachers: Teacher[];
-  subjects: Subject[];
-  handleEdit: (lecture: Lecture) => void;
-  handleDelete: (id: string) => void;
-}) {
-  const { classroomCollection, subdivisionCollection } = useCollections();
-  const getTeacherName = (teacherId: string) => {
-    const teacher = teachers.find((t) => t.id === teacherId);
-    return teacher ? teacher.name : "Unknown Teacher";
-  };
-
-  const getSubjectName = (subjectId: string) => {
-    const subject = subjects.find((s) => s.id === subjectId);
-    return subject ? subject.name : "Unknown Subject";
-  };
-
-  // Create a component for each lecture item to fetch its relationships
-  const LectureItem = ({ lecture }: { lecture: Lecture }) => {
-    const { lectureSubdivisionCollection, lectureClassroomCollection } =
-      useCollections();
-
-    // Fetch related subdivisions for this lecture
-    const { data: lectureSubdivisions } = useLiveQuery(
-      (q) =>
-        q
-          .from({ lectureSubdivision: lectureSubdivisionCollection })
-          .where(({ lectureSubdivision }) =>
-            eq(lectureSubdivision.lectureId, lecture.id),
-          )
-          .innerJoin(
-            { subdivision: subdivisionCollection },
-            ({ lectureSubdivision, subdivision }) =>
-              eq(lectureSubdivision.subdivisionId, subdivision.id),
-          )
-          .select(({ subdivision }) => ({ ...subdivision }))
-          .orderBy(({ subdivision }) => subdivision.name),
-      [lecture.id, lectureSubdivisionCollection],
-    );
-
-    // Fetch related classrooms for this lecture
-    const { data: lectureClassrooms } = useLiveQuery(
-      (q) =>
-        q
-          .from({ lectureClassroom: lectureClassroomCollection })
-          .where(({ lectureClassroom }) =>
-            eq(lectureClassroom.lectureId, lecture.id),
-          )
-          .innerJoin(
-            { classroom: classroomCollection },
-            ({ lectureClassroom, classroom }) =>
-              eq(lectureClassroom.classroomId, classroom.id),
-          )
-          .select(({ classroom }) => ({ ...classroom }))
-          .orderBy(({ classroom }) => classroom.name),
-      [lecture.id, lectureClassroomCollection],
-    );
-
-    const subdivisionNames = lectureSubdivisions.map((s) => s.name).join(", ");
-    const classroomNames = lectureClassrooms.map((c) => c.name).join(", ");
-
-    return (
-      <ListItem key={lecture.id} divider>
-        <ListItemText
-          primary={`${getSubjectName(lecture.subjectId)} - ${getTeacherName(lecture.teacherId)}`}
-          secondary={
-            <Box>
-              <Typography variant="body2" component="span">
-                Count: {lecture.count}, Duration: {lecture.duration} slots
-              </Typography>
-              {subdivisionNames && (
-                <Typography variant="caption" display="block" sx={{ mt: 1 }}>
-                  Subdivisions: {subdivisionNames}
-                </Typography>
-              )}
-              {classroomNames && (
-                <Typography variant="caption" display="block">
-                  Classrooms: {classroomNames}
-                </Typography>
-              )}
-            </Box>
-          }
-          primaryTypographyProps={{ variant: "h6" }}
-        />
-        <ListItemSecondaryAction>
-          <IconButton
-            edge="end"
-            aria-label="edit"
-            onClick={() => handleEdit(lecture)}
-            sx={{ mr: 1 }}
-            color="primary"
-          >
-            <EditIcon />
-          </IconButton>
-          <IconButton
-            edge="end"
-            aria-label="delete"
-            onClick={() => handleDelete(lecture.id)}
-            color="error"
-          >
-            <DeleteIcon />
-          </IconButton>
-        </ListItemSecondaryAction>
-      </ListItem>
-    );
-  };
-
-  return (
-    <Card>
-      <CardContent>
-        <Typography variant="h5" component="h2" gutterBottom>
-          Existing Lectures
-        </Typography>
-
-        {lectures.length > 0 ? (
-          <List>
-            {lectures.map((lecture) => (
-              <LectureItem key={lecture.id} lecture={lecture} />
-            ))}
-          </List>
-        ) : (
-          <Alert severity="info" sx={{ mt: 2 }}>
-            No lectures found. Add your first lecture above.
-          </Alert>
-        )}
-      </CardContent>
-    </Card>
   );
 }

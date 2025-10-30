@@ -1,5 +1,6 @@
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
-import { createCollection } from "@tanstack/db";
+import { createCollection } from "@tanstack/react-db";
+import { SubdivisionUnavailableSchema } from "generated/zod";
 import type { CollectionInput } from "./providers/CollectionProvider";
 
 export function getSubdivisionUnavailableCollection({
@@ -12,6 +13,7 @@ export function getSubdivisionUnavailableCollection({
     queryCollectionOptions({
       id: "subdivisionUnavailable:" + timetableId,
       startSync: true,
+      schema: SubdivisionUnavailableSchema,
       queryKey: trpc.subdivisionUnavailabilities.list.queryKey({ timetableId }),
       queryFn: async () => {
         const { subdivisionUnavailables } =
@@ -25,7 +27,10 @@ export function getSubdivisionUnavailableCollection({
 
       onInsert: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
-        await trpcClient.subdivisionUnavailabilities.add.mutate(modified);
+        await trpcClient.subdivisionUnavailabilities.add.mutate({
+          ...modified,
+          timetableId,
+        });
         // return { refetch: false };
       },
 
@@ -33,6 +38,7 @@ export function getSubdivisionUnavailableCollection({
         const { original } = transaction.mutations[0];
         await trpcClient.subdivisionUnavailabilities.delete.mutate({
           id: original.id,
+          timetableId,
         });
         // return { refetch: false };
       },

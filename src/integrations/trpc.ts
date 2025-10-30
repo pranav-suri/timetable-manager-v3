@@ -17,6 +17,20 @@ export const trpcClient = createTRPCClient<TRPCRouter>({
     httpBatchStreamLink({
       transformer: superjson,
       url: getUrl(),
+      headers() {
+        // Get session token from cookie
+        if (typeof document !== 'undefined') {
+          const token = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('session='))
+            ?.split('=')[1];
+          
+          return {
+            'x-session-token': token || '',
+          };
+        }
+        return {};
+      },
     }),
   ],
 });

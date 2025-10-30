@@ -1,5 +1,6 @@
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
-import { createCollection } from "@tanstack/db";
+import { createCollection } from "@tanstack/react-db";
+import { SubdivisionSchema } from "generated/zod";
 import type { CollectionInput } from "./providers/CollectionProvider";
 
 export function getSubdivisionCollection({
@@ -12,6 +13,7 @@ export function getSubdivisionCollection({
     queryCollectionOptions({
       id: "subdivision:" + timetableId,
       startSync: true,
+      schema: SubdivisionSchema,
       queryKey: trpc.subdivisions.list.queryKey({ timetableId }),
       queryFn: async () => {
         const { subdivisions } = await trpcClient.subdivisions.list.query({

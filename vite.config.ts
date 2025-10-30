@@ -15,9 +15,9 @@ const config = defineConfig({
     tailwindcss(),
     tanstackStart({
       customViteReactPlugin: true,
-      // spa: {
-      //   enabled: true, // This turns off SSR
-      // },
+      spa: {
+        enabled: true, // This turns off SSR
+      },
     }),
     viteReact({
       babel: {

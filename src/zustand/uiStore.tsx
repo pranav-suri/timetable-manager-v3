@@ -1,7 +1,6 @@
 // src/zustand/uiStore.ts
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import { createBoundSelectors } from "./createSelectors";
 
 type ThemeMode = "light" | "dark";
 
@@ -22,7 +21,7 @@ const getSystemTheme = (): ThemeMode => {
   return "light";
 };
 
-export const useUiStoreBase = create<UiState>()(
+export const useUiStore = create<UiState>()(
   // Persist the theme mode in local storage
   persist(
     (set) => ({
@@ -40,5 +39,3 @@ export const useUiStoreBase = create<UiState>()(
     },
   ),
 );
-
-export const useUiStore = createBoundSelectors(useUiStoreBase);

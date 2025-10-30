@@ -1,7 +1,8 @@
 import { z } from "zod";
-import { authedProcedure } from "../init";
+import { authedProcedure, editorProcedure } from "../init";
 import type { TRPCRouterRecord } from "@trpc/server";
 import { zodIdSchema } from "@/server/utils/zodIdSchema";
+import { verifyTimetableOwnership } from "../utils/verifyTimetableOwnership";
 
 export const lectureClassroomsRouter = {
   list: authedProcedure
@@ -9,6 +10,10 @@ export const lectureClassroomsRouter = {
     .query(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { timetableId } = input;
+
+      // Verify timetable ownership
+      await verifyTimetableOwnership(ctx, timetableId);
+
       const lectures = await prisma.lecture.findMany({
         where: { timetableId },
       });
@@ -17,27 +22,36 @@ export const lectureClassroomsRouter = {
       });
       return { lectureClassrooms };
     }),
-  add: authedProcedure
+  add: editorProcedure
     .input(
       z.object({
         id: zodIdSchema.optional(),
         classroomId: zodIdSchema,
         lectureId: zodIdSchema,
+        timetableId: zodIdSchema,
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
-      const { id, classroomId, lectureId } = input;
+      const { id, classroomId, lectureId, timetableId } = input;
+
+      // Verify timetable ownership
+      await verifyTimetableOwnership(ctx, timetableId);
+
       const lectureClassroom = await prisma.lectureClassroom.create({
         data: { id, classroomId, lectureId },
       });
       return { lectureClassroom };
     }),
-  delete: authedProcedure
-    .input(z.object({ id: zodIdSchema }))
+  delete: editorProcedure
+    .input(z.object({ id: zodIdSchema, timetableId: zodIdSchema }))
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
-      const { id } = input;
+      const { id, timetableId } = input;
+
+      // Verify timetable ownership
+      await verifyTimetableOwnership(ctx, timetableId);
+
       const lectureClassroom = await prisma.lectureClassroom.delete({
         where: { id },
       });

@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { authedProcedure } from "../init";
+import { TRPCError } from "@trpc/server";
+import { authedProcedure, editorProcedure } from "../init";
 import type { TRPCRouterRecord } from "@trpc/server";
 import type { TrpcContext } from "../init";
 import { zodIdSchema } from "@/server/utils/zodIdSchema";
@@ -7,11 +8,16 @@ import { zodIdSchema } from "@/server/utils/zodIdSchema";
 export const timetableRouter = {
   list: authedProcedure
     .query(async ({ ctx }) => {
-      const { prisma } = ctx;
-      const timetables = await prisma.timetable.findMany();
+      const { prisma, session } = ctx;
+      const timetables = await prisma.timetable.findMany({
+        where: {
+          organizationId: session.organizationId
+        },
+        orderBy: { createdAt: 'desc' }
+      });
       return { timetables };
     }),
-  add: authedProcedure
+  add: editorProcedure
     .input(
       z.object({
         id: zodIdSchema.optional(),
@@ -19,14 +25,18 @@ export const timetableRouter = {
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { prisma } = ctx;
+      const { prisma, session } = ctx;
       const { id, name } = input;
       const timetable = await prisma.timetable.create({
-        data: { id, name },
+        data: {
+          id,
+          name,
+          organizationId: session.organizationId
+        },
       });
       return { timetable };
     }),
-  update: authedProcedure
+  update: editorProcedure
     .input(
       z.object({
         id: zodIdSchema,
@@ -34,19 +44,45 @@ export const timetableRouter = {
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { prisma } = ctx;
+      const { prisma, session } = ctx;
       const { id, name } = input;
+      
+      // Verify timetable belongs to user's organization
+      const existing = await prisma.timetable.findFirst({
+        where: {
+          id,
+          organizationId: session.organizationId
+        }
+      });
+      
+      if (!existing) {
+        throw new TRPCError({ code: 'NOT_FOUND' });
+      }
+      
       const timetable = await prisma.timetable.update({
         where: { id },
         data: { name },
       });
       return { timetable };
     }),
-  delete: authedProcedure
+  delete: editorProcedure
     .input(z.object({ id: zodIdSchema }))
     .mutation(async ({ ctx, input }) => {
-      const { prisma } = ctx;
+      const { prisma, session } = ctx;
       const { id } = input;
+      
+      // Verify timetable belongs to user's organization
+      const existing = await prisma.timetable.findFirst({
+        where: {
+          id,
+          organizationId: session.organizationId
+        }
+      });
+      
+      if (!existing) {
+        throw new TRPCError({ code: 'NOT_FOUND' });
+      }
+      
       const timetable = await prisma.timetable.delete({ where: { id } });
       return { timetable };
     }),
@@ -62,27 +98,6 @@ export const timetableRouter = {
 
       return getTimetable(ctx, timetableId, subdivisionIds);
     }),
-  /**
-   * Only for testing, gets the second timetable and 3 subdivisions, the selections were chosen according to sample data
-   */
-  getAny: authedProcedure.query(async ({ ctx }) => {
-    const { prisma } = ctx;
-    const tt = await prisma.timetable.findFirstOrThrow({
-      where: { name: "ODD" },
-    });
-
-    const subdiv = await prisma.subdivision.findMany({
-      where: {
-        timetableId: tt.id,
-        name: {
-          in: ["SY CS A1", "SY CS A2", "SY CS A3"],
-        },
-      },
-    });
-
-    const subdivIds = subdiv.map((s) => s.id);
-    return await getTimetable(ctx, tt.id, subdivIds);
-  }),
 } satisfies TRPCRouterRecord;
 
 async function getTimetable(
@@ -91,7 +106,22 @@ async function getTimetable(
   subdivisionIds: string[],
 ) {
   // console.log("Fetched timetable");
-  const { prisma } = ctx;
+  const { prisma, session } = ctx;
+  
+  // Verify timetable belongs to user's organization
+  if (session) {
+    const timetable = await prisma.timetable.findFirst({
+      where: {
+        id: timetableId,
+        organizationId: session.organizationId
+      }
+    });
+    
+    if (!timetable) {
+      throw new TRPCError({ code: 'NOT_FOUND', message: 'Timetable not found' });
+    }
+  }
+  
   const slots = await prisma.slot.findMany({
     where: {
       timetableId: timetableId,

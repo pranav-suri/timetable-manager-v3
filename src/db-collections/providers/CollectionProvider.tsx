@@ -33,7 +33,8 @@ export type CollectionsContextType = ReturnType<typeof getCollections>;
 function getCollections(input: CollectionInput) {
   const { trpc, queryClient, trpcClient } = input;
   // console.log("Query Client Cache Size before clearing:", queryClient.getQueryCache().getAll().length);
-  queryClient.clear(); // Clear the cache to avoid bug with switching timetabless
+  // UNCOMMENTING BELOW CODE prevents Cannot update a component (`RouteComponent`) while rendering a different component
+  // queryClient.clear(); // NA: Old versoin bug. Clear the cache to avoid bug with switching timetabless
   // Add more collections to this object as needed
   const collections = {
     classroomCollection: getClassroomCollection(input),
@@ -60,6 +61,7 @@ function getCollections(input: CollectionInput) {
   };
 
   const liveCollections = getLiveCollections({
+    timetableId: input.timetableId,
     groupCollection: collections.groupCollection,
     lectureCollection: collections.lectureCollection,
     lectureSlotCollection: collections.lectureSlotCollection,
@@ -82,7 +84,6 @@ export function CollectionsProvider({
   const trpc = useTRPC();
   const trpcClient = useTRPCClient();
   const queryClient = useQueryClient();
-
   const collections = getCollections({
     trpc,
     trpcClient,

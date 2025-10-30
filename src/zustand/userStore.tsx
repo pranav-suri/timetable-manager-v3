@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { createJSONStorage, devtools, persist } from "zustand/middleware";
-import { createBoundSelectors } from "./createSelectors";
 
 type UserState = {
   id: string;
@@ -25,7 +24,7 @@ const initialState: UserState = {
   onboarded: true,
 };
 
-const useUserStoreBase = create<UserState & UserActions>()(
+export const useUserStore = create<UserState & UserActions>()(
   devtools(
     // access info via Redux DevTools
     persist(
@@ -45,5 +44,3 @@ const useUserStoreBase = create<UserState & UserActions>()(
     ),
   ),
 );
-
-export const useUserStore = createBoundSelectors(useUserStoreBase);

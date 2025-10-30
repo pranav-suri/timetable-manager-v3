@@ -1,9 +1,7 @@
 import { styled, useTheme } from "@mui/material/styles";
 import { Drawer, IconButton } from "@mui/material";
-import {
-  ChevronLeft as ChevronLeftIcon,
-  ChevronRight as ChevronRightIcon,
-} from "@mui/icons-material";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { ConflictList } from "@/routes/tt/$timetableId/edit/-conflictList/ConflictList";
 
 export const DrawerHeader = styled("div")(({ theme }) => ({

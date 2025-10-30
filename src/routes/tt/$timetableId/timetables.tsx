@@ -18,13 +18,12 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import {
-  Add as AddIcon,
-  Delete as DeleteIcon,
-  Edit as EditIcon,
-} from "@mui/icons-material";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import type { Timetable } from "generated/prisma/client";
 import { useCollections } from "@/db-collections/providers/useCollections";
+import { useAuthStore } from "@/zustand/authStore";
 
 export const Route = createFileRoute("/tt/$timetableId/timetables")({
   component: RouteComponent,
@@ -33,6 +32,7 @@ export const Route = createFileRoute("/tt/$timetableId/timetables")({
 function RouteComponent() {
   const { timetableCollection } = useCollections();
   const [editingId, setEditingId] = useState<string | null>(null);
+  const user = useAuthStore((state) => state.user);
 
   const { data: timetables } = useLiveQuery(
     (q) => q.from({ timetableCollection }),
@@ -42,9 +42,15 @@ function RouteComponent() {
   const form = useForm({
     defaultValues: { name: "" },
     onSubmit: ({ value }) => {
+      if (!user) {
+        console.error("User not signed in");
+        return;
+      }
+
       const newTimetable = {
         id: nanoid(4),
         name: value.name,
+        organizationId: user.organizationId,
         createdAt: new Date(),
         updatedAt: new Date(),
       } satisfies Timetable;

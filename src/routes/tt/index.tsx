@@ -19,17 +19,21 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import {
-  Add as AddIcon,
-  Delete as DeleteIcon,
-  Edit as EditIcon,
-} from "@mui/icons-material";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import type { Timetable } from "generated/prisma/client";
 import { useTRPC, useTRPCClient } from "@/integrations/trpc";
 import { getTimetableCollection } from "@/db-collections/timetableCollection";
+import { RequireAuth } from "@/components/RequireAuth";
+import { useAuthStore } from "@/zustand/authStore";
 
 export const Route = createFileRoute("/tt/")({
-  component: RouteComponent,
+  component: () => (
+    <RequireAuth>
+      <RouteComponent />
+    </RequireAuth>
+  ),
   ssr: false,
 });
 
@@ -37,6 +41,7 @@ function RouteComponent() {
   const trpc = useTRPC();
   const trpcClient = useTRPCClient();
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
   const [collectionsInitialized, setCollectionsInitialized] = useState(false);
   const timetableCollection = getTimetableCollection({
     queryClient,
@@ -67,9 +72,15 @@ function RouteComponent() {
   const form = useForm({
     defaultValues: { name: "" },
     onSubmit: ({ value }) => {
+      if (!user?.organizationId) {
+        console.error("No organization ID found");
+        return;
+      }
+
       const newTimetable = {
         id: nanoid(4),
         name: value.name,
+        organizationId: user.organizationId,
         createdAt: new Date(),
         updatedAt: new Date(),
       } satisfies Timetable;
@@ -102,6 +113,8 @@ function RouteComponent() {
     setEditingId(null);
     form.reset();
   };
+
+  if (!collectionsInitialized) return "LOADING ----->";
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>

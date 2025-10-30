@@ -1,5 +1,6 @@
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
-import { createCollection } from "@tanstack/db";
+import { createCollection } from "@tanstack/react-db";
+import { LectureSchema } from "generated/zod";
 import type { CollectionInput } from "./providers/CollectionProvider";
 
 export function getLectureCollection({
@@ -12,6 +13,7 @@ export function getLectureCollection({
     queryCollectionOptions({
       id: "lecture:" + timetableId,
       startSync: true,
+      schema: LectureSchema,
       queryKey: trpc.lectures.list.queryKey({ timetableId }),
       queryFn: async () => {
         const { lectures } = await trpcClient.lectures.list.query({
@@ -38,6 +40,8 @@ export function getLectureCollection({
         await trpcClient.lectures.delete.mutate({
           id: original.id,
         });
+        // Invalidation done to refetch lectureClassrooms and lectureSubdivisions
+        // TODO: Optimize this to only refetch the above 2 collections
         queryClient.invalidateQueries();
         // return { refetch: false };
       },

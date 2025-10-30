@@ -1,5 +1,6 @@
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
-import { createCollection } from "@tanstack/db";
+import { createCollection } from "@tanstack/react-db";
+import { SubjectTeacherSchema } from "generated/zod";
 import type { CollectionInput } from "./providers/CollectionProvider";
 
 export function getSubjectTeacherCollection({
@@ -12,6 +13,7 @@ export function getSubjectTeacherCollection({
     queryCollectionOptions({
       id: "subjectTeacher:" + timetableId,
       startSync: true,
+      schema: SubjectTeacherSchema,
       queryKey: trpc.subjectTeachers.list.queryKey({ timetableId }),
       queryFn: async () => {
         const { subjectTeachers } = await trpcClient.subjectTeachers.list.query(
@@ -24,7 +26,10 @@ export function getSubjectTeacherCollection({
 
       onInsert: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
-        await trpcClient.subjectTeachers.add.mutate(modified);
+        await trpcClient.subjectTeachers.add.mutate({
+          ...modified,
+          timetableId,
+        });
         // return { refetch: false };
       },
 
@@ -32,6 +37,7 @@ export function getSubjectTeacherCollection({
         const { original } = transaction.mutations[0];
         await trpcClient.subjectTeachers.delete.mutate({
           id: original.id,
+          timetableId,
         });
         // return { refetch: false };
       },

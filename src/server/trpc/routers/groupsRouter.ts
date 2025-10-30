@@ -1,7 +1,8 @@
 import { z } from "zod";
-import { authedProcedure } from "../init";
+import { authedProcedure, editorProcedure } from "../init";
 import type { TRPCRouterRecord } from "@trpc/server";
 import { zodIdSchema } from "@/server/utils/zodIdSchema";
+import { verifyTimetableOwnership, verifyEntityOwnership } from "../utils/verifyTimetableOwnership";
 
 export const groupsRouter = {
   list: authedProcedure
@@ -14,12 +15,14 @@ export const groupsRouter = {
       const { prisma } = ctx;
       const { timetableId } = input;
 
+      await verifyTimetableOwnership(ctx, timetableId);
+
       const groups = await prisma.group.findMany({
         where: { timetableId },
       });
       return { groups };
     }),
-  add: authedProcedure
+  add: editorProcedure
     .input(
       z.object({
         id: zodIdSchema.optional(),
@@ -32,6 +35,8 @@ export const groupsRouter = {
       const { prisma } = ctx;
       const { id, timetableId, name, allowSimultaneous } = input;
 
+      await verifyTimetableOwnership(ctx, timetableId);
+
       const group = await prisma.group.create({
         data: {
           id,
@@ -42,7 +47,7 @@ export const groupsRouter = {
       });
       return { group };
     }),
-  update: authedProcedure
+  update: editorProcedure
     .input(
       z.object({
         id: zodIdSchema,
@@ -54,6 +59,10 @@ export const groupsRouter = {
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { id, timetableId, name, allowSimultaneous } = input;
+      
+      await verifyEntityOwnership(ctx, id, 'group');
+      await verifyTimetableOwnership(ctx, timetableId);
+      
       const group = await prisma.group.update({
         where: { id },
         data: {
@@ -64,11 +73,14 @@ export const groupsRouter = {
       });
       return { group };
     }),
-  delete: authedProcedure
+  delete: editorProcedure
     .input(z.object({ id: zodIdSchema }))
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { id } = input;
+      
+      await verifyEntityOwnership(ctx, id, 'group');
+      
       const group = await prisma.group.delete({
         where: { id },
       });

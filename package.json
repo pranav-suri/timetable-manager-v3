@@ -24,8 +24,8 @@
     "@prisma/client": "^6.14.0",
     "@t3-oss/env-core": "^0.13.8",
     "@tailwindcss/vite": "^4.0.6",
-    "@tanstack/query-db-collection": "^0.2.8",
-    "@tanstack/react-db": "^0.1.9",
+    "@tanstack/query-db-collection": "^0.2.27",
+    "@tanstack/react-db": "^0.1.28",
     "@tanstack/react-devtools": "^0.2.2",
     "@tanstack/react-form": "^1.23.0",
     "@tanstack/react-query": "^5.66.5",
@@ -38,8 +38,10 @@
     "@trpc/client": "^11.4.3",
     "@trpc/server": "^11.4.3",
     "@trpc/tanstack-react-query": "^11.4.3",
+    "@typescript/native-preview": "^7.0.0-dev.20251009.1",
+    "bcrypt": "^6.0.0",
     "eslint-plugin-react-hooks": "^5.2.0",
-    "nanoid": "^5.1.5",
+    "nanoid": "^3.3.11",
     "papaparse": "^5.5.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -56,6 +58,7 @@
     "@tanstack/eslint-config": "^0.3.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.2.0",
+    "@types/bcrypt": "^6.0.0",
     "@types/papaparse": "^5.3.16",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
@@ -69,5 +72,10 @@
     "vite-plugin-devtools-json": "^1.0.0",
     "vitest": "^3.0.5",
     "web-vitals": "^4.2.4"
-  }
+  },
+  "trustedDependencies": [
+    "@parcel/watcher",
+    "@tailwindcss/oxide",
+    "unrs-resolver"
+  ]
 }
