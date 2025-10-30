@@ -66,6 +66,7 @@ export function GenerationResults({
       previousStatusRef.current !== "COMPLETED"
     ) {
       // Invalidate lectureSlot and lectureClassroom collections to trigger refresh
+      // TODO: See how invalidateQuery works
       queryClient.invalidateQueries({
         queryKey: ["lectureSlot", timetableId],
       });

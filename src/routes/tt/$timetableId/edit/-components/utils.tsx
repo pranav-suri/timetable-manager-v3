@@ -32,3 +32,14 @@ export function moveLectureSlot(
   });
   console.log(`Moved lectureSlot ${lectureSlotId} to slot ${newSlotId}`);
 }
+
+export function setIsLocked(
+  lectureSlotCollection: ReturnType<typeof getLectureSlotCollection>,
+  lectureSlotId: string,
+  isLocked: boolean,
+) {
+  lectureSlotCollection.update(lectureSlotId, (draft) => {
+    draft.isLocked = isLocked;
+  });
+  // console.log(`Set lectureSlot ${lectureSlotId} isLocked to ${isLocked}`);
+}
