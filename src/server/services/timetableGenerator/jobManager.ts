@@ -1,16 +1,16 @@
 import { prisma } from "@/server/prisma";
 import { JobStatus } from "generated/prisma/client";
-import {
+import type {
   GAInputData,
   Chromosome,
   FitnessResult,
   PartialGAConfig,
   GAResult,
+  GenerationStats,
 } from "./types";
 import { loadTimetableData } from "./dataLoader";
 import { runGA } from "./algorithm";
 import { mergeConfig, validateConfig } from "./config";
-import { GenerationStats } from "./types";
 import { chromosomeToLectureSlots } from "./decoder";
 import { generateQualityReport } from "./validator";
 
@@ -55,6 +55,7 @@ async function persistResults(
       where: { timetableId },
       select: { id: true },
     });
+
     const lectureIds = lectures.map((l) => l.id);
 
     // Delete existing LectureSlots
@@ -114,32 +115,25 @@ export async function executeGenerationJob(
     validateConfig(config);
 
     // Throttle progress updates to avoid database timeout
-    // Update every 10 generations or at least every 2 seconds
+    // Update at least every 2 seconds
     let lastUpdateTime = Date.now();
-    let lastUpdateGeneration = -1;
     const UPDATE_INTERVAL_MS = 2000; // 2 seconds
-    const UPDATE_INTERVAL_GENERATIONS = 10;
 
     const onProgress = async (stats: GenerationStats) => {
       const now = Date.now();
       const timeSinceLastUpdate = now - lastUpdateTime;
-      const generationsSinceLastUpdate =
-        stats.generation - lastUpdateGeneration;
 
-      // Only update if enough time/generations have passed
-      const shouldUpdate =
-        timeSinceLastUpdate >= UPDATE_INTERVAL_MS ||
-        generationsSinceLastUpdate >= UPDATE_INTERVAL_GENERATIONS ||
-        stats.generation === 0; // Always update first generation
-
-      if (shouldUpdate) {
+      // Only update if enough time has passed
+      // BUG: While GA Runs, it does not let the thread yield.
+      // So prisma.job.update() and prisma.job.findUnique() wait until GA completes.
+      // Thus, job status updates do not work during GA execution.
+      if (timeSinceLastUpdate >= UPDATE_INTERVAL_MS) {
+        lastUpdateTime = now;
         const job = await prisma.job.findUnique({ where: { id: jobId } });
         if (job?.status === JobStatus.CANCELLED) {
           throw new Error("Job cancelled by user.");
         }
         await updateJobProgress(jobId, stats, config.maxGenerations);
-        lastUpdateTime = now;
-        lastUpdateGeneration = stats.generation;
       }
     };
 

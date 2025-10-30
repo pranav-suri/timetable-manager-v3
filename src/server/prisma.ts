@@ -58,7 +58,13 @@ async function main() {
         update: {},
       });
     } catch (e) {
-      console.error(e);
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        if (e.code === "P2002") {
+          console.log(`✅ Organization already exists: ${"default-org"}`);
+        } else {
+          console.error(e);
+        }
+      }
     }
 
     const defaultPassword = "ChangeMe123!";
@@ -77,7 +83,13 @@ async function main() {
       });
       console.log(`✅ Created admin user: ${"admin@example.com"}\n`);
     } catch (e) {
-      console.error(e);
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        if (e.code === "P2002") {
+          console.log(`✅ Admin user already exists: ${"admin@example.com"}`);
+        } else {
+          console.error(e);
+        }
+      }
     }
 
     await sampleDataUpload("ODD", "default-org");
