@@ -16,6 +16,7 @@ import { getClassroomUnavailableCollection } from "../classroomUnavailableCollec
 import { getTeacherUnavailableCollection } from "../teacherUnavailableCollection";
 import { getSubdivisionUnavailableCollection } from "../subdivisionUnavailableCollection";
 import { getLiveCollections } from "../liveCollections";
+import { getCognitiveLoadCollection } from "../cognitiveLoadCollection";
 import { CollectionsContext } from "./CollectionsContext";
 import type { ReactNode } from "react";
 import type { QueryClient } from "@tanstack/react-query";
@@ -70,8 +71,10 @@ function getCollections(input: CollectionInput) {
     lectureSubdivisionCollection: collections.lectureSubdivisionCollection,
   });
 
+  const cognitiveLoadCollection = getCognitiveLoadCollection(input);
+
   console.log("Collection Objects Created");
-  return { ...collections, ...liveCollections };
+  return { ...collections, ...liveCollections, cognitiveLoadCollection };
 }
 
 export function CollectionsProvider({
