@@ -26,12 +26,18 @@ export function validateSolution(
     teacherDailyLimit: 10,
     teacherWeeklyLimit: 15,
     cognitiveLoad: 7,
+    excessiveConsecutiveLectures: 6,
   };
   return evaluateChromosome(chromosome, inputData, weights);
 }
 
 /**
- * Calculates the utilization of classrooms.
+ * Calculates the classroom utilization percentage.
+ *
+ * NOTE: With immutable combined classrooms, room utilization is calculated
+ * by counting how many (slot, classroom) pairs are occupied. A lecture with
+ * combined classrooms occupies all of its classrooms simultaneously.
+ *
  * @param chromosome The solution chromosome.
  * @param inputData The GA input data.
  * @returns A utilization percentage.
@@ -44,11 +50,22 @@ export function calculateRoomUtilization(
     inputData.slots.length * inputData.classrooms.length;
   if (totalPossibleSlots === 0) return 0;
 
-  const usedSlots = new Set(
-    chromosome.map((g) => `${g.timeslotId}:${g.classroomId}`),
-  ).size;
+  // Build set of occupied (slot, classroom) pairs
+  const occupiedSlotClassrooms = new Set<string>();
 
-  return (usedSlots / totalPossibleSlots) * 100;
+  for (const gene of chromosome) {
+    // Get combined classrooms for this lecture
+    const combinedClassrooms =
+      inputData.lookupMaps.lectureToCombinedClassrooms.get(gene.lectureId) ||
+      [];
+
+    // Each combined classroom is occupied in this slot
+    for (const classroomId of combinedClassrooms) {
+      occupiedSlotClassrooms.add(`${gene.timeslotId}:${classroomId}`);
+    }
+  }
+
+  return (occupiedSlotClassrooms.size / totalPossibleSlots) * 100;
 }
 
 /**

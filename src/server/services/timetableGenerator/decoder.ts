@@ -56,11 +56,24 @@ export function chromosomeToJSON(
     const lecture = inputData.lookupMaps.eventToLecture.get(
       gene.lectureEventId,
     );
-    const classroom = inputData.lookupMaps.classroomIdToClassroom.get(
-      gene.classroomId,
-    );
 
-    if (!slot || !lecture || !classroom) continue;
+    if (!slot || !lecture) continue;
+
+    // Get combined classrooms for this lecture (immutable)
+    const combinedClassroomIds =
+      inputData.lookupMaps.lectureToCombinedClassrooms.get(lecture.id) || [];
+
+    // Get classroom details
+    const classrooms = combinedClassroomIds
+      .map((id) => inputData.lookupMaps.classroomIdToClassroom.get(id))
+      .filter((c) => c !== undefined);
+
+    if (classrooms.length === 0) {
+      console.warn(
+        `No combined classrooms found for lecture ${lecture.id}, skipping event ${gene.lectureEventId}`,
+      );
+      continue;
+    }
 
     const day = `Day${slot.day}`;
     const period = `Period${slot.number}`;
@@ -78,6 +91,10 @@ export function chromosomeToJSON(
       .map((id) => inputData.subdivisions.find((s) => s.id === id))
       .filter(Boolean);
 
+    // For now, use the first classroom for backward compatibility
+    // TODO: Update ScheduledEvent interface to support multiple combined classrooms
+    const primaryClassroom = classrooms[0]!;
+
     schedule[day][period]?.push({
       lectureEventId: gene.lectureEventId,
       lectureId: lecture.id,
@@ -86,8 +103,8 @@ export function chromosomeToJSON(
       teacherName: lecture.teacher.name,
       subdivisionIds: subdivisions.map((s) => s!.id),
       subdivisionNames: subdivisions.map((s) => s!.name),
-      classroomId: classroom.id,
-      classroomName: classroom.name,
+      classroomId: primaryClassroom.id,
+      classroomName: primaryClassroom.name,
       slotId: slot.id,
       day: slot.day,
       period: slot.number,

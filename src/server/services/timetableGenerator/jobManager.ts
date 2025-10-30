@@ -42,28 +42,11 @@ async function persistResults(
 ) {
   const newSlotsData = chromosomeToLectureSlots(bestChromosome, inputData);
 
-  // Build LectureClassroom assignments from chromosome
-  const lectureClassroomMap = new Map<string, Set<string>>();
-  for (const gene of bestChromosome) {
-    const lecture = inputData.lookupMaps.eventToLecture.get(
-      gene.lectureEventId,
-    );
-    if (lecture) {
-      if (!lectureClassroomMap.has(lecture.id)) {
-        lectureClassroomMap.set(lecture.id, new Set());
-      }
-      lectureClassroomMap.get(lecture.id)!.add(gene.classroomId);
-    }
-  }
-
-  const lectureClassroomData = Array.from(
-    lectureClassroomMap.entries(),
-  ).flatMap(([lectureId, classroomIds]) =>
-    Array.from(classroomIds).map((classroomId) => ({
-      lectureId,
-      classroomId,
-    })),
-  );
+  // NOTE: LectureClassroom assignments are NOT built from the chromosome
+  // because classrooms are now immutable per lecture (combinedClassrooms).
+  // The LectureClassroom records already exist in the database and should not
+  // be modified by the timetable generation process.
+  // We only update LectureSlot records (timeslot assignments).
 
   const qualityReport = generateQualityReport(bestChromosome, inputData);
 
@@ -74,25 +57,19 @@ async function persistResults(
     });
     const lectureIds = lectures.map((l) => l.id);
 
-    // Delete existing LectureSlots and LectureClassrooms
+    // Delete existing LectureSlots
     await tx.lectureSlot.deleteMany({
       where: { lectureId: { in: lectureIds } },
     });
 
-    await tx.lectureClassroom.deleteMany({
-      where: { lectureId: { in: lectureIds } },
-    });
+    // NOTE: We do NOT delete or modify LectureClassroom records because
+    // classrooms are now immutable per lecture and should not change during
+    // timetable generation. Only timeslot assignments (LectureSlot) are modified.
 
-    // Create new assignments
+    // Create new slot assignments
     await tx.lectureSlot.createMany({
       data: newSlotsData,
     });
-
-    if (lectureClassroomData.length > 0) {
-      await tx.lectureClassroom.createMany({
-        data: lectureClassroomData,
-      });
-    }
 
     await tx.job.update({
       where: { id: jobId },

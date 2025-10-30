@@ -30,13 +30,12 @@ import { evaluateChromosome, compareChromosomes } from "./constraints";
  * Generate a hash key for a chromosome for caching purposes.
  * Uses a simple string representation of gene assignments.
  *
- * Format: "lectureEventId:timeslotId:classroomId|..."
+ * Format: "lectureEventId:timeslotId|..."
+ * NOTE: classroomId is not included because classrooms are immutable per lecture
  */
 function hashChromosome(chromosome: Chromosome): string {
   return chromosome
-    .map(
-      (gene) => `${gene.lectureEventId}:${gene.timeslotId}:${gene.classroomId}`,
-    )
+    .map((gene) => `${gene.lectureEventId}:${gene.timeslotId}`)
     .join("|");
 }
 
