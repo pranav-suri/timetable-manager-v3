@@ -409,7 +409,6 @@ and clear starting point for their work]
 
 - `src/server/services/timetableGenerator/crossover.ts` - Uniform crossover implementation
 - `src/server/services/timetableGenerator/repair.ts` - Repair mechanism for constraint violations
-- `src/server/services/timetableGenerator/__tests__/crossover.test.ts` - Validation tests
 
 **Objective**: Implement uniform crossover with integrated repair mechanism (Research Section 4.3).
 
@@ -469,7 +468,6 @@ and clear starting point for their work]
 **Files Created**:
 
 - `src/server/services/timetableGenerator/mutation.ts` - Mutation operator implementation (~265 lines)
-- `src/server/services/timetableGenerator/__tests__/mutation.test.ts` - Comprehensive test suite (~420 lines)
 
 **Objective**: Implement multi-strategy mutation for diversity maintenance (Research Section 4.4).
 
@@ -528,7 +526,6 @@ and clear starting point for their work]
 **Files Created**:
 
 - `src/server/services/timetableGenerator/replacement.ts` - Elitism and replacement logic.
-- `src/server/services/timetableGenerator/__tests__/replacement.test.ts` - Test suite.
 
 **Objective**: Implement elitism to preserve best solutions (Research Section 4.5).
 
@@ -588,7 +585,6 @@ and clear starting point for their work]
 **Files Created**:
 
 - `src/server/services/timetableGenerator/algorithm.ts` - The main GA loop.
-- `src/server/services/timetableGenerator/__tests__/algorithm.test.ts` - Integration test for the main loop.
 
 **Objective**: Integrate all GA components into main evolutionary loop.
 
@@ -652,7 +648,6 @@ and clear starting point for their work]
 **Files Created/Modified**:
 
 - `src/server/services/timetableGenerator/config.ts` (created)
-- `src/server/services/timetableGenerator/__tests__/config.test.ts` (created)
 - Updated all test files to import DEFAULT_GA_CONFIG from config.ts
 - Fixed PartialGAConfig type to properly support partial constraint weights
 
@@ -1199,7 +1194,6 @@ Only automatic collection invalidation after generation completes. This has been
 **Estimated Effort**: 6-8 hours  
 **Files to Create/Modify**:
 
-- `src/server/services/timetableGenerator/__tests__/` (new directory)
 - Test files for each module
 
 **Objective**: Create thorough test coverage for all GA components.

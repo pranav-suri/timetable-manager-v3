@@ -413,12 +413,6 @@ describe("TeachersList", () => {
 });
 ```
 
-### GA Algorithm Tests
-
-Located in `src/server/services/timetableGenerator/__tests__/`
-
-Run with: `npm run test -- src/server/services/timetableGenerator`
-
 **Import pattern**: Use `config.ts` for DEFAULT_GA_CONFIG, not `types.ts`
 
 ## Known Gotchas & Solutions
