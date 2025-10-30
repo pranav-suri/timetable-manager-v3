@@ -78,7 +78,7 @@ export const generationConfigRouter = {
           ? {
               id: generationConfig.id,
               timetableId: generationConfig.timetableId,
-              config: generationConfig.config as PartialGAConfig,
+              config: generationConfig.config,
               createdAt: generationConfig.createdAt,
               updatedAt: generationConfig.updatedAt,
             }
@@ -105,10 +105,10 @@ export const generationConfigRouter = {
         where: { timetableId },
         create: {
           timetableId,
-          config,
+          config: JSON.stringify(config),
         },
         update: {
-          config,
+          config: JSON.stringify(config),
         },
       });
 

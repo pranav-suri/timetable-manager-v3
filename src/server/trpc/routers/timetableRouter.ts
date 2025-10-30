@@ -34,7 +34,7 @@ export const timetableRouter = {
           organizationId: session.organizationId,
           generationConfig: {
             create: {
-              config: BALANCED_PRESET,
+              config: JSON.stringify(BALANCED_PRESET),
             },
           },
         },
