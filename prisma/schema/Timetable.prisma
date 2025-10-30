@@ -1,18 +1,19 @@
 model Timetable {
-  id             String        @id @default(nanoid(4))
+  id             String   @id @default(nanoid(4))
   name           String
   organizationId String
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  
-  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  slots          Slot[]
-  groups         Group[]
-  subdivisions   Subdivision[]
-  teachers       Teacher[]
-  classrooms     Classroom[]
-  lectures       Lecture[]
-  jobs         Job[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization     Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  slots            Slot[]
+  groups           Group[]
+  subdivisions     Subdivision[]
+  teachers         Teacher[]
+  classrooms       Classroom[]
+  lectures         Lecture[]
+  jobs             Job[]
+  generationConfig GenerationConfig?
 
   @@unique([name, organizationId])
   @@index([organizationId])

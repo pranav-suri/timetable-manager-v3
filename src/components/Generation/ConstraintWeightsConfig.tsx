@@ -1,5 +1,6 @@
 import type { ConstraintWeights } from "@/server/services/timetableGenerator/types";
 import { ConfigSection, NumericConfigField } from "./ConfigSections";
+import { DeprioritizationConfig } from "./DeprioritizationConfig";
 
 interface ConstraintWeightsConfigProps {
   weights: ConstraintWeights;
@@ -211,6 +212,15 @@ export function ConstraintWeightsConfig({
           step={0.05}
         />
       </ConfigSection>
+
+      {/* Deprioritization Settings */}
+      <DeprioritizationConfig
+        deprioritizedDays={weights.deprioritizedDays}
+        deprioritizedSlotNumbers={weights.deprioritizedSlotNumbers}
+        deprioritizedDaySlots={weights.deprioritizedDaySlots}
+        onChange={onChange}
+        disabled={disabled}
+      />
     </>
   );
 }

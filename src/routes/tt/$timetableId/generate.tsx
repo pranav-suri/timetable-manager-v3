@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -22,8 +22,12 @@ export const Route = createFileRoute("/tt/$timetableId/generate")({
 
 function RouteComponent() {
   const { timetableId } = Route.useParams();
-  const { timetableCollection, lectureCollection, slotCollection } =
-    useCollections();
+  const {
+    timetableCollection,
+    lectureCollection,
+    slotCollection,
+    generationConfigCollection,
+  } = useCollections();
 
   // Fetch timetable data to show context
   const { data: timetables } = useLiveQuery(
@@ -40,6 +44,14 @@ function RouteComponent() {
     (q) => q.from({ slotCollection }),
     [slotCollection],
   );
+
+  // Load saved generation config
+  const { data: savedConfigs } = useLiveQuery(
+    (q) => q.from({ generationConfig: generationConfigCollection }),
+    [generationConfigCollection],
+  );
+
+  const savedConfig = savedConfigs?.[0];
 
   const currentTimetable = timetables?.find((t) => t.id === timetableId);
 
@@ -58,6 +70,28 @@ function RouteComponent() {
   const latestJob = jobs[0];
 
   const [config, setConfig] = useState<PartialGAConfig>({});
+
+  // Load saved config when available
+  useEffect(() => {
+    if (savedConfig?.config) {
+      setConfig(savedConfig.config);
+    }
+  }, [savedConfig]);
+
+  const handleConfigChange = async (newConfig: PartialGAConfig) => {
+    setConfig(newConfig);
+
+    // Save config to database
+    if (savedConfig) {
+      try {
+        await generationConfigCollection.update(savedConfig.id, (draft) => {
+          draft.config = newConfig;
+        });
+      } catch (error) {
+        console.error("Failed to save generation config:", error);
+      }
+    }
+  };
 
   const handleStartGeneration = () => {
     startGeneration();
@@ -98,7 +132,7 @@ function RouteComponent() {
         <CardContent>
           <GenerationControls
             config={config}
-            onConfigChange={setConfig}
+            onConfigChange={handleConfigChange}
             onStartGeneration={handleStartGeneration}
             isStarting={isStarting}
             disabled={hasInsufficientData || isStarting}

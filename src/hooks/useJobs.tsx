@@ -12,6 +12,17 @@ export function useJobs(timetableId: string) {
       return result;
     },
     enabled: !!timetableId,
+    refetchInterval: (query) => {
+      // Refetch every 5 seconds if there are active jobs
+      const data = query.state.data as any;
+      const hasActiveJobs = data?.jobs?.some(
+        (job: any) => job.status === "IN_PROGRESS" || job.status === "PENDING",
+      );
+      if (hasActiveJobs) {
+        return 5000;
+      }
+      return false;
+    },
   });
 
   // Query for individual job status
@@ -20,6 +31,20 @@ export function useJobs(timetableId: string) {
       queryKey: ["job", jobId],
       queryFn: async () => {
         const result = await trpcClient.generate.status.query({ jobId });
+
+        // If job status changed to completed/failed/cancelled, invalidate jobs list
+        const previousData = queryClient.getQueryData(["job", jobId]) as any;
+        if (
+          previousData &&
+          (previousData.status === "IN_PROGRESS" ||
+            previousData.status === "PENDING") &&
+          (result.status === "COMPLETED" ||
+            result.status === "FAILED" ||
+            result.status === "CANCELLED")
+        ) {
+          queryClient.invalidateQueries({ queryKey: ["jobs", timetableId] });
+        }
+
         return result;
       },
       enabled: !!jobId,

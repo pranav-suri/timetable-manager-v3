@@ -4,6 +4,7 @@ import { authedProcedure, editorProcedure } from "../init";
 import type { TRPCRouterRecord } from "@trpc/server";
 import type { TrpcContext } from "../init";
 import { zodIdSchema } from "@/server/utils/zodIdSchema";
+import { BALANCED_PRESET } from "@/server/services/timetableGenerator/config";
 
 export const timetableRouter = {
   list: authedProcedure.query(async ({ ctx }) => {
@@ -31,6 +32,11 @@ export const timetableRouter = {
           id,
           name,
           organizationId: session.organizationId,
+          generationConfig: {
+            create: {
+              config: BALANCED_PRESET,
+            },
+          },
         },
       });
       return { timetable };
