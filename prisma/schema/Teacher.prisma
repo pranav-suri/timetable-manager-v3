@@ -3,6 +3,8 @@ model Teacher {
   name            String
   email           String
   timetableId     String
+  dailyMaxHours   Int                  @default(4)
+  weeklyMaxHours  Int                  @default(16)
   timetable       Timetable            @relation(fields: [timetableId], references: [id], onDelete: Cascade)
   slots           TeacherUnavailable[]
   lectures        Lecture[]

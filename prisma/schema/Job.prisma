@@ -1,0 +1,23 @@
+enum JobStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+model Job {
+  id          String    @id @default(nanoid(8))
+  type        String // "TIMETABLE_GENERATION"
+  status      JobStatus @default(PENDING)
+  timetableId String
+  progress    Int       @default(0) // 0-100
+  result      String? // JSON result data
+  error       String? // Error message if failed
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  timetable   Timetable @relation(fields: [timetableId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([createdAt])
+}

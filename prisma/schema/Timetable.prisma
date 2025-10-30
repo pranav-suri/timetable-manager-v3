@@ -12,6 +12,7 @@ model Timetable {
   teachers       Teacher[]
   classrooms     Classroom[]
   lectures       Lecture[]
+  jobs         Job[]
 
   @@unique([name, organizationId])
   @@index([organizationId])
