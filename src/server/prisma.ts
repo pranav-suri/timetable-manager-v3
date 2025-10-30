@@ -1,6 +1,7 @@
 import { Prisma, PrismaClient } from "generated/prisma/client";
 import sampleDataUpload from "./controllers/sampleData";
 import * as bcrypt from "bcrypt";
+import { ca } from "node_modules/zod/v4/locales/index.cjs";
 
 const BCRYPT_ROUNDS = 12;
 
@@ -47,35 +48,41 @@ async function main() {
   console.time(": Time taken for data upload");
   try {
     // Get or create default organization for sample data
-    const defaultOrg = await prisma.organization.upsert({
-      where: { id: "default-org" },
-      create: {
-        id: "default-org",
-        name: "Default Organization",
-        slug: "default-organization",
-      },
-      update: {},
-    });
+    try {
+      await prisma.organization.upsert({
+        where: { id: "default-org" },
+        create: {
+          id: "default-org",
+          name: "Default Organization",
+          slug: "default-organization",
+        },
+        update: {},
+      });
+    } catch (e) {
+      console.error(e);
+    }
 
     const defaultPassword = "ChangeMe123!";
     const passwordHash = await bcrypt.hash(defaultPassword, BCRYPT_ROUNDS);
+    try {
+      await prisma.user.create({
+        data: {
+          email: "admin@example.com",
+          passwordHash,
+          firstName: "Admin",
+          lastName: "User",
+          role: "ADMIN",
+          isActive: true,
+          organizationId: "default-org",
+        },
+      });
+      console.log(`✅ Created admin user: ${"admin@example.com"}\n`);
+    } catch (e) {
+      console.error(e);
+    }
 
-    const adminUser = await prisma.user.create({
-      data: {
-        email: "admin@example.com",
-        passwordHash,
-        firstName: "Admin",
-        lastName: "User",
-        role: "ADMIN",
-        isActive: true,
-        organizationId: defaultOrg.id,
-      },
-    });
-
-    console.log(`✅ Created admin user: ${adminUser.email}\n`);
-
-    await sampleDataUpload("ODD", defaultOrg.id);
-    await sampleDataUpload("EVEN", defaultOrg.id);
+    await sampleDataUpload("ODD", "default-org");
+    await sampleDataUpload("EVEN", "default-org");
     return;
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {

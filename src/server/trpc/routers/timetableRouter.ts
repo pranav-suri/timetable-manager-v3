@@ -8,14 +8,12 @@ import { zodIdSchema } from "@/server/utils/zodIdSchema";
 export const timetableRouter = {
   list: authedProcedure.query(async ({ ctx }) => {
     const { prisma, session } = ctx;
-    console.log(session);
     const timetables = await prisma.timetable.findMany({
       where: {
         organizationId: session.organizationId,
       },
       orderBy: { createdAt: "desc" },
     });
-    console.log(timetables);
     return { timetables };
   }),
   add: editorProcedure

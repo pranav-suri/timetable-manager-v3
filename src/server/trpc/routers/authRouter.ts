@@ -22,7 +22,6 @@ export const authRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      console.log(input.email);
       // Find user
       const user = await ctx.prisma.user.findUnique({
         where: { email: input.email },
