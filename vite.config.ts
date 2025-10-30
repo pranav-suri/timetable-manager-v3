@@ -26,6 +26,7 @@ const config = defineConfig({
     }),
   ],
   server: { watch: { ignored: ["./prisma/**/*"] } },
+  dev: { sourcemap: true },
 });
 
 export default config;

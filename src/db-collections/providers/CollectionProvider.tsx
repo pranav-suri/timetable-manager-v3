@@ -17,6 +17,7 @@ import { getTeacherUnavailableCollection } from "../teacherUnavailableCollection
 import { getSubdivisionUnavailableCollection } from "../subdivisionUnavailableCollection";
 import { getLiveCollections } from "../liveCollections";
 import { getCognitiveLoadCollection } from "../cognitiveLoadCollection";
+import { getGenerationConfigCollection } from "../generationConfigCollection";
 import { CollectionsContext } from "./CollectionsContext";
 import type { ReactNode } from "react";
 import type { QueryClient } from "@tanstack/react-query";
@@ -40,6 +41,7 @@ function getCollections(input: CollectionInput) {
   const collections = {
     classroomCollection: getClassroomCollection(input),
     classroomUnavailableCollection: getClassroomUnavailableCollection(input),
+    generationConfigCollection: getGenerationConfigCollection(input),
     groupCollection: getGroupCollection(input),
     lectureCollection: getLectureCollection(input),
     lectureClassroomCollection: getLectureClassroomCollection(input),

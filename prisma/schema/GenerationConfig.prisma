@@ -1,0 +1,11 @@
+model GenerationConfig {
+  id          String   @id @default(nanoid(4))
+  timetableId String   @unique
+  config      Json // Stores PartialGAConfig as JSON
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  timetable Timetable @relation(fields: [timetableId], references: [id], onDelete: Cascade)
+
+  @@index([timetableId])
+}

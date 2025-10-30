@@ -12,7 +12,7 @@ datasource db {
 }
 
 generator zod {
-  provider       = "zod-prisma-types"
-  output         = "../../generated/zod"
+  provider         = "zod-prisma-types"
+  output           = "../../generated/zod"
   createInputTypes = false
 }

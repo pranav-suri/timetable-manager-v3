@@ -7,12 +7,18 @@ import { uploadSubdivsionData } from "./subdivisions";
 import { uploadSubjectAndTeacherData } from "./subjectAndTeacher";
 import { DIRNAME } from "./DIRNAME";
 import { prisma } from "@/server/prisma";
+import { BALANCED_PRESET } from "@/server/services/timetableGenerator/config";
 
 async function sampleDataUpload(timetableName: string, organizationId: string) {
   const timetable = await prisma.timetable.upsert({
     create: {
       name: timetableName,
       organizationId,
+      generationConfig: {
+        create: {
+          config: BALANCED_PRESET,
+        },
+      },
     },
     update: {},
     where: {
