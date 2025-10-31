@@ -1,4 +1,4 @@
-import { eq, useLiveQuery } from "@tanstack/react-db";
+import { eq, useLiveQuery, or } from "@tanstack/react-db";
 import { useCollections } from "@/db-collections/providers/useCollections";
 
 export function useBusySlots(lectureSlotId: string | null) {
@@ -35,10 +35,12 @@ export function useBusySlotsByTeacher(lectureSlotId: string | null) {
 
   // Get lectureId from lectureSlot
   const lectureSlot = allLectureSlotCollection.get(lectureSlotId);
-  if (!lectureSlot) return new Set<string>();
+  // if (!lectureSlot) return new Set<string>();
 
   // Get teacherId from lecture
-  const lecture = allLectureCollection.get(lectureSlot.lectureId);
+  const lecture = allLectureCollection.get(
+    lectureSlot?.lectureId ?? lectureSlotId,
+  );
   if (!lecture) return new Set<string>();
 
   // Get all lectures for the teacher
@@ -128,10 +130,12 @@ export function useBusySlotsByClassroom(lectureSlotId: string | null) {
 
   // Get lectureId from lectureSlot
   const lectureSlot = allLectureSlotCollection.get(lectureSlotId);
-  if (!lectureSlot) return new Set<string>();
+  // if (!lectureSlot) return new Set<string>();
 
   // Get lecture
-  const lecture = allLectureCollection.get(lectureSlot.lectureId);
+  const lecture = allLectureCollection.get(
+    lectureSlot?.lectureId ?? lectureSlotId,
+  );
   if (!lecture) return new Set<string>();
 
   // Find all classrooms for the initial lecture
@@ -175,7 +179,12 @@ export function useBusySlotsBySubdivision(lectureSlotId: string | null) {
     (q) =>
       q
         .from({ comp: completeLectureOnlyCollection })
-        .where(({ comp }) => eq(comp.lectureSlotId, lectureSlotId)),
+        .where(({ comp }) =>
+          or(
+            eq(comp.lectureSlotId, lectureSlotId),
+            eq(comp.lectureId, lectureSlotId),
+          ),
+        ),
     [completeLectureOnlyCollection, lectureSlotId],
   );
 
