@@ -305,7 +305,10 @@ export interface FunctionContext {
  */
 export const functionImplementations: Record<
   string,
-  (args: Record<string, any>, context: FunctionContext) => Promise<string> | string
+  (
+    args: Record<string, any>,
+    context: FunctionContext,
+  ) => Promise<string> | string
 > = {
   hello_world: (args: { name?: string }) => {
     const name = args.name || "there";
@@ -359,6 +362,7 @@ export const functionImplementations: Record<
     return JSON.stringify(result, null, 2);
   },
 
+  // @ts-expect-error args is unused for now
   get_timetable_statistics: async (args, context) => {
     const result = await getTimetableStatistics(context.prisma, {
       timetableId: context.timetableId,
@@ -425,7 +429,7 @@ export const functionImplementations: Record<
 export async function executeFunction(
   functionName: string,
   args: Record<string, any> | undefined,
-  context: FunctionContext
+  context: FunctionContext,
 ): Promise<string> {
   console.log(`⚙️ [Functions] Executing function: ${functionName}`);
   console.log(`📝 [Functions] Arguments:`, args);
@@ -441,13 +445,13 @@ export async function executeFunction(
     const result = await implementation(args || {}, context);
     console.log(
       `✅ [Functions] Function executed successfully:`,
-      result.substring(0, 100)
+      result.substring(0, 100),
     );
     return result;
   } catch (error) {
     console.error(`❌ [Functions] Error executing ${functionName}:`, error);
     throw new Error(
-      `Failed to execute function: ${functionName}. ${error instanceof Error ? error.message : String(error)}`
+      `Failed to execute function: ${functionName}. ${error instanceof Error ? error.message : String(error)}`,
     );
   }
 }

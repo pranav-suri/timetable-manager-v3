@@ -21,7 +21,7 @@ interface ChatInterfaceProps {
   timetableId: string;
   onSendMessage: (message: string, history: Message[]) => Promise<string>;
 }
-
+// @ts-ignore timetableId not used yet
 export function ChatInterface({ timetableId, onSendMessage }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([
     {

@@ -25,7 +25,7 @@ const getTodos = createServerFn({
 }).handler(async () => await readTodos());
 
 const addTodo = createServerFn({ method: "POST" })
-  .validator((d: string) => d)
+  .inputValidator((d: string) => d)
   .handler(async ({ data }) => {
     const todos = await readTodos();
     todos.push({ id: todos.length + 1, name: data });
@@ -45,6 +45,8 @@ function Home() {
   const [todo, setTodo] = useState("");
 
   const submitTodo = useCallback(async () => {
+    // @eslint-disable-next-line react-hooks/exhaustive-deps this is auto created file
+    // @ts-ignore this is an auto-generated file
     todos = await addTodo({ data: todo });
     setTodo("");
     router.invalidate();

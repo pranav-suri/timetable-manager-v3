@@ -14,19 +14,17 @@ const config = defineConfig({
     }),
     tailwindcss(),
     tanstackStart({
-      customViteReactPlugin: true,
       spa: {
         enabled: true, // True turns off SSR
       },
     }),
     viteReact({
       babel: {
-        plugins: [["babel-plugin-react-compiler", {}]],
+        plugins: [["babel-plugin-react-compiler"]],
       },
     }),
   ],
   server: { watch: { ignored: ["./prisma/**/*"] } },
-  dev: { sourcemap: true },
 });
 
 export default config;

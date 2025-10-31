@@ -1,6 +1,7 @@
 import { Prisma, PrismaClient } from "generated/prisma/client";
 import sampleDataUpload from "./controllers/sampleData";
 import * as bcrypt from "bcrypt";
+import "dotenv/config";
 
 const BCRYPT_ROUNDS = 12;
 
@@ -108,4 +109,8 @@ async function main() {
   }
 }
 
-main();
+// Only run main() during development, not during build/prerendering
+// During prerendering, the database may not exist, so skip initialization
+if (process.env.NODE_ENV !== "production") {
+  main();
+}
