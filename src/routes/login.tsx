@@ -39,8 +39,8 @@ function LoginPage() {
       // Redirect to home
       navigate({ to: "/tt" });
     },
-    onError: (error: any) => {
-      setError(error.message);
+    onError: (e) => {
+      setError(e.message);
     },
   });
 
@@ -115,7 +115,7 @@ function LoginPage() {
               Email: admin@example.com
             </Typography>
             <Typography variant="caption" display="block">
-              Password: ChangeMe123!
+              Password: 12345678
             </Typography>
             <Typography
               variant="caption"

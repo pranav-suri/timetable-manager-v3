@@ -40,7 +40,7 @@ export const DEFAULT_GA_CONFIG: GAConfig = {
     excessivelyFilledDay: 4,
     multiDurationLate: 5,
     deprioritizedDay: 3,
-    deprioritizedSlot: 2,
+    deprioritizedSlot: 200,
     deprioritizedDaySlot: 5,
   },
 };
