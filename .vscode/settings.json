@@ -1,17 +1,19 @@
 {
   "files.watcherExclude": {
     "**/routeTree.gen.ts": true,
-    "**/generated/**": true
+    "**/generated/**": true,
+    "**/dist/**": true
   },
   "search.exclude": {
     "**/routeTree.gen.ts": true,
-    "**/generated/**": true
+    "**/generated/**": true,
+    "**/dist/**": true
   },
   "files.readonlyInclude": {
     "**/routeTree.gen.ts": true,
     "**/generated/**": true
   },
-  "typescript.experimental.useTsgo": false,
+  "typescript.experimental.useTsgo": true,
   "sqltools.connections": [
     {
       "ssh": "Disabled",
