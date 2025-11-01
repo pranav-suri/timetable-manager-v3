@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
-import { availableFunctions, executeFunction  } from "./functions";
-import type {FunctionContext} from "./functions";
+import { availableFunctions, executeFunction } from "./functions";
+import type { FunctionContext } from "./functions";
 import { env } from "@/env";
 
 /**
@@ -96,11 +96,11 @@ Help the user with timetable-related queries and tasks.`;
         console.log(
           `⚙️ [Gemini Client] Executing function: ${functionCall.name}...`,
         );
-        
+
         if (!functionContext) {
           throw new Error("Function context is required but not provided");
         }
-        
+
         const functionResult = await executeFunction(
           functionCall.name,
           functionCall.args as Record<string, any> | undefined,

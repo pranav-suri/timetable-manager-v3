@@ -16,13 +16,11 @@ export function UnscheduledLecturesList() {
     (q) =>
       q
         .from({ lecture: lectureCollection })
-        .innerJoin(
-          { subject: subjectCollection },
-          ({ lecture, subject }) => eq(lecture.subjectId, subject.id)
+        .innerJoin({ subject: subjectCollection }, ({ lecture, subject }) =>
+          eq(lecture.subjectId, subject.id),
         )
-        .innerJoin(
-          { teacher: teacherCollection },
-          ({ lecture, teacher }) => eq(lecture.teacherId, teacher.id)
+        .innerJoin({ teacher: teacherCollection }, ({ lecture, teacher }) =>
+          eq(lecture.teacherId, teacher.id),
         )
         .orderBy(({ subject }) => subject.name)
         .select(({ lecture, subject, teacher }) => ({
@@ -30,19 +28,22 @@ export function UnscheduledLecturesList() {
           subjectName: subject.name,
           teacherName: teacher.name,
         })),
-    [lectureCollection, subjectCollection, teacherCollection]
+    [lectureCollection, subjectCollection, teacherCollection],
   );
 
   // Get all lecture slots to determine which lectures are scheduled
   const { data: allLectureSlots } = useLiveQuery(
     (q) => q.from({ lectureSlot: lectureSlotCollection }),
-    [lectureSlotCollection]
+    [lectureSlotCollection],
   );
 
   // Count lecture slots per lecture
   const lectureSlotCounts = new Map<string, number>();
   allLectureSlots.forEach((ls) => {
-    lectureSlotCounts.set(ls.lectureId, (lectureSlotCounts.get(ls.lectureId) || 0) + 1);
+    lectureSlotCounts.set(
+      ls.lectureId,
+      (lectureSlotCounts.get(ls.lectureId) || 0) + 1,
+    );
   });
 
   // Filter to only unscheduled lectures (those with slot count < duration * count)
@@ -54,7 +55,8 @@ export function UnscheduledLecturesList() {
   if (unscheduledLectures.length === 0) {
     return (
       <Alert severity="info" sx={{ mt: 1 }}>
-        No unscheduled lectures. All lectures have been assigned to the timetable.
+        No unscheduled lectures. All lectures have been assigned to the
+        timetable.
       </Alert>
     );
   }

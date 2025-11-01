@@ -18,8 +18,8 @@ interface DraggableLectureCardProps {
 }
 
 export function DraggableLectureCard({ lecture }: DraggableLectureCardProps) {
-    const theme = useTheme();
-    const {
+  const theme = useTheme();
+  const {
     subdivisionCollection,
     classroomCollection,
     lectureSubdivisionCollection,
@@ -32,16 +32,16 @@ export function DraggableLectureCard({ lecture }: DraggableLectureCardProps) {
       q
         .from({ lectureSubdivision: lectureSubdivisionCollection })
         .where(({ lectureSubdivision }) =>
-          eq(lectureSubdivision.lectureId, lecture.id)
+          eq(lectureSubdivision.lectureId, lecture.id),
         )
         .innerJoin(
           { subdivision: subdivisionCollection },
           ({ lectureSubdivision, subdivision }) =>
-            eq(lectureSubdivision.subdivisionId, subdivision.id)
+            eq(lectureSubdivision.subdivisionId, subdivision.id),
         )
         .select(({ subdivision }) => ({ ...subdivision }))
         .orderBy(({ subdivision }) => subdivision.name),
-    [lecture.id, lectureSubdivisionCollection, subdivisionCollection]
+    [lecture.id, lectureSubdivisionCollection, subdivisionCollection],
   );
 
   // Get classrooms for this lecture
@@ -50,16 +50,16 @@ export function DraggableLectureCard({ lecture }: DraggableLectureCardProps) {
       q
         .from({ lectureClassroom: lectureClassroomCollection })
         .where(({ lectureClassroom }) =>
-          eq(lectureClassroom.lectureId, lecture.id)
+          eq(lectureClassroom.lectureId, lecture.id),
         )
         .innerJoin(
           { classroom: classroomCollection },
           ({ lectureClassroom, classroom }) =>
-            eq(lectureClassroom.classroomId, classroom.id)
+            eq(lectureClassroom.classroomId, classroom.id),
         )
         .select(({ classroom }) => ({ ...classroom }))
         .orderBy(({ classroom }) => classroom.name),
-    [lecture.id, lectureClassroomCollection, classroomCollection]
+    [lecture.id, lectureClassroomCollection, classroomCollection],
   );
 
   const { attributes, listeners, setNodeRef, transform, isDragging } =
@@ -93,19 +93,21 @@ export function DraggableLectureCard({ lecture }: DraggableLectureCardProps) {
     >
       <CardContent sx={{ padding: "8px !important" }}>
         <Typography variant="body2" sx={{ fontWeight: 500, mb: 0.5 }}>
-          📚 {viewAllData ? lecture.subjectName : lecture.subjectName.slice(0, 8)}
+          📚{" "}
+          {viewAllData ? lecture.subjectName : lecture.subjectName.slice(0, 8)}
         </Typography>
         <Typography variant="caption" display="block" sx={{ mb: 0.5 }}>
-          👤 {viewAllData ? lecture.teacherName : lecture.teacherName.slice(0, 8)}
+          👤{" "}
+          {viewAllData ? lecture.teacherName : lecture.teacherName.slice(0, 8)}
         </Typography>
         {subdivisions.length > 0 && (
           <Typography variant="caption" display="block" sx={{ mb: 0.5 }}>
-            👥 {subdivisions.map(s => s.name).join(", ")}
+            👥 {subdivisions.map((s) => s.name).join(", ")}
           </Typography>
         )}
         {classrooms.length > 0 && (
           <Typography variant="caption" display="block" sx={{ mb: 0.5 }}>
-            🏫 {classrooms.map(c => c.name).join(", ")}
+            🏫 {classrooms.map((c) => c.name).join(", ")}
           </Typography>
         )}
         <Typography variant="caption" display="block" sx={{ fontWeight: 500 }}>

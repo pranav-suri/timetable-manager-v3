@@ -1,5 +1,5 @@
 import { Box, Typography } from "@mui/material";
-import { useDndContext , useDroppable} from "@dnd-kit/core";
+import { useDndContext, useDroppable } from "@dnd-kit/core";
 
 export function DroppableInventoryArea() {
   const { active } = useDndContext();
@@ -7,7 +7,9 @@ export function DroppableInventoryArea() {
     id: "inventory-drop-zone",
   });
 
-  const isDraggingLectureSlot = active?.id.toString().startsWith("lectureSlot-");
+  const isDraggingLectureSlot = active?.id
+    .toString()
+    .startsWith("lectureSlot-");
 
   return (
     <Box
@@ -15,10 +17,12 @@ export function DroppableInventoryArea() {
       sx={{
         minHeight: 80,
         border: "2px dashed",
-        borderColor: isOver && isDraggingLectureSlot ? "primary.main" : "grey.300",
+        borderColor:
+          isOver && isDraggingLectureSlot ? "primary.main" : "grey.300",
         borderRadius: 1,
         p: 2,
-        backgroundColor: isOver && isDraggingLectureSlot ? "primary.50" : "transparent",
+        backgroundColor:
+          isOver && isDraggingLectureSlot ? "primary.50" : "transparent",
         transition: "all 0.2s ease",
         display: "flex",
         alignItems: "center",
@@ -27,7 +31,9 @@ export function DroppableInventoryArea() {
     >
       <Typography
         variant="body2"
-        color={isOver && isDraggingLectureSlot ? "primary.main" : "text.secondary"}
+        color={
+          isOver && isDraggingLectureSlot ? "primary.main" : "text.secondary"
+        }
         align="center"
       >
         {isOver && isDraggingLectureSlot

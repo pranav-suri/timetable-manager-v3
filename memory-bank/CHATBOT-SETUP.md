@@ -23,6 +23,7 @@ GEMINI_API_KEY=your_actual_api_key_here
 ```
 
 **How to get a Gemini API key:**
+
 1. Visit [Google AI Studio](https://aistudio.google.com/app/apikey)
 2. Sign in with your Google account
 3. Click "Create API Key"
@@ -50,42 +51,53 @@ The application will be available at `http://localhost:3000`
 ### Test Cases
 
 #### Test 1: Basic Function Call
+
 **User Input:**
+
 ```
 Call the hello world function
 ```
 
 **Expected Response:**
 The AI should recognize this as a function call request and execute the `hello_world` function, returning:
+
 ```
 Hello, there! 👋 This is a response from the hello_world function. The function calling system is working correctly!
 ```
 
 #### Test 2: Function Call with Parameter
+
 **User Input:**
+
 ```
 Call the hello world function with the name "Alice"
 ```
 
 **Expected Response:**
+
 ```
 Hello, Alice! 👋 This is a response from the hello_world function. The function calling system is working correctly!
 ```
 
 #### Test 3: Natural Language Request
+
 **User Input:**
+
 ```
 Can you greet me? My name is Bob.
 ```
 
 **Expected Response:**
 The AI should understand the intent and call the function:
+
 ```
 Hello, Bob! 👋 This is a response from the hello_world function. The function calling system is working correctly!
 ```
 
 #### Test 4: General Conversation
+
 **User Input:**
+
 ```
 What can you help me with?
 ```
@@ -146,7 +158,7 @@ sequenceDiagram
     User->>Frontend: Type message
     Frontend->>tRPC: sendMessage()
     tRPC->>Gemini: Send message + function definitions
-    
+
     alt Function needed
         Gemini->>Function: Call function
         Function->>Gemini: Return result
@@ -154,7 +166,7 @@ sequenceDiagram
     else No function needed
         Gemini->>tRPC: Direct response
     end
-    
+
     tRPC->>Frontend: Response
     Frontend->>User: Display message
 ```
@@ -214,10 +226,13 @@ The AI will automatically be able to call your new function!
 ## Troubleshooting
 
 ### Issue: "GEMINI_API_KEY is required"
+
 **Solution**: Make sure you've added the API key to your `.env` file and restarted the dev server.
 
 ### Issue: TypeScript errors in chatbot.tsx
+
 **Solution**: The route types are auto-generated. If errors persist after the dev server starts, try:
+
 ```bash
 # Stop the dev server (Ctrl+C)
 # Restart it
@@ -225,17 +240,22 @@ npm run dev
 ```
 
 ### Issue: Function not being called
-**Solution**: 
+
+**Solution**:
+
 1. Check the function definition matches the expected schema
 2. Ensure the function name is in `availableFunctions`
 3. Ensure the implementation is in `functionImplementations`
 4. Check browser console for errors
 
 ### Issue: "Timetable not found" error
+
 **Solution**: Make sure you're accessing the chatbot from a valid timetable page that belongs to your organization.
 
 ### Issue: Chat not loading
+
 **Solution**:
+
 1. Check browser console for errors
 2. Verify the dev server is running
 3. Check that you're logged in
@@ -288,6 +308,7 @@ npm run dev
 ## Support
 
 If you encounter issues:
+
 1. Check the browser console for errors
 2. Check the server logs in the terminal
 3. Verify environment variables are set correctly

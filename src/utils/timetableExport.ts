@@ -4,7 +4,6 @@ import { DAY_NAMES } from "./constants";
 import { prisma } from "@/server/prisma";
 import getColor from "@/utils/getColor";
 
-
 export interface LectureExportData {
   subjectName: string;
   teacherName: string;

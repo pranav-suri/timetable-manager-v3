@@ -5,9 +5,17 @@ import eslintPluginImportX from "eslint-plugin-import-x";
 import eslintReactHooks from "eslint-plugin-react-hooks";
 
 export default [
+  {
+    ignores: [
+      "dist",
+      "node_modules",
+      "generated/**",
+      "backupFiles/**",
+      ".nitro/**",
+    ],
+  },
   ...tanstackConfig,
   {
-    ignores: ["**/dist/**", "**/node_modules/**", "**/generated/**"],
     plugins: {
       "@typescript-eslint": typescriptEslintPlugin,
       import: eslintPluginImportX,
@@ -45,7 +53,7 @@ export default [
       ],
       "import/order": "off",
       "sort-imports": "off",
-      "eslint@typescript-eslint/consistent-type-imports": "off"
+      "@typescript-eslint/consistent-type-imports": "off",
     },
   },
 ];

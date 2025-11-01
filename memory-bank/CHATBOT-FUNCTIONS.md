@@ -35,14 +35,17 @@ User Query → Chatbot UI → tRPC → Gemini AI → Function Call
 ### Phase 1: Information Retrieval (5 Functions)
 
 #### 1. `get_teachers_list`
+
 **Purpose**: List all teachers with optional filtering
 
 **Example Queries**:
+
 - "Show me all teachers"
 - "Who teaches Mathematics?"
 - "Which teachers have at least 5 hours available?"
 
 **Parameters**:
+
 - `subjectName` (optional): Filter by subject
 - `minAvailableHours` (optional): Minimum available capacity
 
@@ -51,14 +54,17 @@ User Query → Chatbot UI → tRPC → Gemini AI → Function Call
 ---
 
 #### 2. `get_schedule_for_entity`
+
 **Purpose**: Get complete schedule for teacher/classroom/subdivision
 
 **Example Queries**:
+
 - "What's Dr. Smith's schedule?"
 - "Show me Room 301's schedule for Monday"
 - "When does Division A have classes?"
 
 **Parameters**:
+
 - `entityType` (required): "teacher", "classroom", or "subdivision"
 - `entityId` or `entityName` (one required): Entity identifier
 - `day` (optional): Specific day filter (0-6)
@@ -68,14 +74,17 @@ User Query → Chatbot UI → tRPC → Gemini AI → Function Call
 ---
 
 #### 3. `find_available_slots`
+
 **Purpose**: Find free time slots for an entity
 
 **Example Queries**:
+
 - "When is Prof. Johnson available?"
 - "Find 3 consecutive free slots for Division B"
 - "Is Room 205 free on Wednesday?"
 
 **Parameters**:
+
 - `entityType` (required): Entity type
 - `entityId` or `entityName` (one required): Entity identifier
 - `day` (optional): Day filter
@@ -86,14 +95,17 @@ User Query → Chatbot UI → tRPC → Gemini AI → Function Call
 ---
 
 #### 4. `check_conflicts`
+
 **Purpose**: Detect scheduling conflicts
 
 **Example Queries**:
+
 - "Are there any conflicts in the schedule?"
 - "Check for teacher double-bookings"
 - "Show conflicts for Dr. Smith"
 
 **Parameters**:
+
 - `scope` (optional): "all", "teachers", "classrooms", "subdivisions"
 - `entityId` (optional): Check specific entity
 
@@ -102,14 +114,17 @@ User Query → Chatbot UI → tRPC → Gemini AI → Function Call
 ---
 
 #### 5. `get_timetable_statistics`
+
 **Purpose**: Overall timetable metrics and health
 
 **Example Queries**:
+
 - "Give me timetable statistics"
 - "How is the schedule doing?"
 - "Show me utilization metrics"
 
 **Returns**: Comprehensive statistics including:
+
 - Resource counts
 - Utilization percentages
 - Workload distribution
@@ -120,24 +135,29 @@ User Query → Chatbot UI → tRPC → Gemini AI → Function Call
 ### Phase 3: AI-Powered Insights (5 Functions)
 
 #### 6. `suggest_lecture_placement`
+
 **Purpose**: Recommend optimal slots for a lecture
 
 **Example Queries**:
+
 - "Where should I place this Math lecture?"
 - "Suggest slots for lecture xyz123"
 - "Best time for this class, avoiding consecutive lectures?"
 
 **Parameters**:
+
 - `lectureId` (required): Lecture to place
 - `preferredDays` (optional): Preferred days array
 - `avoidConsecutive` (optional): Avoid back-to-back lectures
 
 **Returns**: Scored recommendations (0-100) with:
+
 - Pros and cons for each slot
 - Workload impact analysis
 - Reasoning for each recommendation
 
 **Scoring Algorithm** (100 points total):
+
 - Availability (30pts)
 - Workload Balance (25pts)
 - Weekly Distribution (20pts)
@@ -147,25 +167,30 @@ User Query → Chatbot UI → tRPC → Gemini AI → Function Call
 ---
 
 #### 7. `find_substitute_teacher`
+
 **Purpose**: Find replacement teachers
 
 **Example Queries**:
+
 - "Who can substitute for Physics lecture?"
 - "Find a replacement for Prof. Davis"
 - "Alternative teachers for Math on Monday slot 3"
 
 **Parameters**:
+
 - `subjectName` (required): Subject needing coverage
 - `slotId` (required): Time slot
 - `primaryTeacherId` (optional): Teacher to exclude
 
 **Returns**: Ranked substitutes with:
+
 - Suitability scores
 - Subject expertise match
 - Availability and capacity
 - Concerns and recommendations
 
 **Scoring Algorithm** (100 points total):
+
 - Subject Expertise (40pts)
 - Availability (30pts)
 - Capacity (20pts)
@@ -174,23 +199,28 @@ User Query → Chatbot UI → tRPC → Gemini AI → Function Call
 ---
 
 #### 8. `recommend_classroom`
+
 **Purpose**: Suggest suitable classrooms
 
 **Example Queries**:
+
 - "Which classroom for this lecture?"
 - "Recommend a room for Physics lab"
 - "Best classroom for Division A Math class"
 
 **Parameters**:
+
 - `lectureId` (required): Lecture needing classroom
 - `slotId` (optional): If slot already chosen
 
 **Returns**: Scored classroom options with:
+
 - Availability status
 - Subject compatibility
 - Utilization balance
 
 **Scoring Algorithm** (100 points total):
+
 - Availability (50pts)
 - Subject Compatibility (30pts)
 - Utilization Balance (20pts)
@@ -198,17 +228,21 @@ User Query → Chatbot UI → tRPC → Gemini AI → Function Call
 ---
 
 #### 9. `analyze_teacher_workload`
+
 **Purpose**: Deep workload analysis
 
 **Example Queries**:
+
 - "Analyze teacher workload"
 - "Is anyone overloaded?"
 - "Show me Dr. Smith's workload analysis"
 
 **Parameters**:
+
 - `teacherId` (optional): Specific teacher or all
 
 **Returns**: Detailed analysis including:
+
 - Current vs. maximum hours
 - Daily breakdown
 - Consecutive lecture patterns
@@ -217,6 +251,7 @@ User Query → Chatbot UI → tRPC → Gemini AI → Function Call
 - Specific concerns and recommendations
 
 **Insights Generated**:
+
 - Most overloaded teacher
 - Most underutilized teacher
 - Average utilization percentage
@@ -225,14 +260,17 @@ User Query → Chatbot UI → tRPC → Gemini AI → Function Call
 ---
 
 #### 10. `suggest_optimization`
+
 **Purpose**: Comprehensive timetable improvement suggestions
 
 **Example Queries**:
+
 - "How can I improve the timetable?"
 - "Optimize for balanced workload"
 - "Suggest improvements to reduce conflicts"
 
 **Parameters**:
+
 - `optimizationGoal` (optional): Focus area
   - "balance_workload"
   - "minimize_gaps"
@@ -240,6 +278,7 @@ User Query → Chatbot UI → tRPC → Gemini AI → Function Call
   - "reduce_conflicts"
 
 **Returns**: Strategic recommendations including:
+
 - Health score (0-100)
 - Major issues list
 - Opportunity areas
@@ -248,6 +287,7 @@ User Query → Chatbot UI → tRPC → Gemini AI → Function Call
 - Long-term suggestions
 
 **Health Score Calculation**:
+
 - Start at 100
 - Deduct for conflicts (up to 30pts)
 - Deduct for workload imbalance
@@ -296,16 +336,19 @@ User: "Give me suggestions to improve the schedule"
 ## Security & Access Control
 
 ### Multi-Tenancy
+
 - All functions receive `organizationId` in context
 - Database queries automatically filter by organization
 - Timetable ownership verified before function execution
 
 ### Authentication
+
 - Functions only callable through authenticated tRPC endpoint
 - Context includes verified user session
 - No direct API access to functions
 
 ### Data Safety
+
 - **Read-only operations**: No write/delete capabilities
 - All mutations must go through standard CRUD endpoints
 - Functions cannot modify timetable data
@@ -313,12 +356,14 @@ User: "Give me suggestions to improve the schedule"
 ## Performance Considerations
 
 ### Optimization Strategies
+
 1. **Selective Field Loading**: Only fetch required fields
 2. **Efficient Queries**: Use Prisma includes strategically
 3. **Caching Potential**: Results can be cached by timetableId
 4. **Pagination**: Not yet implemented but recommended for large datasets
 
 ### Query Complexity
+
 - Most queries: 1-3 database calls
 - Complex functions (statistics, optimization): Up to 10 calls
 - All queries use indexed fields for performance
@@ -326,6 +371,7 @@ User: "Give me suggestions to improve the schedule"
 ## Error Handling
 
 ### Function-Level Errors
+
 ```typescript
 try {
   const result = await functionImplementation(args, context);
@@ -338,6 +384,7 @@ try {
 ```
 
 ### Common Error Types
+
 1. **Not Found**: Entity doesn't exist
 2. **Access Denied**: Timetable not in organization
 3. **Invalid Parameters**: Missing required fields
@@ -348,6 +395,7 @@ try {
 ### Manual Testing Checklist
 
 #### Phase 1 Functions
+
 - [ ] List teachers (with and without filters)
 - [ ] Get schedule for teacher/classroom/subdivision
 - [ ] Find available slots (single and consecutive)
@@ -355,6 +403,7 @@ try {
 - [ ] Get statistics
 
 #### Phase 3 Functions
+
 - [ ] Suggest lecture placement with various parameters
 - [ ] Find substitute teachers
 - [ ] Recommend classrooms
@@ -362,11 +411,13 @@ try {
 - [ ] Get optimization suggestions
 
 ### Test Queries
+
 See `test-queries.md` for comprehensive test scenarios (create this file as needed).
 
 ## Future Enhancements
 
 ### Potential Phase 2 Features (Not Implemented)
+
 - Smart lecture creation with AI assistance
 - Bulk operations (create multiple lectures)
 - Schedule swapping and moving
@@ -374,6 +425,7 @@ See `test-queries.md` for comprehensive test scenarios (create this file as need
 - Lock/unlock lecture slots
 
 ### Advanced Analytics
+
 - Historical trend analysis
 - Predictive scheduling
 - What-if scenarios
@@ -381,6 +433,7 @@ See `test-queries.md` for comprehensive test scenarios (create this file as need
 - Resource forecasting
 
 ### Performance Improvements
+
 - Response caching
 - Pagination for large result sets
 - Aggregation optimizations
@@ -391,21 +444,25 @@ See `test-queries.md` for comprehensive test scenarios (create this file as need
 ### Common Issues
 
 **Issue**: Function not being called
+
 - Check function definition in `functions.ts`
 - Verify function name matches implementation
 - Check Gemini logs for function call attempts
 
 **Issue**: Context errors
+
 - Ensure `timetableId` is valid
 - Verify user has access to timetable
 - Check `organizationId` matches
 
 **Issue**: Slow responses
+
 - Check database query efficiency
 - Consider adding indexes
 - Review included relations
 
 **Issue**: Incorrect results
+
 - Verify filter logic
 - Check entity name matching (case-insensitive)
 - Review scoring algorithms
@@ -413,6 +470,7 @@ See `test-queries.md` for comprehensive test scenarios (create this file as need
 ## Monitoring & Logging
 
 ### Key Metrics to Track
+
 - Function call frequency
 - Average response time per function
 - Error rates
@@ -420,6 +478,7 @@ See `test-queries.md` for comprehensive test scenarios (create this file as need
 - Cache hit rates (if implemented)
 
 ### Log Locations
+
 - Function execution: Console logs with `[Functions]` prefix
 - Gemini API calls: Console logs with `[Gemini Client]` prefix
 - Router level: Console logs with `[Chatbot]` prefix
@@ -429,19 +488,25 @@ See `test-queries.md` for comprehensive test scenarios (create this file as need
 ### Adding New Functions
 
 1. **Define in `functions.ts`**:
+
 ```typescript
 export const myNewFunction = {
   name: "my_new_function",
   description: "What it does",
-  parameters: { /* Gemini schema */ },
+  parameters: {
+    /* Gemini schema */
+  },
 };
 ```
 
 2. **Implement in `implementations/`**:
+
 ```typescript
 export async function myNewFunction(
   prisma: PrismaClient,
-  args: { /* typed args */ }
+  args: {
+    /* typed args */
+  },
 ) {
   // Implementation
   return result;
@@ -449,6 +514,7 @@ export async function myNewFunction(
 ```
 
 3. **Wire up in `functionImplementations`**:
+
 ```typescript
 my_new_function: async (args, context) => {
   const result = await myNewFunction(context.prisma, {
@@ -469,8 +535,9 @@ my_new_function: async (args, context) => {
 ## Summary
 
 The chatbot now has **10 powerful read-only functions** that provide:
+
 - Complete timetable visibility
-- Intelligent scheduling recommendations  
+- Intelligent scheduling recommendations
 - Workload analysis and optimization
 - Conflict detection and resolution guidance
 - Natural language interface to complex data

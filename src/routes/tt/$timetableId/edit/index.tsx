@@ -54,11 +54,7 @@ function RouteComponent() {
   };
 
   return (
-    <DndContext
-      {...handlers}
-      autoScroll={true}
-      sensors={sensors}
-    >
+    <DndContext {...handlers} autoScroll={true} sensors={sensors}>
       <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
         <Main
           drawerState={drawerState}

@@ -16,7 +16,10 @@ const chatMessageSchema = z.object({
  * Input schema for sending a message
  */
 const sendMessageInputSchema = z.object({
-  message: z.string().min(1, "Message cannot be empty").max(5000, "Message too long"),
+  message: z
+    .string()
+    .min(1, "Message cannot be empty")
+    .max(5000, "Message too long"),
   timetableId: z.string().min(1, "Timetable ID is required"),
   conversationHistory: z.array(chatMessageSchema).optional().default([]),
 });
@@ -72,24 +75,33 @@ export const chatbotRouter = createTRPCRouter({
         console.log("📋 [Chatbot] Step 2: Preparing system context...");
 
         // Prepare conversation with system context
-        const contextualizedHistory: ChatMessage[] = [
-          ...conversationHistory,
-        ];
+        const contextualizedHistory: ChatMessage[] = [...conversationHistory];
 
-        console.log("✅ [Chatbot] Step 2 Complete: History prepared with", contextualizedHistory.length, "messages");
+        console.log(
+          "✅ [Chatbot] Step 2 Complete: History prepared with",
+          contextualizedHistory.length,
+          "messages",
+        );
 
         // Send message to Gemini with function context
         console.log("📤 [Chatbot] Step 3: Calling Gemini API...");
         console.log("💬 [Chatbot] User message:", message);
-        
-        const reply = await sendMessageToGemini(message, contextualizedHistory, {
-          prisma: ctx.prisma,
-          timetableId,
-          organizationId: session.organizationId,
-        });
-        
+
+        const reply = await sendMessageToGemini(
+          message,
+          contextualizedHistory,
+          {
+            prisma: ctx.prisma,
+            timetableId,
+            organizationId: session.organizationId,
+          },
+        );
+
         console.log("✅ [Chatbot] Step 3 Complete: Received reply from Gemini");
-        console.log("📥 [Chatbot] Reply preview:", reply.substring(0, 100) + "...");
+        console.log(
+          "📥 [Chatbot] Reply preview:",
+          reply.substring(0, 100) + "...",
+        );
 
         const response = {
           reply,
@@ -105,7 +117,7 @@ export const chatbotRouter = createTRPCRouter({
           message: error instanceof Error ? error.message : String(error),
           isTRPCError: error instanceof TRPCError,
         });
-        
+
         if (error instanceof Error && error.stack) {
           console.error("📚 [Chatbot] Stack trace:");
           console.error(error.stack);
@@ -113,7 +125,10 @@ export const chatbotRouter = createTRPCRouter({
 
         // Handle specific error types
         if (error instanceof TRPCError) {
-          console.error("🚫 [Chatbot] Re-throwing TRPCError with code:", error.code);
+          console.error(
+            "🚫 [Chatbot] Re-throwing TRPCError with code:",
+            error.code,
+          );
           throw error;
         }
 

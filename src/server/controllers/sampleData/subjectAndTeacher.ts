@@ -120,17 +120,13 @@ async function uploadTeachData(
   });
 
   let teachCreate = parsedCsv.data.map((row) => {
-    const subject = subjects.find((s) =>
-      areEqual(s.name, row.subject_name),
-    );
+    const subject = subjects.find((s) => areEqual(s.name, row.subject_name));
     if (!subject)
       throw new Error(
         `Subject ${row.subject_name} not found with groupId in ${groupIds}`,
       );
 
-    const teacher = teachers.find((t) =>
-      areEqual(t.name, row.teacher_name),
-    );
+    const teacher = teachers.find((t) => areEqual(t.name, row.teacher_name));
     if (!teacher)
       throw new Error(
         `Teacher ${row.teacher_name} not found with timetableId ${timetableId}`,

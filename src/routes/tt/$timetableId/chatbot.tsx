@@ -30,7 +30,7 @@ function ChatbotPage() {
       throw new Error(
         error instanceof Error
           ? error.message
-          : "Failed to communicate with the chatbot"
+          : "Failed to communicate with the chatbot",
       );
     }
   };
@@ -62,16 +62,20 @@ function ChatbotPage() {
       </Paper>
 
       {/* Chat Interface */}
-      <ChatInterface timetableId={timetableId} onSendMessage={handleSendMessage} />
+      <ChatInterface
+        timetableId={timetableId}
+        onSendMessage={handleSendMessage}
+      />
 
       {/* Info Section */}
       <Box sx={{ mt: 3 }}>
         <Typography variant="caption" color="text.secondary" display="block">
-          💡 Try asking: "Explain how the timetable generation works" or "Show me the classes scheduled for today"
+          💡 Try asking: "Explain how the timetable generation works" or "Show
+          me the classes scheduled for today"
         </Typography>
         <Typography variant="caption" color="text.secondary" display="block">
-          This chatbot is powered by Google Gemini 2.0 Flash with function calling
-          capabilities and supports markdown formatting.
+          This chatbot is powered by Google Gemini 2.0 Flash with function
+          calling capabilities and supports markdown formatting.
         </Typography>
       </Box>
     </Container>

@@ -12,7 +12,11 @@ interface MessageBubbleProps {
   timestamp?: string;
 }
 
-export function MessageBubble({ role, content, timestamp }: MessageBubbleProps) {
+export function MessageBubble({
+  role,
+  content,
+  timestamp,
+}: MessageBubbleProps) {
   const isUser = role === "user";
 
   return (
@@ -142,7 +146,11 @@ export function MessageBubble({ role, content, timestamp }: MessageBubbleProps) 
                 </Typography>
               ),
               h3: ({ children }) => (
-                <Typography variant="subtitle1" component="h3" fontWeight="bold">
+                <Typography
+                  variant="subtitle1"
+                  component="h3"
+                  fontWeight="bold"
+                >
                   {children}
                 </Typography>
               ),

@@ -29,7 +29,7 @@ export async function suggestLecturePlacement(
     lectureId: string;
     preferredDays?: number[];
     avoidConsecutive?: boolean;
-  }
+  },
 ) {
   await verifyTimetableAccess(prisma, args.timetableId, args.organizationId);
 
@@ -61,13 +61,15 @@ export async function suggestLecturePlacement(
   });
 
   // Find slots that are available for ALL involved entities
-  const commonAvailableSlots = teacherAvailability.availableSlots.filter((slot) => {
-    // Check if preferred days constraint is met
-    if (args.preferredDays && !args.preferredDays.includes(slot.day)) {
-      return false;
-    }
-    return true;
-  });
+  const commonAvailableSlots = teacherAvailability.availableSlots.filter(
+    (slot) => {
+      // Check if preferred days constraint is met
+      if (args.preferredDays && !args.preferredDays.includes(slot.day)) {
+        return false;
+      }
+      return true;
+    },
+  );
 
   // Score each slot
   const recommendations = await Promise.all(
@@ -90,15 +92,19 @@ export async function suggestLecturePlacement(
         day: slot.day,
       });
 
-      const dailyLoad = teacherSchedule.schedule.filter((s) => s.lecture).length;
+      const dailyLoad = teacherSchedule.schedule.filter(
+        (s) => s.lecture,
+      ).length;
       const balanceScore = Math.max(0, 25 - dailyLoad * 3);
       score += balanceScore;
 
       if (balanceScore > 15) {
-        pros.push(`Teacher has light load on ${slot.dayName} (${dailyLoad} lectures)`);
+        pros.push(
+          `Teacher has light load on ${slot.dayName} (${dailyLoad} lectures)`,
+        );
       } else if (balanceScore < 10) {
         cons.push(
-          `Teacher already has ${dailyLoad} lectures on ${slot.dayName}`
+          `Teacher already has ${dailyLoad} lectures on ${slot.dayName}`,
         );
       }
 
@@ -110,18 +116,23 @@ export async function suggestLecturePlacement(
         entityId: lecture.teacherId,
       });
 
-      const lectureCounts = weeklySchedule.schedule.reduce((acc, s) => {
-        if (s.lecture) {
-          acc[s.day] = (acc[s.day] || 0) + 1;
-        }
-        return acc;
-      }, {} as Record<number, number>);
+      const lectureCounts = weeklySchedule.schedule.reduce(
+        (acc, s) => {
+          if (s.lecture) {
+            acc[s.day] = (acc[s.day] || 0) + 1;
+          }
+          return acc;
+        },
+        {} as Record<number, number>,
+      );
 
       const currentDayCount = lectureCounts[slot.day] || 0;
       const avgCount =
         Object.values(lectureCounts).reduce((sum, c) => sum + c, 0) / 7;
       const distributionScore =
-        currentDayCount <= avgCount ? 20 : Math.max(0, 20 - (currentDayCount - avgCount) * 5);
+        currentDayCount <= avgCount
+          ? 20
+          : Math.max(0, 20 - (currentDayCount - avgCount) * 5);
       score += distributionScore;
 
       if (distributionScore > 15) {
@@ -129,7 +140,10 @@ export async function suggestLecturePlacement(
       }
 
       // 4. Student Experience Score (15 points)
-      if (lecture.lectureSubdivisions.length > 0 && lecture.lectureSubdivisions[0]) {
+      if (
+        lecture.lectureSubdivisions.length > 0 &&
+        lecture.lectureSubdivisions[0]
+      ) {
         const subdivisionSchedule = await getScheduleForEntity(prisma, {
           timetableId: args.timetableId,
           organizationId: args.organizationId,
@@ -138,18 +152,19 @@ export async function suggestLecturePlacement(
           day: slot.day,
         });
 
-        const studentDailyLoad = subdivisionSchedule.schedule.filter((s) => s.lecture)
-          .length;
+        const studentDailyLoad = subdivisionSchedule.schedule.filter(
+          (s) => s.lecture,
+        ).length;
         const studentScore = Math.max(0, 15 - studentDailyLoad * 2);
         score += studentScore;
 
         if (studentScore > 10) {
           pros.push(
-            `Students have manageable schedule on ${slot.dayName} (${studentDailyLoad} lectures)`
+            `Students have manageable schedule on ${slot.dayName} (${studentDailyLoad} lectures)`,
           );
         } else {
           cons.push(
-            `Students already have ${studentDailyLoad} lectures on ${slot.dayName}`
+            `Students already have ${studentDailyLoad} lectures on ${slot.dayName}`,
           );
         }
       } else {
@@ -168,7 +183,7 @@ export async function suggestLecturePlacement(
           (s) =>
             s.lecture &&
             s.day === slot.day &&
-            Math.abs(s.slotNumber - slot.slotNumber) === 1
+            Math.abs(s.slotNumber - slot.slotNumber) === 1,
         );
 
         if (hasConsecutive) {
@@ -181,7 +196,9 @@ export async function suggestLecturePlacement(
 
       // Generate reasons summary
       if (score >= 80) {
-        reasons.push("Excellent fit with high availability and balanced workload");
+        reasons.push(
+          "Excellent fit with high availability and balanced workload",
+        );
       } else if (score >= 60) {
         reasons.push("Good option with minor considerations");
       } else {
@@ -203,7 +220,7 @@ export async function suggestLecturePlacement(
           isBalanced: score >= 60,
         },
       };
-    })
+    }),
   );
 
   // Sort by score
@@ -226,7 +243,7 @@ export async function findSubstituteTeacher(
     subjectName: string;
     slotId: string;
     primaryTeacherId?: string;
-  }
+  },
 ) {
   await verifyTimetableAccess(prisma, args.timetableId, args.organizationId);
 
@@ -256,10 +273,10 @@ export async function findSubstituteTeacher(
   });
 
   // Filter teachers who can teach this subject
-  const teachers = allTeachers.filter(teacher =>
-    teacher.subjectTeachers.some(st =>
-      st.subject.name.toLowerCase().includes(subjectNameLower)
-    )
+  const teachers = allTeachers.filter((teacher) =>
+    teacher.subjectTeachers.some((st) =>
+      st.subject.name.toLowerCase().includes(subjectNameLower),
+    ),
   );
 
   // Get slot details
@@ -282,7 +299,7 @@ export async function findSubstituteTeacher(
       // Check if teaches the exact subject
       const teachesSubject = teacher.subjectTeachers.some(
         (st) =>
-          st.subject.name.toLowerCase() === args.subjectName.toLowerCase()
+          st.subject.name.toLowerCase() === args.subjectName.toLowerCase(),
       );
 
       // 1. Subject expertise (40 points)
@@ -298,17 +315,19 @@ export async function findSubstituteTeacher(
       const isAvailable = teacher.slots.length === 0;
       if (isAvailable) {
         score += 30;
-        reasons.push(`Available during ${getDayName(slot.day)} slot ${slot.number}`);
+        reasons.push(
+          `Available during ${getDayName(slot.day)} slot ${slot.number}`,
+        );
       } else {
         concerns.push(
-          `Marked as unavailable during ${getDayName(slot.day)} slot ${slot.number}`
+          `Marked as unavailable during ${getDayName(slot.day)} slot ${slot.number}`,
         );
       }
 
       // 3. Capacity (20 points)
       const currentLoad = teacher.lectures.reduce(
         (sum, lecture) => sum + lecture.lectureSlots.length * lecture.duration,
-        0
+        0,
       );
       const utilizationPercentage =
         teacher.weeklyMaxHours > 0
@@ -317,12 +336,18 @@ export async function findSubstituteTeacher(
 
       if (utilizationPercentage < 70) {
         score += 20;
-        reasons.push(`Has capacity (${Math.round(utilizationPercentage)}% utilized)`);
+        reasons.push(
+          `Has capacity (${Math.round(utilizationPercentage)}% utilized)`,
+        );
       } else if (utilizationPercentage < 90) {
         score += 10;
-        concerns.push(`Near capacity (${Math.round(utilizationPercentage)}% utilized)`);
+        concerns.push(
+          `Near capacity (${Math.round(utilizationPercentage)}% utilized)`,
+        );
       } else {
-        concerns.push(`At or over capacity (${Math.round(utilizationPercentage)}% utilized)`);
+        concerns.push(
+          `At or over capacity (${Math.round(utilizationPercentage)}% utilized)`,
+        );
       }
 
       // 4. Quality/Balance (10 points)
@@ -374,7 +399,7 @@ export async function recommendClassroom(
     organizationId: string;
     lectureId: string;
     slotId?: string;
-  }
+  },
 ) {
   await verifyTimetableAccess(prisma, args.timetableId, args.organizationId);
 
@@ -430,7 +455,7 @@ export async function recommendClassroom(
     const reasons: string[] = [];
 
     // 1. Availability (50 points)
-    const isAvailable = args.slotId ? (classroom.slots.length === 0) : true;
+    const isAvailable = args.slotId ? classroom.slots.length === 0 : true;
     if (isAvailable || !args.slotId) {
       score += 50;
       if (args.slotId) {
@@ -444,10 +469,10 @@ export async function recommendClassroom(
 
     // 2. Subject Compatibility (30 points)
     const compatibleSubjects = new Set(
-      classroom.lectures.map((lc) => lc.lecture.subject.name)
+      classroom.lectures.map((lc) => lc.lecture.subject.name),
     );
     const isPreferredForSubject = lecture.subject.subjectClassrooms.some(
-      (sc) => sc.classroomId === classroom.id
+      (sc) => sc.classroomId === classroom.id,
     );
 
     if (isPreferredForSubject) {
@@ -466,8 +491,8 @@ export async function recommendClassroom(
     // 3. Utilization Balance (20 points)
     const totalUsage = new Set(
       classroom.lectures.flatMap((lc) =>
-        lc.lecture.lectureSlots.map((ls) => ls.slotId)
-      )
+        lc.lecture.lectureSlots.map((ls) => ls.slotId),
+      ),
     ).size;
 
     // Assume roughly 35 slots per week (5 days × 7 slots)
@@ -476,14 +501,18 @@ export async function recommendClassroom(
     if (utilizationPercentage < 60) {
       score += 20;
       reasons.push(
-        `Underutilized (${Math.round(utilizationPercentage)}% occupied)`
+        `Underutilized (${Math.round(utilizationPercentage)}% occupied)`,
       );
     } else if (utilizationPercentage < 80) {
       score += 15;
-      reasons.push(`Well-utilized (${Math.round(utilizationPercentage)}% occupied)`);
+      reasons.push(
+        `Well-utilized (${Math.round(utilizationPercentage)}% occupied)`,
+      );
     } else {
       score += 5;
-      reasons.push(`Highly utilized (${Math.round(utilizationPercentage)}% occupied)`);
+      reasons.push(
+        `Highly utilized (${Math.round(utilizationPercentage)}% occupied)`,
+      );
     }
 
     return {
@@ -518,7 +547,7 @@ export async function analyzeTeacherWorkload(
     timetableId: string;
     organizationId: string;
     teacherId?: string;
-  }
+  },
 ) {
   await verifyTimetableAccess(prisma, args.timetableId, args.organizationId);
 
@@ -549,11 +578,13 @@ export async function analyzeTeacherWorkload(
   const teacherAnalysis = teachers.map((teacher) => {
     const currentHours = teacher.lectures.reduce(
       (sum, lecture) => sum + lecture.lectureSlots.length * lecture.duration,
-      0
+      0,
     );
 
     const utilizationPercentage =
-      teacher.weeklyMaxHours > 0 ? (currentHours / teacher.weeklyMaxHours) * 100 : 0;
+      teacher.weeklyMaxHours > 0
+        ? (currentHours / teacher.weeklyMaxHours) * 100
+        : 0;
 
     // Daily breakdown
     const dailyBreakdown = teacher.lectures
@@ -561,12 +592,15 @@ export async function analyzeTeacherWorkload(
         lecture.lectureSlots.map((ls) => ({
           day: ls.slot.day,
           duration: lecture.duration,
-        }))
+        })),
       )
-      .reduce((acc, item) => {
-        acc[item.day] = (acc[item.day] || 0) + item.duration;
-        return acc;
-      }, {} as Record<number, number>);
+      .reduce(
+        (acc, item) => {
+          acc[item.day] = (acc[item.day] || 0) + item.duration;
+          return acc;
+        },
+        {} as Record<number, number>,
+      );
 
     // Find consecutive slots
     const allSlots = teacher.lectures
@@ -584,7 +618,12 @@ export async function analyzeTeacherWorkload(
       const prev = allSlots[i - 1];
       const curr = allSlots[i];
 
-      if (prev && curr && prev.day === curr.day && curr.number === prev.number + 1) {
+      if (
+        prev &&
+        curr &&
+        prev.day === curr.day &&
+        curr.number === prev.number + 1
+      ) {
         currentConsecutive++;
         maxConsecutive = Math.max(maxConsecutive, currentConsecutive);
       } else {
@@ -621,15 +660,19 @@ export async function analyzeTeacherWorkload(
     const concerns: string[] = [];
     if (maxConsecutive >= 4) {
       concerns.push(
-        `Has ${maxConsecutive} consecutive lectures - risk of fatigue`
+        `Has ${maxConsecutive} consecutive lectures - risk of fatigue`,
       );
     }
-    if (Object.values(dailyBreakdown).some((hours) => hours > teacher.dailyMaxHours)) {
+    if (
+      Object.values(dailyBreakdown).some(
+        (hours) => hours > teacher.dailyMaxHours,
+      )
+    ) {
       concerns.push("Exceeds daily maximum hours on some days");
     }
     if (averageGap > 2) {
       concerns.push(
-        `Average gap of ${averageGap.toFixed(1)} slots between lectures - inefficient scheduling`
+        `Average gap of ${averageGap.toFixed(1)} slots between lectures - inefficient scheduling`,
       );
     }
     if (utilizationPercentage > 100) {
@@ -653,7 +696,7 @@ export async function analyzeTeacherWorkload(
 
   // Generate insights
   const sortedByUtilization = [...teacherAnalysis].sort(
-    (a, b) => b.utilizationPercentage - a.utilizationPercentage
+    (a, b) => b.utilizationPercentage - a.utilizationPercentage,
   );
 
   const mostOverloaded =
@@ -682,17 +725,17 @@ export async function analyzeTeacherWorkload(
   const recommendations: string[] = [];
   if (mostOverloaded) {
     recommendations.push(
-      `Consider redistributing some of ${mostOverloaded.name}'s lectures to reduce workload`
+      `Consider redistributing some of ${mostOverloaded.name}'s lectures to reduce workload`,
     );
   }
   if (mostUnderutilized) {
     recommendations.push(
-      `${mostUnderutilized.name} has capacity for additional lectures`
+      `${mostUnderutilized.name} has capacity for additional lectures`,
     );
   }
   if (teacherAnalysis.some((t) => t.consecutiveSlotsCount >= 4)) {
     recommendations.push(
-      "Some teachers have 4+ consecutive lectures - consider adding breaks"
+      "Some teachers have 4+ consecutive lectures - consider adding breaks",
     );
   }
 
@@ -720,7 +763,7 @@ export async function suggestOptimization(
       | "minimize_gaps"
       | "maximize_utilization"
       | "reduce_conflicts";
-  }
+  },
 ) {
   await verifyTimetableAccess(prisma, args.timetableId, args.organizationId);
 
@@ -747,15 +790,16 @@ export async function suggestOptimization(
   healthScore -= Math.min(30, conflicts.totalConflicts * 5);
 
   // Deduct points for poor workload balance
-  const fairnessPenalty = (100 - statistics.workloadDistribution.fairnessScore) / 5;
+  const fairnessPenalty =
+    (100 - statistics.workloadDistribution.fairnessScore) / 5;
   healthScore -= fairnessPenalty;
 
   // Deduct points for overloaded/underutilized teachers
   const overloadedCount = workloadAnalysis.teachers.filter(
-    (t) => t.status === "overloaded"
+    (t) => t.status === "overloaded",
   ).length;
   const underutilizedCount = workloadAnalysis.teachers.filter(
-    (t) => t.status === "underutilized"
+    (t) => t.status === "underutilized",
   ).length;
   healthScore -= overloadedCount * 5 + underutilizedCount * 2;
 
@@ -765,7 +809,7 @@ export async function suggestOptimization(
   const majorIssues: string[] = [];
   if (conflicts.totalConflicts > 0) {
     majorIssues.push(
-      `${conflicts.totalConflicts} scheduling conflict${conflicts.totalConflicts > 1 ? "s" : ""} detected`
+      `${conflicts.totalConflicts} scheduling conflict${conflicts.totalConflicts > 1 ? "s" : ""} detected`,
     );
   }
   if (statistics.workloadDistribution.fairnessScore < 60) {
@@ -779,7 +823,7 @@ export async function suggestOptimization(
   const opportunityAreas: string[] = [];
   if (statistics.utilization.underUtilizedResources.length > 0) {
     opportunityAreas.push(
-      `${statistics.utilization.underUtilizedResources.length} underutilized resources available`
+      `${statistics.utilization.underUtilizedResources.length} underutilized resources available`,
     );
   }
   if (workloadAnalysis.insights.mostUnderutilized) {
@@ -821,7 +865,10 @@ export async function suggestOptimization(
       impact: "Teacher burnout risk, quality concerns",
       suggestedAction: "Redistribute 2-3 lectures to less loaded teachers",
       affectedEntities: [
-        { type: "teacher", name: workloadAnalysis.insights.mostOverloaded.name },
+        {
+          type: "teacher",
+          name: workloadAnalysis.insights.mostOverloaded.name,
+        },
       ],
       estimatedImprovement: `+${Math.round((100 - statistics.workloadDistribution.fairnessScore) / 2)} fairness points`,
     });
@@ -859,7 +906,9 @@ export async function suggestOptimization(
 
   // Sort by priority
   const priorityOrder = { high: 0, medium: 1, low: 2 };
-  recommendations.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+  recommendations.sort(
+    (a, b) => priorityOrder[a.priority] - priorityOrder[b.priority],
+  );
 
   // Generate quick wins
   const quickWins: string[] = [];
@@ -874,12 +923,12 @@ export async function suggestOptimization(
   const longTermSuggestions: string[] = [];
   if (statistics.workloadDistribution.fairnessScore < 70) {
     longTermSuggestions.push(
-      "Consider systematic workload rebalancing across all teachers"
+      "Consider systematic workload rebalancing across all teachers",
     );
   }
   if (statistics.utilization.timeSlotUtilization < 60) {
     longTermSuggestions.push(
-      "Review time slot structure - consider consolidating or removing unused slots"
+      "Review time slot structure - consider consolidating or removing unused slots",
     );
   }
 

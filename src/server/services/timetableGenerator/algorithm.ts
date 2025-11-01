@@ -68,10 +68,7 @@ export async function runGA(
 
   // 3. Main Evolutionary Loop
   for (let generation = 0; generation < config.maxGenerations; generation++) {
-    if (generation % 10
-      
-      
-      === 0) await yieldToEventLoop();
+    if (generation % 10 === 0) await yieldToEventLoop();
 
     // a. Select Parents
     const parentIndices = selectParents(
