@@ -99,10 +99,12 @@ export async function aggregateTimetableData(
 
 /**
  * Creates Excel worksheet data from aggregated timetable data
+ * Returns both the data and subject names for each cell (for coloring)
  */
-export function createExcelData(
-  aggregatedData: SlotExportData[],
-): (string | number)[][] {
+export function createExcelData(aggregatedData: SlotExportData[]): {
+  data: (string | number)[][];
+  subjectNames: (string | null)[][];
+} {
   // Group data by day
   const dataByDay = new Map<number, SlotExportData[]>();
   for (const slotData of aggregatedData) {
@@ -120,7 +122,16 @@ export function createExcelData(
   // Create header row
   const headerRow = ["Day", ...allSlotNumbers.map((n) => `Slot ${n}`)];
 
+  /**
+   * 2D array of rows for the Excel sheet
+   */
   const rows: (string | number)[][] = [headerRow];
+  /**
+   * 2D array of subject names for each cell (for coloring purposes)
+   */
+  const subjectNames: (string | null)[][] = [
+    new Array(headerRow.length).fill(null),
+  ];
 
   // Create data rows for each day
   for (let day = 1; day <= 7; day++) {
@@ -135,6 +146,7 @@ export function createExcelData(
 
     // Create row data
     const rowData: (string | number)[] = [dayName];
+    const rowSubjects: (string | null)[] = [null];
 
     // For each slot number, add the first lecture (or empty if no lectures)
     for (const slotNum of allSlotNumbers) {
@@ -144,15 +156,19 @@ export function createExcelData(
         const firstLecture = slotData.lectures[0];
         if (firstLecture) {
           rowData.push(formatLectureForExport(firstLecture));
+          rowSubjects.push(firstLecture.subjectName);
         } else {
           rowData.push("");
+          rowSubjects.push(null);
         }
       } else {
         rowData.push(""); // Empty slot
+        rowSubjects.push(null);
       }
     }
 
     rows.push(rowData);
+    subjectNames.push(rowSubjects);
 
     // Handle multiple lectures per slot by creating additional rows
     const maxLecturesInAnySlot = Math.max(
@@ -166,23 +182,27 @@ export function createExcelData(
         lectureIndex++
       ) {
         const extraRow: (string | number)[] = [""]; // Empty day column
+        const extraSubjects: (string | null)[] = [null];
 
         for (const slotNum of allSlotNumbers) {
           const slotData = slotsByNumber.get(slotNum);
           const lecture = slotData?.lectures[lectureIndex];
           if (lecture) {
             extraRow.push(formatLectureForExport(lecture));
+            extraSubjects.push(lecture.subjectName);
           } else {
             extraRow.push("");
+            extraSubjects.push(null);
           }
         }
 
         rows.push(extraRow);
+        subjectNames.push(extraSubjects);
       }
     }
   }
 
-  return rows;
+  return { data: rows, subjectNames };
 }
 
 /**
@@ -196,35 +216,48 @@ export async function exportTimetableToExcel(
   const aggregatedData = await aggregateTimetableData(timetableId);
 
   // Create Excel data
-  const excelData = createExcelData(aggregatedData);
+  const { data: excelData, subjectNames } = createExcelData(aggregatedData);
 
   // Create workbook and worksheet
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.aoa_to_sheet(excelData);
 
   // Set column widths for better readability
-  const colWidths = [{ wch: 12 }]; // Day column
+  const colWidths: XLSX.ColInfo[] = [{ wch: 12 }]; // Day column
   const maxSlots = Math.max(...aggregatedData.map((d) => d.slotNumber));
   for (let i = 0; i < maxSlots; i++) {
     colWidths.push({ wch: 30 }); // Slot columns
   }
   ws["!cols"] = colWidths;
 
-  // Apply text wrapping to all cells, this render the new line characters correctly
+  // Apply text wrapping and background colors to all cells
   for (let R = 0; R < excelData.length; R++) {
     for (let C = 0; C < excelData[R]!.length; C++) {
       const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
       if (!ws[cellAddress]) continue;
 
-      // Set wrap text property
+      // Initialize cell style
       if (!ws[cellAddress].s) {
         ws[cellAddress].s = {};
       }
+
+      // Set wrap text property
       ws[cellAddress].s.alignment = {
         wrapText: true,
         vertical: "top",
         horizontal: "left",
       };
+
+      // Apply background color based on subject
+      const subjectName = subjectNames[R]?.[C];
+      if (subjectName) {
+        const bgColor = getColor(subjectName, "light");
+        // Convert hex color to Excel format (remove # and convert to RGB)
+        const hexColor = bgColor.replace("#", "");
+        ws[cellAddress].s.fill = {
+          fgColor: { rgb: hexColor },
+        };
+      }
     }
   }
 
@@ -249,5 +282,6 @@ export async function getTimetableExcelData(
   timetableId: string,
 ): Promise<(string | number)[][]> {
   const aggregatedData = await aggregateTimetableData(timetableId);
-  return createExcelData(aggregatedData);
+  const { data } = createExcelData(aggregatedData);
+  return data;
 }
