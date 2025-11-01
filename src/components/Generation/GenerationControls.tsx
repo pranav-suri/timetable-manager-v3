@@ -12,10 +12,8 @@ import {
   MenuItem,
   Chip,
 } from "@mui/material";
-import {
-  ExpandMore as ExpandMoreIcon,
-  PlayArrow as PlayArrowIcon,
-} from "@mui/icons-material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import type {
   PartialGAConfig,
   ConstraintWeights,

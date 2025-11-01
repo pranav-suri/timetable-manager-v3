@@ -7,11 +7,9 @@ import {
   Chip,
   Paper,
 } from "@mui/material";
-import {
-  Cancel as CancelIcon,
-  Timer as TimerIcon,
-  TrendingUp as TrendingUpIcon,
-} from "@mui/icons-material";
+import CancelIcon from "@mui/icons-material/Cancel";
+import TimerIcon from "@mui/icons-material/Timer";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import type { UseQueryResult } from "@tanstack/react-query";
 
 interface Job {
