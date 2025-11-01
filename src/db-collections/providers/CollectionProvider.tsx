@@ -16,7 +16,6 @@ import { getClassroomUnavailableCollection } from "../classroomUnavailableCollec
 import { getTeacherUnavailableCollection } from "../teacherUnavailableCollection";
 import { getSubdivisionUnavailableCollection } from "../subdivisionUnavailableCollection";
 import { getLiveCollections } from "../liveCollections";
-import { getCognitiveLoadCollection } from "../cognitiveLoadCollection";
 import { getGenerationConfigCollection } from "../generationConfigCollection";
 import { CollectionsContext } from "./CollectionsContext";
 import type { ReactNode } from "react";
@@ -73,10 +72,8 @@ function getCollections(input: CollectionInput) {
     lectureSubdivisionCollection: collections.lectureSubdivisionCollection,
   });
 
-  const cognitiveLoadCollection = getCognitiveLoadCollection(input);
-
   console.log("Collection Objects Created");
-  return { ...collections, ...liveCollections, cognitiveLoadCollection };
+  return { ...collections, ...liveCollections };
 }
 
 export function CollectionsProvider({
