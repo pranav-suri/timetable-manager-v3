@@ -6,6 +6,8 @@ import {
   verifyTimetableOwnership,
   verifyEntityOwnership,
 } from "../utils/verifyTimetableOwnership";
+import { TeacherSchema } from "generated/zod";
+import { id } from "node_modules/zod/v4/locales/index.cjs";
 
 export const teachersRouter = {
   list: authedProcedure
@@ -23,53 +25,33 @@ export const teachersRouter = {
       return { teachers };
     }),
 
-  add: editorProcedure
-    .input(
-      z.object({
-        id: zodIdSchema.optional(),
-        timetableId: zodIdSchema,
-        name: z.string(),
-        email: z.email(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      const { prisma } = ctx;
-      const { timetableId, name, email, id } = input;
+  add: editorProcedure.input(TeacherSchema).mutation(async ({ ctx, input }) => {
+    const { prisma } = ctx;
+    const { timetableId, ...rest } = input;
 
-      // Verify timetable belongs to user's organization
-      await verifyTimetableOwnership(ctx, timetableId);
+    // Verify timetable belongs to user's organization
+    await verifyTimetableOwnership(ctx, timetableId);
 
-      const teacher = await prisma.teacher.create({
-        data: {
-          id,
-          timetableId,
-          name,
-          email,
-        },
-      });
-      return { teacher };
-    }),
+    const teacher = await prisma.teacher.create({
+      data: {
+        timetableId,
+        ...rest,
+      },
+    });
+    return { teacher };
+  }),
   update: editorProcedure
-    .input(
-      z.object({
-        id: zodIdSchema,
-        name: z.string(),
-        email: z.email(),
-      }),
-    )
+    .input(TeacherSchema)
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
-      const { id, name, email } = input;
+      const { id, timetableId, ...rest } = input;
 
       // Verify teacher belongs to user's organization
       await verifyEntityOwnership(ctx, id, "teacher");
 
       const teacher = await prisma.teacher.update({
         where: { id },
-        data: {
-          name,
-          email,
-        },
+        data: { ...rest },
       });
       return { teacher };
     }),

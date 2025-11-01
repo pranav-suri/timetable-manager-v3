@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import React, { useState } from "react";
 import { nanoid } from "nanoid";
 import { useLiveQuery } from "@tanstack/react-db";
 import { useForm } from "@tanstack/react-form";
@@ -17,10 +17,15 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import type { ColumnConfig } from "./-BatchEditGrid";
+import { BatchEditGrid } from "./-BatchEditGrid";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import GridOnIcon from "@mui/icons-material/GridOn";
+import ListIcon from "@mui/icons-material/List";
 import { useCollections } from "@/db-collections/providers/useCollections";
+import type { Teacher } from "generated/prisma/client";
 
 export const Route = createFileRoute("/tt/$timetableId/teachers")({
   component: RouteComponent,
@@ -30,6 +35,7 @@ function RouteComponent() {
   const { teacherCollection } = useCollections();
   const { timetableId } = Route.useParams();
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [batchEditMode, setBatchEditMode] = useState(false);
 
   const { data: teachers } = useLiveQuery(
     (q) => q.from({ teacherCollection }),
@@ -81,125 +87,171 @@ function RouteComponent() {
     form.reset();
   };
 
+  // Column configuration for teachers
+  const teacherColumns = [
+    { data: "name", type: "text", header: "Name" },
+    { data: "email", type: "text", header: "Email" },
+    { data: "dailyMaxHours", type: "numeric", header: "Daily Max Hours" },
+    { data: "weeklyMaxHours", type: "numeric", header: "Weekly Max Hours" },
+  ] satisfies ColumnConfig<Teacher>[];
+
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Typography variant="h3" component="h1" gutterBottom>
-        Teachers Management
-      </Typography>
-      {/* Teacher Form */}
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Typography variant="h5" component="h2" gutterBottom>
-            {editingId ? "Edit Teacher" : "Add New Teacher"}
-          </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+        }}
+      >
+        <Typography variant="h3" component="h1">
+          Teachers Management
+        </Typography>
+        <Button
+          variant="outlined"
+          startIcon={batchEditMode ? <ListIcon /> : <GridOnIcon />}
+          onClick={() => setBatchEditMode(!batchEditMode)}
+        >
+          {batchEditMode ? "Individual Edit" : "Batch Edit"}
+        </Button>
+      </Box>
 
-          <Box
-            component="form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              if (editingId) {
-                handleUpdate();
-              } else {
-                form.handleSubmit();
-              }
-            }}
-            sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-          >
-            <form.Field
-              name="name"
-              validators={{
-                onChange: ({ value }) =>
-                  !value ? "Name is required" : undefined,
-              }}
-              children={(field) => (
-                <TextField
-                  fullWidth
-                  label="Teacher Name"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  onBlur={field.handleBlur}
-                  error={
-                    field.state.meta.isTouched &&
-                    field.state.meta.errors.length > 0
+      {batchEditMode ? (
+        <BatchEditGrid<Teacher>
+          entityName="Teachers"
+          columns={teacherColumns}
+          data={teachers}
+          dataSchema={() => ({
+            id: nanoid(4),
+            name: "",
+            email: "",
+            dailyMaxHours: 4,
+            weeklyMaxHours: 16,
+            timetableId,
+          })}
+          collection={teacherCollection}
+        />
+      ) : (
+        <>
+          {/* Teacher Form */}
+          <Card sx={{ mb: 3 }}>
+            <CardContent>
+              <Typography variant="h5" component="h2" gutterBottom>
+                {editingId ? "Edit Teacher" : "Add New Teacher"}
+              </Typography>
+
+              <Box
+                component="form"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (editingId) {
+                    handleUpdate();
+                  } else {
+                    form.handleSubmit();
                   }
-                  helperText={
-                    field.state.meta.isTouched && field.state.meta.errors.length
-                      ? field.state.meta.errors.join(", ")
-                      : ""
-                  }
-                  placeholder="Enter teacher name"
+                }}
+                sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+              >
+                <form.Field
+                  name="name"
+                  validators={{
+                    onChange: ({ value }) =>
+                      !value ? "Name is required" : undefined,
+                  }}
+                  children={(field) => (
+                    <TextField
+                      fullWidth
+                      label="Teacher Name"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
+                      error={
+                        field.state.meta.isTouched &&
+                        field.state.meta.errors.length > 0
+                      }
+                      helperText={
+                        field.state.meta.isTouched &&
+                        field.state.meta.errors.length
+                          ? field.state.meta.errors.join(", ")
+                          : ""
+                      }
+                      placeholder="Enter teacher name"
+                    />
+                  )}
                 />
-              )}
-            />
 
-            <form.Field
-              name="email"
-              validators={{
-                onChange: ({ value }) => {
-                  if (!value) return "Email is required";
-                  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                  if (!emailRegex.test(value))
-                    return "Please enter a valid email address";
-                  return undefined;
-                },
-              }}
-              children={(field) => (
-                <TextField
-                  fullWidth
-                  label="Email Address"
-                  type="email"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  onBlur={field.handleBlur}
-                  error={
-                    field.state.meta.isTouched &&
-                    field.state.meta.errors.length > 0
-                  }
-                  helperText={
-                    field.state.meta.isTouched && field.state.meta.errors.length
-                      ? field.state.meta.errors.join(", ")
-                      : ""
-                  }
-                  placeholder="Enter email address"
+                <form.Field
+                  name="email"
+                  validators={{
+                    onChange: ({ value }) => {
+                      if (!value) return "Email is required";
+                      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                      if (!emailRegex.test(value))
+                        return "Please enter a valid email address";
+                      return undefined;
+                    },
+                  }}
+                  children={(field) => (
+                    <TextField
+                      fullWidth
+                      label="Email Address"
+                      type="email"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
+                      error={
+                        field.state.meta.isTouched &&
+                        field.state.meta.errors.length > 0
+                      }
+                      helperText={
+                        field.state.meta.isTouched &&
+                        field.state.meta.errors.length
+                          ? field.state.meta.errors.join(", ")
+                          : ""
+                      }
+                      placeholder="Enter email address"
+                    />
+                  )}
                 />
-              )}
-            />
 
-            <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
-              <form.Subscribe
-                selector={(state) => [state.canSubmit, state.isSubmitting]}
-                children={([canSubmit, isSubmitting]) => (
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    disabled={!canSubmit}
-                    startIcon={editingId ? <EditIcon /> : <AddIcon />}
-                  >
-                    {isSubmitting
-                      ? "Saving..."
-                      : editingId
-                        ? "Update"
-                        : "Add Teacher"}
-                  </Button>
-                )}
-              />
+                <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
+                  <form.Subscribe
+                    selector={(state) => [state.canSubmit, state.isSubmitting]}
+                    children={([canSubmit, isSubmitting]) => (
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        disabled={!canSubmit}
+                        startIcon={editingId ? <EditIcon /> : <AddIcon />}
+                      >
+                        {isSubmitting
+                          ? "Saving..."
+                          : editingId
+                            ? "Update"
+                            : "Add Teacher"}
+                      </Button>
+                    )}
+                  />
 
-              {editingId && (
-                <Button variant="outlined" onClick={cancelEdit}>
-                  Cancel
-                </Button>
-              )}
-            </Box>
-          </Box>
-        </CardContent>
-      </Card>
-      {/* Teachers List */}
-      <TeacherList
-        teachers={teachers}
-        handleEdit={handleEdit}
-        handleDelete={handleDelete}
-      />
+                  {editingId && (
+                    <Button variant="outlined" onClick={cancelEdit}>
+                      Cancel
+                    </Button>
+                  )}
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+          {/* Teachers List */}
+          <TeacherList
+            teachers={teachers}
+            handleEdit={handleEdit}
+            handleDelete={handleDelete}
+          />
+        </>
+      )}
     </Container>
   );
 }
