@@ -1,4 +1,5 @@
 import type { prisma } from "@/server/prisma";
+import { DAY_NAMES } from "src/utils/constants";
 
 type PrismaClient = typeof prisma;
 
@@ -107,8 +108,7 @@ export function findConsecutiveSlots(
  * Format day number to day name
  */
 export function getDayName(day: number): string {
-  const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-  return days[day] || `Day ${day}`;
+  return DAY_NAMES[day] || `Day ${day}`;
 }
 
 /**

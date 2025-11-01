@@ -3,21 +3,13 @@ import { eq, useLiveQuery } from "@tanstack/react-db";
 import { useDroppable } from "@dnd-kit/core";
 import Slot from "./Slot";
 import { useCollections } from "@/db-collections/providers/useCollections";
+import { WEEK_DAYS } from "@/utils/constants";
 
 interface RowProps {
   day: number;
   handleDrawerOpen: () => void;
   busySlots: Set<string>;
 }
-
-export const DAYS = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
 
 export function Row({ day, handleDrawerOpen, busySlots }: RowProps) {
   const { slotCollection } = useCollections();
@@ -33,7 +25,7 @@ export function Row({ day, handleDrawerOpen, busySlots }: RowProps) {
 
   return (
     <TableRow sx={{ height: 100 }}>
-      <TableCell>{DAYS[day - 1]}</TableCell>
+      <TableCell>{WEEK_DAYS[day - 1]}</TableCell>
 
       {slotsOfDay.map((slot) => (
         <DroppableCell

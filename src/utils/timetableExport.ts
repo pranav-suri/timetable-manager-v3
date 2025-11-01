@@ -2,17 +2,8 @@ import * as XLSX from "xlsx-js-style";
 import { prisma } from "@/server/prisma";
 import { getInitials } from "src/routes/tt/$timetableId/edit/-components/utils";
 import getColor from "@/utils/getColor";
+import { DAY_NAMES } from "./constants";
 
-// Day names mapping
-const DAY_NAMES = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-];
 
 export interface LectureExportData {
   subjectName: string;
@@ -36,8 +27,8 @@ function formatLectureForExport(lecture: LectureExportData): string {
   const subdivisionsStr = subdivisions.length > 0 ? subdivisions.join(",") : "";
   const classroomsStr = classrooms.length > 0 ? classrooms.join(",") : "";
 
-  return `${getInitials(subjectName)} : ${getInitials(teacherName)}\n${subdivisionsStr}\n${classroomsStr}`;
-  // return `${subjectName}\n${teacherName}\n${subdivisionsStr}\n${classroomsStr}`;
+  // return `${getInitials(subjectName)} : ${getInitials(teacherName)}\n${subdivisionsStr}\n${classroomsStr}`;
+  return `${subjectName}\n${teacherName}\n${subdivisionsStr}\n${classroomsStr}`;
 }
 
 /**
@@ -226,11 +217,11 @@ export async function exportTimetableToExcel(
   const colWidths: XLSX.ColInfo[] = [{ wch: 12 }]; // Day column
   const maxSlots = Math.max(...aggregatedData.map((d) => d.slotNumber));
   for (let i = 0; i < maxSlots; i++) {
-    colWidths.push({ wch: 30 }); // Slot columns
+    colWidths.push({ wch: 40 }); // Slot columns
   }
   ws["!cols"] = colWidths;
 
-  // Apply text wrapping and background colors to all cells
+  // Apply text wrapping, background colors, and borders to all cells
   for (let R = 0; R < excelData.length; R++) {
     for (let C = 0; C < excelData[R]!.length; C++) {
       const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
@@ -244,8 +235,8 @@ export async function exportTimetableToExcel(
       // Set wrap text property
       ws[cellAddress].s.alignment = {
         wrapText: true,
-        vertical: "top",
-        horizontal: "left",
+        vertical: "center",
+        horizontal: "center",
       };
 
       // Apply background color based on subject
@@ -258,6 +249,46 @@ export async function exportTimetableToExcel(
           fgColor: { rgb: hexColor },
         };
       }
+
+      // Determine border styles
+      const isHeaderRow = R === 0;
+      const isDayColumn = C === 0;
+      const isLastColumn = C === excelData[R]!.length - 1;
+      const isLastRow = R === excelData.length - 1;
+
+      // Check if next row has content in Day column (indicates new day/slot group)
+      const isNewDayBelow =
+        R < excelData.length - 1 &&
+        excelData[R + 1]?.[0] !== "" &&
+        excelData[R + 1]?.[0] !== undefined;
+
+      // Check if current row has content in Day column (indicates start of day)
+      const isStartOfDay =
+        excelData[R]?.[0] !== "" &&
+        excelData[R]?.[0] !== undefined &&
+        !isHeaderRow;
+
+      const thickBorder = {
+        style: "medium",
+        color: { rgb: "000000" },
+      };
+
+      const thinBorder = {
+        style: "thin",
+        color: { rgb: "000000" },
+      };
+
+      // Apply borders with thick borders around complete slots
+      ws[cellAddress].s.border = {
+        // Top border: thick for header, start of day, or after last row
+        top: isHeaderRow || isStartOfDay ? thickBorder : thinBorder,
+        // Bottom border: thick for last row or before new day starts
+        bottom: isLastRow || isNewDayBelow ? thickBorder : thinBorder,
+        // Left border: thick for day column or slot column boundaries (all columns except day)
+        left: isDayColumn || C > 0 ? thickBorder : thinBorder,
+        // Right border: thick for all columns (creates slot separation)
+        right: thickBorder,
+      };
     }
   }
 

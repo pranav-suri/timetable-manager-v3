@@ -1,10 +1,10 @@
 import { Typography } from "@mui/material";
 import { eq, useLiveQuery } from "@tanstack/react-db";
-import { DAYS } from "../-components/Row";
+import { WEEK_DAYS } from "@/utils/constants";
 import { useCollections } from "@/db-collections/providers/useCollections";
 // You would create a utility function for this
 const formatSlot = (day: number, number: number) => {
-  return `${DAYS[day - 1] ?? "N/A"}, Period ${number}`;
+  return `${WEEK_DAYS[day - 1] ?? "N/A"}, Period ${number}`;
 };
 
 export function SlotInfo({ slotId }: { slotId: string }) {
