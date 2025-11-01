@@ -38,7 +38,7 @@ export default function MuiTimetable({
       <FilterPanel />
 
       {/* Timetable Grid */}
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={{ overflow: "visible" }}>
         <Table
           size="small"
           sx={{

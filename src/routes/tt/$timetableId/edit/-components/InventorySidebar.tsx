@@ -8,7 +8,7 @@ export function InventorySidebar() {
       sx={{
         p: 2,
         height: "100%",
-        overflow: "auto",
+        overflow: "visible",
         display: "flex",
         flexDirection: "column",
       }}
