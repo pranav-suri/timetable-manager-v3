@@ -1,6 +1,5 @@
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import { createCollection } from "@tanstack/react-db";
-import { GroupSchema } from "generated/zod";
 import type { CollectionInput } from "./providers/CollectionProvider";
 
 export function getGroupCollection({
@@ -13,7 +12,6 @@ export function getGroupCollection({
     queryCollectionOptions({
       id: "group:" + timetableId,
       startSync: true,
-      schema: GroupSchema,
       queryKey: trpc.groups.list.queryKey({ timetableId }),
       queryFn: async () => {
         const { groups } = await trpcClient.groups.list.query({

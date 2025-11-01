@@ -1,6 +1,5 @@
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import { createCollection } from "@tanstack/react-db";
-import { LectureSlotSchema } from "generated/zod";
 import type { CollectionInput } from "./providers/CollectionProvider";
 
 export function getLectureSlotCollection({
@@ -13,7 +12,6 @@ export function getLectureSlotCollection({
     queryCollectionOptions({
       id: "lectureSlot:" + timetableId,
       startSync: true,
-      schema: LectureSlotSchema,
       queryKey: trpc.lectureSlots.list.queryKey({ timetableId }),
       queryFn: async () => {
         const { lectureSlots } = await trpcClient.lectureSlots.list.query({

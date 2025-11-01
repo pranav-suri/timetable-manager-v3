@@ -1,6 +1,5 @@
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import { createCollection } from "@tanstack/react-db";
-import { ClassroomSchema } from "generated/zod";
 import type { CollectionInput } from "./providers/CollectionProvider";
 
 export function getClassroomCollection({
@@ -13,7 +12,6 @@ export function getClassroomCollection({
     queryCollectionOptions({
       id: "classroom:" + timetableId,
       startSync: true,
-      schema: ClassroomSchema,
       queryKey: trpc.classrooms.list.queryKey({ timetableId }),
       queryFn: async () => {
         const { classrooms } = await trpcClient.classrooms.list.query({

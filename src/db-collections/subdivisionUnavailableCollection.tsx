@@ -1,6 +1,5 @@
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import { createCollection } from "@tanstack/react-db";
-import { SubdivisionUnavailableSchema } from "generated/zod";
 import type { CollectionInput } from "./providers/CollectionProvider";
 
 export function getSubdivisionUnavailableCollection({
@@ -13,7 +12,6 @@ export function getSubdivisionUnavailableCollection({
     queryCollectionOptions({
       id: "subdivisionUnavailable:" + timetableId,
       startSync: true,
-      schema: SubdivisionUnavailableSchema,
       queryKey: trpc.subdivisionUnavailabilities.list.queryKey({ timetableId }),
       queryFn: async () => {
         const { subdivisionUnavailables } =

@@ -1,6 +1,5 @@
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import { createCollection } from "@tanstack/react-db";
-import { SubjectSchema } from "generated/zod";
 import type { CollectionInput } from "./providers/CollectionProvider";
 
 export function getSubjectCollection({
@@ -13,7 +12,6 @@ export function getSubjectCollection({
     queryCollectionOptions({
       id: "subject:" + timetableId,
       startSync: true,
-      schema: SubjectSchema,
       queryKey: trpc.subjects.list.queryKey({ timetableId }),
       queryFn: async () => {
         const { subjects } = await trpcClient.subjects.list.query({

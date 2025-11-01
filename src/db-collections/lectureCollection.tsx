@@ -1,6 +1,5 @@
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import { createCollection } from "@tanstack/react-db";
-import { LectureSchema } from "generated/zod";
 import type { CollectionInput } from "./providers/CollectionProvider";
 
 export function getLectureCollection({
@@ -13,7 +12,6 @@ export function getLectureCollection({
     queryCollectionOptions({
       id: "lecture:" + timetableId,
       startSync: true,
-      schema: LectureSchema,
       queryKey: trpc.lectures.list.queryKey({ timetableId }),
       queryFn: async () => {
         const { lectures } = await trpcClient.lectures.list.query({
@@ -26,7 +24,7 @@ export function getLectureCollection({
 
       onInsert: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
-        await trpcClient.lectures.add.mutate({ ...modified, timetableId });
+        await trpcClient.lectures.add.mutate(modified);
       },
 
       onUpdate: async ({ transaction }) => {
