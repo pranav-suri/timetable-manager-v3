@@ -1,9 +1,9 @@
-import { Card, CardContent, Typography, Box, useTheme } from "@mui/material";
+import { Box, Card, CardContent, Typography, useTheme } from "@mui/material";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
+import { eq, useLiveQuery } from "@tanstack/react-db";
 import getColor from "@/utils/getColor";
 import { useCollections } from "@/db-collections/providers/useCollections";
-import { useLiveQuery, eq } from "@tanstack/react-db";
 
 interface DraggableLectureCardProps {
   lecture: {

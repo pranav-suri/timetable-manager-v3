@@ -1,10 +1,10 @@
+import { SoftConstraintType } from "../../types";
 import type {
   Chromosome,
   ConstraintWeights,
   GAInputData,
   SoftViolation,
 } from "../../types";
-import { SoftConstraintType } from "../../types";
 
 export function checkDeprioritizedSlots(
   chromosome: Chromosome,

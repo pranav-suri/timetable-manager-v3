@@ -1,10 +1,10 @@
+import { HardConstraintType } from "../../types";
 import type {
   Chromosome,
   GAInputData,
-  HardViolation,
   GASlot,
+  HardViolation,
 } from "../../types";
-import { HardConstraintType } from "../../types";
 
 /**
  * Check for consecutive slots constraint: multi-slot lectures must be in consecutive periods.

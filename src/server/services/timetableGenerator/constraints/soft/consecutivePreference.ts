@@ -1,5 +1,5 @@
-import type { Chromosome, GAInputData, SoftViolation } from "../../types";
 import { SoftConstraintType } from "../../types";
+import type { Chromosome, GAInputData, SoftViolation } from "../../types";
 
 /**
  * Check for consecutive teaching preference: avoid >3 consecutive lectures for teachers.

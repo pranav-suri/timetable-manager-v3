@@ -1,10 +1,10 @@
-import {
+import type {
   Chromosome,
-  GAInputData,
   FitnessResult,
+  GAInputData,
   ScheduledEvent,
 } from "./types";
-import { Prisma } from "generated/prisma/client";
+import type { Prisma } from "generated/prisma/client";
 
 /**
  * Converts a chromosome into an array of LectureSlot create data objects.
@@ -95,7 +95,7 @@ export function chromosomeToJSON(
     // TODO: Update ScheduledEvent interface to support multiple combined classrooms
     const primaryClassroom = classrooms[0]!;
 
-    schedule[day][period]?.push({
+    schedule[day][period].push({
       lectureEventId: gene.lectureEventId,
       lectureId: lecture.id,
       lectureName: lecture.subject.name,

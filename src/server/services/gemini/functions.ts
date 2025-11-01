@@ -1,23 +1,23 @@
 import { Type } from "@google/genai";
-import type { prisma } from "@/server/prisma";
 
 // Import Phase 1 implementations
 import {
-  getTeachersList,
-  getScheduleForEntity,
-  findAvailableSlots,
   checkConflicts,
+  findAvailableSlots,
+  getScheduleForEntity,
+  getTeachersList,
   getTimetableStatistics,
 } from "./implementations/information";
 
 // Import Phase 3 implementations
 import {
-  suggestLecturePlacement,
+  analyzeTeacherWorkload,
   findSubstituteTeacher,
   recommendClassroom,
-  analyzeTeacherWorkload,
+  suggestLecturePlacement,
   suggestOptimization,
 } from "./implementations/insights";
+import type { prisma } from "@/server/prisma";
 
 type PrismaClient = typeof prisma;
 

@@ -1,6 +1,6 @@
-import type { ConstraintWeights } from "@/server/services/timetableGenerator/types";
 import { ConfigSection, NumericConfigField } from "./ConfigSections";
 import { DeprioritizationConfig } from "./DeprioritizationConfig";
+import type { ConstraintWeights } from "@/server/services/timetableGenerator/types";
 
 interface ConstraintWeightsConfigProps {
   weights: ConstraintWeights;

@@ -1,7 +1,7 @@
-import { Box, Alert } from "@mui/material";
-import { useLiveQuery, eq } from "@tanstack/react-db";
-import { useCollections } from "@/db-collections/providers/useCollections";
+import { Alert, Box } from "@mui/material";
+import { eq, useLiveQuery } from "@tanstack/react-db";
 import { DraggableLectureCard } from "./DraggableLectureCard";
+import { useCollections } from "@/db-collections/providers/useCollections";
 
 export function UnscheduledLecturesList() {
   const {

@@ -1,20 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
+  Alert,
   Box,
-  Container,
-  Typography,
   Card,
   CardContent,
-  Alert,
+  Container,
+  Typography,
 } from "@mui/material";
-import { useCollections } from "@/db-collections/providers/useCollections";
 import { useLiveQuery } from "@tanstack/react-db";
+import type { PartialGAConfig } from "@/server/services/timetableGenerator/types";
+import { useCollections } from "@/db-collections/providers/useCollections";
 import { useJobs } from "@/hooks/useJobs";
 import { GenerationControls } from "@/components/Generation/GenerationControls";
 import { GenerationProgress } from "@/components/Generation/GenerationProgress";
 import { GenerationResults } from "@/components/Generation/GenerationResults";
-import type { PartialGAConfig } from "@/server/services/timetableGenerator/types";
 
 export const Route = createFileRoute("/tt/$timetableId/generate")({
   component: RouteComponent,
@@ -51,9 +51,9 @@ function RouteComponent() {
     [generationConfigCollection],
   );
 
-  const savedConfig = savedConfigs?.[0];
+  const savedConfig = savedConfigs[0];
 
-  const currentTimetable = timetables?.find((t) => t.id === timetableId);
+  const currentTimetable = timetables.find((t) => t.id === timetableId);
 
   // Use jobs hook for generation management
   const {
@@ -78,7 +78,7 @@ function RouteComponent() {
     }
   }, [savedConfig]);
 
-  const handleConfigChange = async (newConfig: PartialGAConfig) => {
+  const handleConfigChange = (newConfig: PartialGAConfig) => {
     setConfig(newConfig);
 
     // Save config to database
@@ -98,7 +98,7 @@ function RouteComponent() {
   };
 
   // Check if we have the minimum data to generate
-  const canGenerate = (lectures?.length ?? 0) > 0 && (slots?.length ?? 0) > 0;
+  const canGenerate = lectures.length > 0 && slots.length > 0;
   const hasInsufficientData = !canGenerate;
 
   return (

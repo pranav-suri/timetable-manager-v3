@@ -1,8 +1,8 @@
-import type { Chromosome, GAInputData, GAConfig } from "../types";
 import { repairTeacherClashes } from "./teacherClashes";
 import { repairSubdivisionClashes } from "./subdivisionClashes";
 import { repairRoomClashes } from "./roomClashes";
 import { repairAvailabilityViolations } from "./availability";
+import type { Chromosome, GAConfig, GAInputData } from "../types";
 
 export { MAX_REPAIR_ATTEMPTS, MAX_SLOT_SEARCH_ATTEMPTS } from "./constants";
 export { findValidSlotForGene } from "./helpers";

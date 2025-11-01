@@ -1,21 +1,21 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { nanoid } from "nanoid";
-import type { HotTableProps, HotTableRef } from "@handsontable/react-wrapper";
 import { HotTable } from "@handsontable/react-wrapper";
 import { registerAllModules } from "handsontable/registry";
 import "handsontable/styles/handsontable.min.css";
 import "handsontable/styles/ht-theme-main.min.css";
 import {
-  useTheme,
   Box,
   Button,
   Card,
   CardContent,
   Typography,
+  useTheme,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
+import type { HotTableProps, HotTableRef } from "@handsontable/react-wrapper";
 
 export interface ColumnConfig<T> {
   data: keyof T & string;
@@ -36,7 +36,7 @@ export interface BatchEditGridProps<
   entityName: string;
   data: T[];
   dataSchema: () => T;
-  columns: ColumnConfig<T>[];
+  columns: Array<ColumnConfig<T>>;
   collection: CollectionEmulator<T>;
 }
 

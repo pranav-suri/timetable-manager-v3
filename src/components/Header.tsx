@@ -1,23 +1,23 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   AppBar,
-  Toolbar,
-  Typography,
+  Avatar,
+  Box,
   Button,
+  Divider,
   IconButton,
+  ListItemIcon,
   Menu,
   MenuItem,
-  Box,
-  Avatar,
-  Divider,
-  ListItemIcon,
+  Toolbar,
+  Typography,
 } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import LogoutIcon from "@mui/icons-material/Logout";
 import SettingsIcon from "@mui/icons-material/Settings";
-import { useState, useContext } from "react";
-import { useAuthStore } from "@/zustand/authStore";
+import { useContext, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { useAuthStore } from "@/zustand/authStore";
 import { useTRPC } from "@/integrations/trpc";
 import { ThemeModeContext } from "@/context/ThemeModeContext";
 import { DarkMode as DarkModeSwitch } from "@/components/Buttons";

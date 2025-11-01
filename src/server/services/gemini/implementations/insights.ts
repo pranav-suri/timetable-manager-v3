@@ -1,15 +1,15 @@
-import type { prisma } from "@/server/prisma";
 import {
-  verifyTimetableAccess,
-  getDayName,
   calculateFairnessScore,
+  getDayName,
+  verifyTimetableAccess,
 } from "./utils";
 import {
-  getScheduleForEntity,
-  findAvailableSlots,
   checkConflicts,
+  findAvailableSlots,
+  getScheduleForEntity,
   getTimetableStatistics,
 } from "./information";
+import type { prisma } from "@/server/prisma";
 
 type PrismaClient = typeof prisma;
 

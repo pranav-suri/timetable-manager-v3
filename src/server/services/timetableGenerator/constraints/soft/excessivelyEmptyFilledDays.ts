@@ -1,6 +1,6 @@
-import type { Chromosome, GAInputData, SoftViolation } from "../../types";
 import { SoftConstraintType } from "../../types";
 import { groupEventsBySubdivisionAndDay } from "../../utils/grouping";
+import type { Chromosome, GAInputData, SoftViolation } from "../../types";
 
 /**
  * Penalize days that are excessively empty or excessively filled for subdivisions.

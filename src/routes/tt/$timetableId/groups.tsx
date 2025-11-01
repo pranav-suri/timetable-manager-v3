@@ -25,10 +25,10 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import GridOnIcon from "@mui/icons-material/GridOn";
 import ListIcon from "@mui/icons-material/List";
-import type { ColumnConfig } from "./-BatchEditGrid";
 import { BatchEditGrid } from "./-BatchEditGrid";
-import { useCollections } from "@/db-collections/providers/useCollections";
+import type { ColumnConfig } from "./-BatchEditGrid";
 import type { Group } from "generated/prisma/client";
+import { useCollections } from "@/db-collections/providers/useCollections";
 
 export const Route = createFileRoute("/tt/$timetableId/groups")({
   component: RouteComponent,
@@ -95,7 +95,7 @@ function RouteComponent() {
       type: "checkbox",
       header: "Allow Simultaneous",
     },
-  ] satisfies ColumnConfig<Group>[];
+  ] satisfies Array<ColumnConfig<Group>>;
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>

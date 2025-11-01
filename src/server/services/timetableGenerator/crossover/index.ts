@@ -1,6 +1,6 @@
-import type { Chromosome, GAInputData, GAConfig } from "../types";
-import { uniformCrossover } from "./uniform";
 import { repairChromosome } from "../repair";
+import { uniformCrossover } from "./uniform";
+import type { Chromosome, GAConfig, GAInputData } from "../types";
 
 export { uniformCrossover } from "./uniform";
 

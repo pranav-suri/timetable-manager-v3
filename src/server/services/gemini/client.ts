@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
-import { env } from "@/env";
 import { availableFunctions, executeFunction  } from "./functions";
 import type {FunctionContext} from "./functions";
+import { env } from "@/env";
 
 /**
  * Initialize Gemini AI client

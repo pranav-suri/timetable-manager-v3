@@ -1,7 +1,7 @@
-import type { Chromosome, GAInputData } from "../types";
+import { checkTeacherClash } from "../constraints";
 import { MAX_REPAIR_ATTEMPTS } from "./constants";
 import { findValidSlotForGene } from "./helpers";
-import { checkTeacherClash } from "../constraints";
+import type { Chromosome, GAInputData } from "../types";
 
 export function repairTeacherClashes(
   chromosome: Chromosome,

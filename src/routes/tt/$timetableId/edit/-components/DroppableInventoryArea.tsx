@@ -1,5 +1,5 @@
 import { Box, Typography } from "@mui/material";
-import { useDroppable , useDndContext} from "@dnd-kit/core";
+import { useDndContext , useDroppable} from "@dnd-kit/core";
 
 export function DroppableInventoryArea() {
   const { active } = useDndContext();

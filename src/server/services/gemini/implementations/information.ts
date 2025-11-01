@@ -1,12 +1,12 @@
-import type { prisma } from "@/server/prisma";
 import {
-  verifyTimetableAccess,
-  findEntityByIdOrName,
-  findConsecutiveSlots,
-  getDayName,
-  calculateStandardDeviation,
   calculateFairnessScore,
+  calculateStandardDeviation,
+  findConsecutiveSlots,
+  findEntityByIdOrName,
+  getDayName,
+  verifyTimetableAccess,
 } from "./utils";
+import type { prisma } from "@/server/prisma";
 
 type PrismaClient = typeof prisma;
 
@@ -25,7 +25,7 @@ export async function getTeachersList(
     organizationId: string;
     subjectName?: string;
     minAvailableHours?: number;
-  }
+  },
 ) {
   await verifyTimetableAccess(prisma, args.timetableId, args.organizationId);
 
@@ -53,7 +53,7 @@ export async function getTeachersList(
   const processedTeachers = teachers
     .map((teacher) => {
       const subjects = Array.from(
-        new Set(teacher.subjectTeachers.map((st) => st.subject.name))
+        new Set(teacher.subjectTeachers.map((st) => st.subject.name)),
       );
 
       // Calculate total assigned hours
@@ -79,7 +79,9 @@ export async function getTeachersList(
       // Filter by subject if provided
       if (args.subjectName) {
         const normalized = args.subjectName.toLowerCase().trim();
-        if (!teacher.subjects.some((s) => s.toLowerCase().includes(normalized))) {
+        if (
+          !teacher.subjects.some((s) => s.toLowerCase().includes(normalized))
+        ) {
           return false;
         }
       }
@@ -113,7 +115,7 @@ export async function getScheduleForEntity(
     entityId?: string;
     entityName?: string;
     day?: number;
-  }
+  },
 ) {
   await verifyTimetableAccess(prisma, args.timetableId, args.organizationId);
 
@@ -159,7 +161,11 @@ export async function getScheduleForEntity(
     const teachers = await prisma.teacher.findMany({
       where: { timetableId: args.timetableId },
     });
-    const teacher = await findEntityByIdOrName(teachers, args.entityId, args.entityName);
+    const teacher = findEntityByIdOrName(
+      teachers,
+      args.entityId,
+      args.entityName,
+    );
     if (teacher) {
       entityInfo = { id: teacher.id, name: teacher.name, type: "teacher" };
     }
@@ -167,26 +173,34 @@ export async function getScheduleForEntity(
     const classrooms = await prisma.classroom.findMany({
       where: { timetableId: args.timetableId },
     });
-    const classroom = await findEntityByIdOrName(
+    const classroom = findEntityByIdOrName(
       classrooms,
       args.entityId,
-      args.entityName
+      args.entityName,
     );
     if (classroom) {
-      entityInfo = { id: classroom.id, name: classroom.name, type: "classroom" };
+      entityInfo = {
+        id: classroom.id,
+        name: classroom.name,
+        type: "classroom",
+      };
     }
   } else {
     // subdivision
     const subdivisions = await prisma.subdivision.findMany({
       where: { timetableId: args.timetableId },
     });
-    const subdivision = await findEntityByIdOrName(
+    const subdivision = findEntityByIdOrName(
       subdivisions,
       args.entityId,
-      args.entityName
+      args.entityName,
     );
     if (subdivision) {
-      entityInfo = { id: subdivision.id, name: subdivision.name, type: "subdivision" };
+      entityInfo = {
+        id: subdivision.id,
+        name: subdivision.name,
+        type: "subdivision",
+      };
     }
   }
 
@@ -202,15 +216,18 @@ export async function getScheduleForEntity(
       const lecture = lectureSlot.lecture;
       let isRelevant = false;
 
-      if (args.entityType === "teacher" && lecture.teacherId === entityInfo.id) {
+      if (
+        args.entityType === "teacher" &&
+        lecture.teacherId === entityInfo.id
+      ) {
         isRelevant = true;
       } else if (args.entityType === "classroom") {
         isRelevant = lecture.lectureClassrooms.some(
-          (lc) => lc.classroomId === entityInfo.id
+          (lc) => lc.classroomId === entityInfo.id,
         );
       } else if (args.entityType === "subdivision") {
         isRelevant = lecture.lectureSubdivisions.some(
-          (ls) => ls.subdivisionId === entityInfo.id
+          (ls) => ls.subdivisionId === entityInfo.id,
         );
       }
 
@@ -220,7 +237,9 @@ export async function getScheduleForEntity(
           subject: lecture.subject.name,
           teacher: lecture.teacher.name,
           classrooms: lecture.lectureClassrooms.map((lc) => lc.classroom.name),
-          subdivisions: lecture.lectureSubdivisions.map((ls) => ls.subdivision.name),
+          subdivisions: lecture.lectureSubdivisions.map(
+            (ls) => ls.subdivision.name,
+          ),
           duration: lecture.duration,
           isLocked: lectureSlot.isLocked,
         };
@@ -265,7 +284,7 @@ export async function findAvailableSlots(
     entityName?: string;
     day?: number;
     consecutiveSlots?: number;
-  }
+  },
 ) {
   await verifyTimetableAccess(prisma, args.timetableId, args.organizationId);
 
@@ -305,7 +324,9 @@ export async function findAvailableSlots(
 
   // Filter available slots
   const availableSlots = scheduleData.schedule
-    .filter((slot) => !slot.lecture && !unavailableSlotIds.includes(slot.slotId))
+    .filter(
+      (slot) => !slot.lecture && !unavailableSlotIds.includes(slot.slotId),
+    )
     .map((slot) => ({
       slotId: slot.slotId,
       day: slot.day,
@@ -317,20 +338,24 @@ export async function findAvailableSlots(
   let consecutiveGroups: any[] = [];
   if (args.consecutiveSlots && args.consecutiveSlots > 1) {
     // Map to the format expected by findConsecutiveSlots
-    const slotsForConsecutive = availableSlots.map(s => ({
+    const slotsForConsecutive = availableSlots.map((s) => ({
       day: s.day,
-      number: s.slotNumber
+      number: s.slotNumber,
     }));
-    consecutiveGroups = findConsecutiveSlots(slotsForConsecutive, args.consecutiveSlots);
+    consecutiveGroups = findConsecutiveSlots(
+      slotsForConsecutive,
+      args.consecutiveSlots,
+    );
   }
 
   // Mark slots that are part of consecutive groups
   const slotsWithConsecutive = availableSlots.map((slot) => {
-    const isInGroup = consecutiveGroups.some((group) =>
-      group.slotNumbers.includes(slot.slotNumber) && group.day === slot.day
+    const isInGroup = consecutiveGroups.some(
+      (group) =>
+        group.slotNumbers.includes(slot.slotNumber) && group.day === slot.day,
     );
     const group = consecutiveGroups.find(
-      (g) => g.slotNumbers.includes(slot.slotNumber) && g.day === slot.day
+      (g) => g.slotNumbers.includes(slot.slotNumber) && g.day === slot.day,
     );
 
     return {
@@ -341,10 +366,13 @@ export async function findAvailableSlots(
   });
 
   // Group by day
-  const groupedByDay = slotsWithConsecutive.reduce((acc, slot) => {
-    acc[slot.day] = (acc[slot.day] || 0) + 1;
-    return acc;
-  }, {} as Record<number, number>);
+  const groupedByDay = slotsWithConsecutive.reduce(
+    (acc, slot) => {
+      acc[slot.day] = (acc[slot.day] || 0) + 1;
+      return acc;
+    },
+    {} as Record<number, number>,
+  );
 
   return {
     availableSlots: slotsWithConsecutive,
@@ -364,7 +392,7 @@ export async function checkConflicts(
     organizationId: string;
     scope?: "all" | "teachers" | "classrooms" | "subdivisions";
     entityId?: string;
-  }
+  },
 ) {
   await verifyTimetableAccess(prisma, args.timetableId, args.organizationId);
 
@@ -400,11 +428,14 @@ export async function checkConflicts(
   });
 
   // Group by slot to find conflicts
-  const slotGroups = lectureSlots.reduce((acc, ls) => {
-    if (!acc[ls.slotId]) acc[ls.slotId] = [];
-    acc[ls.slotId]!.push(ls);
-    return acc;
-  }, {} as Record<string, typeof lectureSlots>);
+  const slotGroups = lectureSlots.reduce(
+    (acc, ls) => {
+      if (!acc[ls.slotId]) acc[ls.slotId] = [];
+      acc[ls.slotId]!.push(ls);
+      return acc;
+    },
+    {} as Record<string, typeof lectureSlots>,
+  );
 
   // Check for double bookings
   for (const [slotId, lectures] of Object.entries(slotGroups)) {
@@ -462,9 +493,10 @@ export async function checkConflicts(
 
       classroomMap.forEach((conflictingLectures, classroomId) => {
         if (conflictingLectures.length > 1) {
-          const classroom = conflictingLectures[0]!.lecture.lectureClassrooms.find(
-            (lc) => lc.classroomId === classroomId
-          );
+          const classroom =
+            conflictingLectures[0]!.lecture.lectureClassrooms.find(
+              (lc) => lc.classroomId === classroomId,
+            );
           conflicts.push({
             type: "classroom_double_booking",
             severity: "high",
@@ -502,9 +534,10 @@ export async function checkConflicts(
 
       subdivisionMap.forEach((conflictingLectures, subdivisionId) => {
         if (conflictingLectures.length > 1) {
-          const subdivision = conflictingLectures[0]!.lecture.lectureSubdivisions.find(
-            (ls) => ls.subdivisionId === subdivisionId
-          );
+          const subdivision =
+            conflictingLectures[0]!.lecture.lectureSubdivisions.find(
+              (ls) => ls.subdivisionId === subdivisionId,
+            );
           conflicts.push({
             type: "subdivision_double_booking",
             severity: "high",
@@ -545,7 +578,9 @@ export async function checkConflicts(
 
     teacherUnavailable.forEach((unavail) => {
       const conflictingLectures = lectureSlots.filter(
-        (ls) => ls.slotId === unavail.slotId && ls.lecture.teacherId === unavail.teacherId
+        (ls) =>
+          ls.slotId === unavail.slotId &&
+          ls.lecture.teacherId === unavail.teacherId,
       );
 
       if (conflictingLectures.length > 0) {
@@ -573,10 +608,13 @@ export async function checkConflicts(
   }
 
   // Group conflicts by type
-  const conflictsByType = conflicts.reduce((acc, conflict) => {
-    acc[conflict.type] = (acc[conflict.type] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const conflictsByType = conflicts.reduce(
+    (acc, conflict) => {
+      acc[conflict.type] = (acc[conflict.type] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   return {
     conflicts,
@@ -593,7 +631,7 @@ export async function getTimetableStatistics(
   args: {
     timetableId: string;
     organizationId: string;
-  }
+  },
 ) {
   await verifyTimetableAccess(prisma, args.timetableId, args.organizationId);
 
@@ -640,7 +678,7 @@ export async function getTimetableStatistics(
   const teacherUtilization = teachersData.map((teacher) => {
     const assignedHours = teacher.lectures.reduce(
       (sum, lecture) => sum + lecture.lectureSlots.length * lecture.duration,
-      0
+      0,
     );
     const percentage =
       teacher.weeklyMaxHours > 0
@@ -695,8 +733,8 @@ export async function getTimetableStatistics(
       ? classroomsData.reduce((sum, classroom) => {
           const usedSlots = new Set(
             classroom.lectures.flatMap((lc) =>
-              lc.lecture.lectureSlots.map((ls) => ls.slotId)
-            )
+              lc.lecture.lectureSlots.map((ls) => ls.slotId),
+            ),
           ).size;
           return sum + (usedSlots / slots) * 100;
         }, 0) / classroomsData.length
@@ -726,7 +764,8 @@ export async function getTimetableStatistics(
     utilization: {
       teacherUtilization: Math.round(avgTeacherUtilization),
       classroomUtilization: Math.round(classroomUtilization),
-      timeSlotUtilization: slots > 0 ? Math.round((assignedSlots / slots) * 100) : 0,
+      timeSlotUtilization:
+        slots > 0 ? Math.round((assignedSlots / slots) * 100) : 0,
       topUtilizedTeachers: topUtilized.map((t) => ({
         name: t.name,
         percentage: Math.round(t.percentage),
@@ -742,8 +781,9 @@ export async function getTimetableStatistics(
     },
     conflicts: {
       totalConflicts: conflicts.totalConflicts,
-      criticalConflicts: conflicts.conflicts.filter((c) => c.severity === "high")
-        .length,
+      criticalConflicts: conflicts.conflicts.filter(
+        (c) => c.severity === "high",
+      ).length,
     },
   };
 }

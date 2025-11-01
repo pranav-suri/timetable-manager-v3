@@ -1,5 +1,5 @@
-import type { Chromosome, GAInputData, HardViolation } from "../../types";
 import { HardConstraintType } from "../../types";
+import type { Chromosome, GAInputData, HardViolation } from "../../types";
 
 /**
  * Check for subdivision unavailability: students scheduled during unavailable time.

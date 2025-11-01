@@ -1,32 +1,32 @@
 import { useState } from "react";
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Box,
   Button,
-  Typography,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
+  Chip,
   FormControl,
   InputLabel,
-  Select,
   MenuItem,
-  Chip,
+  Select,
+  Typography,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import type {
-  PartialGAConfig,
-  ConstraintWeights,
-} from "@/server/services/timetableGenerator/types";
-import {
-  DEFAULT_GA_CONFIG,
-  FAST_PRESET,
-  BALANCED_PRESET,
-  THOROUGH_PRESET,
-} from "@/server/services/timetableGenerator/config";
 import { PopulationParameters } from "./PopulationParameters";
 import { EvolutionParameters } from "./EvolutionParameters";
 import { ConstraintWeightsConfig } from "./ConstraintWeightsConfig";
+import type {
+  ConstraintWeights,
+  PartialGAConfig,
+} from "@/server/services/timetableGenerator/types";
+import {
+  BALANCED_PRESET,
+  DEFAULT_GA_CONFIG,
+  FAST_PRESET,
+  THOROUGH_PRESET,
+} from "@/server/services/timetableGenerator/config";
 
 interface GenerationControlsProps {
   config: PartialGAConfig;

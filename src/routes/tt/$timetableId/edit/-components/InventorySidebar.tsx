@@ -1,4 +1,4 @@
-import { Paper, Typography, Box } from "@mui/material";
+import { Box, Paper, Typography } from "@mui/material";
 import { DroppableInventoryArea } from "./DroppableInventoryArea";
 import { UnscheduledLecturesList } from "./UnscheduledLecturesList";
 

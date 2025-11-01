@@ -1,9 +1,9 @@
 import { z } from "zod";
+import { JobStatus } from "generated/prisma/client";
 import { authedProcedure } from "../init";
 import type { TRPCRouterRecord } from "@trpc/server";
 import { zodIdSchema } from "@/server/utils/zodIdSchema";
 import { executeGenerationJob } from "@/server/services/timetableGenerator/jobManager";
-import { JobStatus } from "generated/prisma/client";
 import { partialGAConfigSchema } from "@/server/services/timetableGenerator/zodSchemas";
 
 export const generateRouter = {

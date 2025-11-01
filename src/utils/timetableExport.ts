@@ -1,8 +1,8 @@
 import * as XLSX from "xlsx-js-style";
-import { prisma } from "@/server/prisma";
 import { getInitials } from "src/routes/tt/$timetableId/edit/-components/utils";
-import getColor from "@/utils/getColor";
 import { DAY_NAMES } from "./constants";
+import { prisma } from "@/server/prisma";
+import getColor from "@/utils/getColor";
 
 
 export interface LectureExportData {
@@ -93,8 +93,8 @@ export async function aggregateTimetableData(
  * Returns both the data and subject names for each cell (for coloring)
  */
 export function createExcelData(aggregatedData: SlotExportData[]): {
-  data: (string | number)[][];
-  subjectNames: (string | null)[][];
+  data: Array<Array<string | number>>;
+  subjectNames: Array<Array<string | null>>;
 } {
   // Group data by day
   const dataByDay = new Map<number, SlotExportData[]>();
@@ -116,11 +116,11 @@ export function createExcelData(aggregatedData: SlotExportData[]): {
   /**
    * 2D array of rows for the Excel sheet
    */
-  const rows: (string | number)[][] = [headerRow];
+  const rows: Array<Array<string | number>> = [headerRow];
   /**
    * 2D array of subject names for each cell (for coloring purposes)
    */
-  const subjectNames: (string | null)[][] = [
+  const subjectNames: Array<Array<string | null>> = [
     new Array(headerRow.length).fill(null),
   ];
 
@@ -136,8 +136,8 @@ export function createExcelData(aggregatedData: SlotExportData[]): {
     }
 
     // Create row data
-    const rowData: (string | number)[] = [dayName];
-    const rowSubjects: (string | null)[] = [null];
+    const rowData: Array<string | number> = [dayName];
+    const rowSubjects: Array<string | null> = [null];
 
     // For each slot number, add the first lecture (or empty if no lectures)
     for (const slotNum of allSlotNumbers) {
@@ -172,8 +172,8 @@ export function createExcelData(aggregatedData: SlotExportData[]): {
         lectureIndex < maxLecturesInAnySlot;
         lectureIndex++
       ) {
-        const extraRow: (string | number)[] = [""]; // Empty day column
-        const extraSubjects: (string | null)[] = [null];
+        const extraRow: Array<string | number> = [""]; // Empty day column
+        const extraSubjects: Array<string | null> = [null];
 
         for (const slotNum of allSlotNumbers) {
           const slotData = slotsByNumber.get(slotNum);
@@ -311,7 +311,7 @@ export async function exportTimetableToExcel(
  */
 export async function getTimetableExcelData(
   timetableId: string,
-): Promise<(string | number)[][]> {
+): Promise<Array<Array<string | number>>> {
   const aggregatedData = await aggregateTimetableData(timetableId);
   const { data } = createExcelData(aggregatedData);
   return data;

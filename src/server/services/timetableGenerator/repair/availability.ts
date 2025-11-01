@@ -1,11 +1,11 @@
-import type { Chromosome, GAInputData } from "../types";
+import {
+  checkRoomUnavailability,
+  checkSubdivisionUnavailability,
+  checkTeacherUnavailability,
+} from "../constraints";
 import { MAX_REPAIR_ATTEMPTS } from "./constants";
 import { findValidSlotForGene } from "./helpers";
-import {
-  checkTeacherUnavailability,
-  checkSubdivisionUnavailability,
-  checkRoomUnavailability,
-} from "../constraints";
+import type { Chromosome, GAInputData } from "../types";
 
 export function repairAvailabilityViolations(
   chromosome: Chromosome,

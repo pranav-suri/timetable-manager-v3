@@ -1,5 +1,5 @@
-import type { FitnessResult } from "../types";
 import { compareChromosomes } from "../constraints";
+import type { FitnessResult } from "../types";
 
 /**
  * Compare two fitness results using hierarchical rules.

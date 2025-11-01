@@ -6,7 +6,7 @@ export async function uploadTimetableData(
   csvData: string,
   timetableId: string,
 ) {
-  const parsedCsv = await parseCsvData<TimetableData>(csvData);
+  const parsedCsv = parseCsvData<TimetableData>(csvData);
 
   if (!validateCsvData(parsedCsv, "timetable")) {
     return false;
@@ -227,8 +227,8 @@ async function findOrCreateLectureWithSlotData({
     // Just added this check for safety, in case we separate out the
     // creation of lectureSlot from lecture creation
     if (lecture.lectureSlots.length === 0) return lecture;
-    const lectureSlot = lecture.lectureSlots.find((lectureSlot) => {
-      return lectureSlot.slotId === slotId;
+    const lectureSlot = lecture.lectureSlots.find((ls) => {
+      return ls.slotId === slotId;
     });
     if (lectureSlot) return lecture;
   }

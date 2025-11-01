@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { authedProcedure, createTRPCRouter } from "../init";
-import { sendMessageToGemini } from "@/server/services/gemini/client";
-import type { ChatMessage } from "@/server/services/gemini/client";
 import { TRPCError } from "@trpc/server";
+import { authedProcedure, createTRPCRouter } from "../init";
+import type { ChatMessage } from "@/server/services/gemini/client";
+import { sendMessageToGemini } from "@/server/services/gemini/client";
 
 /**
  * Input schema for chat messages

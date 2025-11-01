@@ -1,18 +1,18 @@
 import { useLiveQuery } from "@tanstack/react-db";
-import { useCollections } from "@/db-collections/providers/useCollections";
-import { useLectureSlotFiltersStore } from "@/zustand/lectureSlotFiltersStore";
 import {
-  Paper,
-  Typography,
-  Button,
-  Box,
-  Stack,
-  Divider,
   Alert,
   Autocomplete,
+  Box,
+  Button,
+  Divider,
+  Paper,
+  Stack,
   TextField,
+  Typography,
 } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
+import { useCollections } from "@/db-collections/providers/useCollections";
+import { useLectureSlotFiltersStore } from "@/zustand/lectureSlotFiltersStore";
 
 interface FilterPanelProps {
   /** Optional: CSS class for styling */

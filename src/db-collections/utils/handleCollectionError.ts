@@ -1,6 +1,6 @@
 import { TRPCClientError } from "@trpc/client";
-import type { QueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "../../zustand/authStore";
+import type { QueryClient } from "@tanstack/react-query";
 
 /**
  * Checks if an error is a session/auth error from tRPC

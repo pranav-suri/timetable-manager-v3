@@ -1,6 +1,6 @@
-import type { Population, GAConfig, GAInputData } from "../types";
 import { initializeHeuristicChromosome } from "./heuristic";
 import { initializeRandomChromosome } from "./random";
+import type { GAConfig, GAInputData, Population } from "../types";
 
 /**
  * Initialize a complete population with hybrid strategy.

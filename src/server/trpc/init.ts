@@ -1,8 +1,8 @@
 import { TRPCError, initTRPC } from "@trpc/server";
 import superjson from "superjson";
+import { logError } from "./errorLogger";
 import type { UserRole } from "generated/prisma/client";
 import { prisma } from "@/server/prisma";
-import { logError } from "./errorLogger";
 
 export function createContext() {
   return {

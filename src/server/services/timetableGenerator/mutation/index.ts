@@ -1,6 +1,6 @@
-import type { Chromosome, GAInputData, GAConfig } from "../types";
 import { swapMutation } from "./swap";
 import { randomResetMutation } from "./randomReset";
+import type { Chromosome, GAConfig, GAInputData } from "../types";
 
 export { swapMutation } from "./swap";
 export { randomResetMutation } from "./randomReset";

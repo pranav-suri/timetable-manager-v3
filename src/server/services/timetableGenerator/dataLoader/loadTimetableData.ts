@@ -1,14 +1,14 @@
-import type { PrismaClient } from "generated/prisma/client";
-import type { GAInputData } from "../types";
+import { DEFAULT_GA_CONFIG } from "../config";
 import {
-  loadLectures,
-  loadTeachers,
-  loadSubdivisions,
   loadClassrooms,
+  loadLectures,
   loadSlots,
+  loadSubdivisions,
+  loadTeachers,
 } from "./loaders";
 import { buildLookupMaps } from "./lookupMaps";
-import { DEFAULT_GA_CONFIG } from "../config";
+import type { PrismaClient } from "generated/prisma/client";
+import type { GAInputData } from "../types";
 
 export async function loadTimetableData(
   timetableId: string,

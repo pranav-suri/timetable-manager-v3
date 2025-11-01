@@ -1,4 +1,4 @@
-import type { Population, FitnessResult } from "../types";
+import type { FitnessResult, Population } from "../types";
 
 /**
  * Selects the elite individuals from the current population based on fitness.

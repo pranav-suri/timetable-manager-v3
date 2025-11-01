@@ -2,10 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { styled } from "@mui/material/styles";
 import { Box } from "@mui/material";
-import MuiTimetable from "./-MuiTimetable";
-import { DrawerRight } from "@/components/Drawer";
 import { DndContext } from "@dnd-kit/core";
+import MuiTimetable from "./-MuiTimetable";
 import { useTimetableDnD } from "./-hooks/-useTimetableDnd";
+import { DrawerRight } from "@/components/Drawer";
 
 export const Route = createFileRoute("/tt/$timetableId/edit/")({
   component: RouteComponent,

@@ -7,8 +7,6 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { TanstackDevtools } from "@tanstack/react-devtools";
 
 import { CssBaseline } from "@mui/material";
-import Header from "@/components/Header";
-import { DrawerHeader } from "@/components/Drawer";
 
 import TanStackQueryDevtools from "../integrations/reactQueryDevtools";
 
@@ -18,6 +16,8 @@ import type { QueryClient } from "@tanstack/react-query";
 
 import type { TRPCOptionsProxy } from "@trpc/tanstack-react-query";
 import type { TRPCRouter } from "@/server/trpc/routers";
+import { DrawerHeader } from "@/components/Drawer";
+import Header from "@/components/Header";
 import { ThemeModeContextProvider } from "@/context/ThemeModeContext";
 
 import "@fontsource/roboto/300.css";

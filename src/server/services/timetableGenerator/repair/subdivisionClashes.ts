@@ -1,7 +1,7 @@
-import type { Chromosome, GAInputData } from "../types";
+import { checkSubdivisionClash } from "../constraints";
 import { MAX_REPAIR_ATTEMPTS } from "./constants";
 import { findValidSlotForGene } from "./helpers";
-import { checkSubdivisionClash } from "../constraints";
+import type { Chromosome, GAInputData } from "../types";
 
 export function repairSubdivisionClashes(
   chromosome: Chromosome,

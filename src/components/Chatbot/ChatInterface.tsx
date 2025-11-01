@@ -1,12 +1,12 @@
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
+  Alert,
   Box,
-  TextField,
+  CircularProgress,
   IconButton,
   Paper,
+  TextField,
   Typography,
-  CircularProgress,
-  Alert,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import { MessageBubble } from "./MessageBubble";
@@ -22,11 +22,12 @@ interface ChatInterfaceProps {
   onSendMessage: (message: string, history: Message[]) => Promise<string>;
 }
 // @ts-ignore timetableId not used yet
-export function ChatInterface({ timetableId, onSendMessage }: ChatInterfaceProps) {
+export function ChatInterface({ onSendMessage }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "model",
-      parts: "Hello! I'm your AI assistant for the Timetable Manager. How can I help you today?",
+      parts:
+        "Hello! I'm your AI assistant for the Timetable Manager. How can I help you today?",
       timestamp: new Date().toISOString(),
     },
   ]);
@@ -34,10 +35,10 @@ export function ChatInterface({ timetableId, onSendMessage }: ChatInterfaceProps
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
+    if (messages.length <= 1) return; // Only scroll if there's more than one message
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
@@ -74,7 +75,9 @@ export function ChatInterface({ timetableId, onSendMessage }: ChatInterfaceProps
     } catch (err) {
       console.error("Error sending message:", err);
       setError(
-        err instanceof Error ? err.message : "Failed to send message. Please try again."
+        err instanceof Error
+          ? err.message
+          : "Failed to send message. Please try again.",
       );
 
       // Remove the user message that failed
@@ -103,7 +106,6 @@ export function ChatInterface({ timetableId, onSendMessage }: ChatInterfaceProps
     >
       {/* Messages Container */}
       <Paper
-        ref={messagesContainerRef}
         elevation={0}
         sx={{
           flex: 1,

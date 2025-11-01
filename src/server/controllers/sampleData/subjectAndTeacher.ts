@@ -13,7 +13,7 @@ export async function uploadSubjectAndTeacherData(
   csvData: string,
   timetableId: string,
 ) {
-  const parsedCsv = await parseCsvData<SubjectAndTeacherData>(csvData);
+  const parsedCsv = parseCsvData<SubjectAndTeacherData>(csvData);
   if (!validateCsvData(parsedCsv, "subjectAndTeacher")) {
     return false;
   }
@@ -84,7 +84,7 @@ async function uploadSubjectData(
     where: { timetableId },
   });
   let subjectCreate = parsedCsv.data.map((row) => {
-    const group = groups.find((group) => areEqual(group.name, row.group_name));
+    const group = groups.find((g) => areEqual(g.name, row.group_name));
 
     if (!group)
       throw new Error(
@@ -120,16 +120,16 @@ async function uploadTeachData(
   });
 
   let teachCreate = parsedCsv.data.map((row) => {
-    const subject = subjects.find((subject) =>
-      areEqual(subject.name, row.subject_name),
+    const subject = subjects.find((s) =>
+      areEqual(s.name, row.subject_name),
     );
     if (!subject)
       throw new Error(
         `Subject ${row.subject_name} not found with groupId in ${groupIds}`,
       );
 
-    const teacher = teachers.find((teacher) =>
-      areEqual(teacher.name, row.teacher_name),
+    const teacher = teachers.find((t) =>
+      areEqual(t.name, row.teacher_name),
     );
     if (!teacher)
       throw new Error(

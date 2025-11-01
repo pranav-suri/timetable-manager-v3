@@ -10,23 +10,23 @@
  * @see research.md section 5 "Algorithm Configuration and Execution"
  */
 
-import type {
-  GAInputData,
-  GAConfig,
-  Population,
-  GAResult,
-  GenerationStats,
-} from "./types";
 import { initializePopulation } from "./initialization";
 import {
+  FitnessCache,
   evaluatePopulation,
   findBestChromosome,
-  FitnessCache,
 } from "./fitness";
 import { selectParents } from "./selection";
 import { crossover } from "./crossover";
 import { mutate } from "./mutation";
 import { performReplacement } from "./replacement";
+import type {
+  GAConfig,
+  GAInputData,
+  GAResult,
+  GenerationStats,
+  Population,
+} from "./types";
 
 /**
  * Runs the genetic algorithm to generate a timetable.
@@ -57,7 +57,7 @@ export async function runGA(
     fitnessCache,
   );
 
-  let bestIndex = findBestChromosome(population, fitnesses);
+  const bestIndex = findBestChromosome(population, fitnesses);
   let bestFitness = fitnesses[bestIndex]!;
   let generationsWithoutImprovement = 0;
   const allGenerationStats: GenerationStats[] = [];

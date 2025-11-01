@@ -1,10 +1,10 @@
-import {
+import { evaluateChromosome } from "./constraints";
+import type {
   Chromosome,
-  GAInputData,
   FitnessResult,
+  GAInputData,
   QualityMetrics,
 } from "./types";
-import { evaluateChromosome } from "./constraints";
 
 /**
  * Performs a final validation of the solution by re-evaluating its fitness.

@@ -1,9 +1,9 @@
-import type { FitnessResult, GAConfig, GAInputData } from "../types";
 import {
   FitnessCache,
-  evaluatePopulation,
   calculatePopulationStats,
+  evaluatePopulation,
 } from "../fitness";
+import type { FitnessResult, GAConfig, GAInputData } from "../types";
 import type { PopulationFitnessStats } from "../fitness";
 
 /**

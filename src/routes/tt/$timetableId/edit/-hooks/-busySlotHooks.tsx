@@ -1,4 +1,4 @@
-import { eq, useLiveQuery, or } from "@tanstack/react-db";
+import { eq, or, useLiveQuery } from "@tanstack/react-db";
 import { useCollections } from "@/db-collections/providers/useCollections";
 
 export function useBusySlots(lectureSlotId: string | null) {

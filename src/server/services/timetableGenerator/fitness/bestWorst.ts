@@ -1,5 +1,5 @@
-import type { Chromosome, FitnessResult } from "../types";
 import { compareFitness } from "./compare";
+import type { Chromosome, FitnessResult } from "../types";
 
 /**
  * Find the best chromosome in a population according to fitness.

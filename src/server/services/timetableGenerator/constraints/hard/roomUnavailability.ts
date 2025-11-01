@@ -1,5 +1,5 @@
-import type { Chromosome, GAInputData, HardViolation } from "../../types";
 import { HardConstraintType } from "../../types";
+import type { Chromosome, GAInputData, HardViolation } from "../../types";
 
 /**
  * Check for room unavailability: any combined classroom used during unavailable time.

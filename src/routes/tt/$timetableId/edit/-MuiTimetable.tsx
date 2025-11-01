@@ -1,11 +1,11 @@
 import {
+  Box,
   Paper,
   Table,
   TableBody,
   TableContainer,
   TableHead,
   TableRow,
-  Box,
 } from "@mui/material";
 import { useLiveQuery } from "@tanstack/react-db";
 import { useDndContext } from "@dnd-kit/core";

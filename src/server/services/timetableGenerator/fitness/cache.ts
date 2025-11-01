@@ -1,10 +1,10 @@
+import { evaluateChromosome } from "../constraints";
 import type {
   Chromosome,
-  GAInputData,
-  FitnessResult,
   ConstraintWeights,
+  FitnessResult,
+  GAInputData,
 } from "../types";
-import { evaluateChromosome } from "../constraints";
 
 // Internal: Generate a hash key for a chromosome for caching purposes.
 // Uses a simple string representation of gene assignments.

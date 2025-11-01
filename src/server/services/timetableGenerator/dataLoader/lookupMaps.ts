@@ -1,9 +1,9 @@
 import type {
-  GALecture,
-  GATeacher,
-  GASubdivision,
   GAClassroom,
+  GALecture,
   GASlot,
+  GASubdivision,
+  GATeacher,
   LookupMaps,
 } from "../types";
 

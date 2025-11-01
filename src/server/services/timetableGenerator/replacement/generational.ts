@@ -1,5 +1,5 @@
-import type { Population, FitnessResult, GAConfig } from "../types";
 import { selectElites } from "./elitism";
+import type { FitnessResult, GAConfig, Population } from "../types";
 
 /**
  * Creates the next generation by combining elites and offspring.

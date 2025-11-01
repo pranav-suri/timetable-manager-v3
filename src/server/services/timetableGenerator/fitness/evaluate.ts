@@ -1,11 +1,11 @@
+import { evaluateChromosome } from "../constraints";
 import type {
   Chromosome,
-  GAInputData,
-  FitnessResult,
   ConstraintWeights,
+  FitnessResult,
+  GAInputData,
 } from "../types";
-import { evaluateChromosome } from "../constraints";
-import { FitnessCache } from "./cache";
+import type { FitnessCache } from "./cache";
 
 /**
  * Evaluate the fitness of a chromosome with optional caching.

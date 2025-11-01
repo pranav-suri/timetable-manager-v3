@@ -1,10 +1,10 @@
 import type { PrismaClient } from "generated/prisma/client";
 import type {
-  GALecture,
-  GATeacher,
-  GASubdivision,
   GAClassroom,
+  GALecture,
   GASlot,
+  GASubdivision,
+  GATeacher,
 } from "../types";
 
 export async function loadLectures(

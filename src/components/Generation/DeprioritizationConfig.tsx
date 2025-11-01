@@ -2,18 +2,18 @@ import {
   Box,
   Chip,
   FormControl,
+  IconButton,
   InputLabel,
   MenuItem,
   OutlinedInput,
+  Paper,
   Select,
+  Stack,
   TextField,
   Typography,
-  IconButton,
-  Paper,
-  Stack,
 } from "@mui/material";
 import { Add as AddIcon, Delete as DeleteIcon } from "@mui/icons-material";
-import { useState, useMemo, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSlotDaysAndNumbers } from "@/routes/tt/$timetableId/edit/-MuiTimetable";
 
 interface DeprioritizationConfigProps {

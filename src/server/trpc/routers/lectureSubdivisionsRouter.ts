@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { authedProcedure, editorProcedure } from "../init";
+import { verifyTimetableOwnership } from "../utils/verifyTimetableOwnership";
 import type { TRPCRouterRecord } from "@trpc/server";
 import { zodIdSchema } from "@/server/utils/zodIdSchema";
-import { verifyTimetableOwnership } from "../utils/verifyTimetableOwnership";
 
 export const lectureSubdivisionsRouter = {
   list: authedProcedure

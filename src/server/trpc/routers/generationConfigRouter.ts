@@ -1,9 +1,9 @@
 import { z } from "zod";
 import { authedProcedure, editorProcedure } from "../init";
-import type { TRPCRouterRecord } from "@trpc/server";
-import { zodIdSchema } from "@/server/utils/zodIdSchema";
 import { verifyTimetableOwnership } from "../utils/verifyTimetableOwnership";
+import type { TRPCRouterRecord } from "@trpc/server";
 import type { PartialGAConfig } from "@/server/services/timetableGenerator/types";
+import { zodIdSchema } from "@/server/utils/zodIdSchema";
 
 // Zod schema for PartialGAConfig
 const constraintWeightsSchema = z

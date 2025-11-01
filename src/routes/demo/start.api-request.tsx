@@ -4,7 +4,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 function getNames() {
   return fetch("/api/demo-names").then(
-    (res) => res.json() as Promise<Array<string>>,
+    (res) => res.json() as Promise<string[]>,
   );
 }
 

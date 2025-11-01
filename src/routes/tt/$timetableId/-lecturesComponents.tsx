@@ -37,7 +37,7 @@ export function LectureList({
         )
         .orderBy(({ subject }) => subject.name)
         .select(({ lecture }) => ({ ...lecture })),
-    [lectureCollection],
+    [lectureCollection, subjectCollection],
   );
 
   return (

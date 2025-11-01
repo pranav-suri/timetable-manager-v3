@@ -1,8 +1,8 @@
-import type { DndContextProps, DragEndEvent } from "@dnd-kit/core";
-import { useSensor, PointerSensor } from "@dnd-kit/core";
-import { useCollections } from "@/db-collections/providers/useCollections";
-import { moveLectureSlot } from "../-components/utils";
+import { PointerSensor, useSensor } from "@dnd-kit/core";
 import { nanoid } from "nanoid";
+import { moveLectureSlot } from "../-components/utils";
+import type { DndContextProps, DragEndEvent } from "@dnd-kit/core";
+import { useCollections } from "@/db-collections/providers/useCollections";
 
 export function useTimetableDnD() {
   const { lectureSlotCollection, lectureCollection } = useCollections();

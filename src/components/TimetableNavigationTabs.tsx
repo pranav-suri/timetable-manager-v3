@@ -1,4 +1,4 @@
-import { Box, Tabs, Tab, Container } from "@mui/material";
+import { Box, Container, Tab, Tabs } from "@mui/material";
 import { Link, useLocation } from "@tanstack/react-router";
 import SchoolIcon from "@mui/icons-material/School";
 import ElectricBoltIcon from "@mui/icons-material/ElectricBolt";

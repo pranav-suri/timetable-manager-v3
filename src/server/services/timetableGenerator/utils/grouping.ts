@@ -1,10 +1,10 @@
 import type {
   Chromosome,
   GAInputData,
-  GroupedEvent,
   GALecture,
   GASlot,
   Gene,
+  GroupedEvent,
 } from "../types";
 
 export function groupEventsBySubdivisionAndDay(

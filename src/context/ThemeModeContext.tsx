@@ -1,7 +1,7 @@
 import React, { createContext } from "react";
 import { ThemeProvider, createTheme } from "@mui/material";
-import type { PaletteMode } from "@mui/material";
 import { useUiStore } from "src/zustand/uiStore";
+import type { PaletteMode } from "@mui/material";
 
 type ThemeModeContextType = {
   themeMode: PaletteMode;

@@ -17,15 +17,15 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import type { ColumnConfig } from "./-BatchEditGrid";
-import { BatchEditGrid } from "./-BatchEditGrid";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import GridOnIcon from "@mui/icons-material/GridOn";
 import ListIcon from "@mui/icons-material/List";
-import { useCollections } from "@/db-collections/providers/useCollections";
+import { BatchEditGrid } from "./-BatchEditGrid";
+import type { ColumnConfig } from "./-BatchEditGrid";
 import type { Teacher } from "generated/prisma/client";
+import { useCollections } from "@/db-collections/providers/useCollections";
 
 export const Route = createFileRoute("/tt/$timetableId/teachers")({
   component: RouteComponent,
@@ -93,7 +93,7 @@ function RouteComponent() {
     { data: "email", type: "text", header: "Email" },
     { data: "dailyMaxHours", type: "numeric", header: "Daily Max Hours" },
     { data: "weeklyMaxHours", type: "numeric", header: "Weekly Max Hours" },
-  ] satisfies ColumnConfig<Teacher>[];
+  ] satisfies Array<ColumnConfig<Teacher>>;
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>

@@ -1,17 +1,17 @@
 import type {
-  Lecture,
-  Teacher,
-  Subdivision,
   Classroom,
-  Slot,
-  Subject,
+  ClassroomUnavailable,
   Group,
-  LectureSubdivision,
+  Lecture,
   LectureClassroom,
   LectureSlot,
-  TeacherUnavailable,
+  LectureSubdivision,
+  Slot,
+  Subdivision,
   SubdivisionUnavailable,
-  ClassroomUnavailable,
+  Subject,
+  Teacher,
+  TeacherUnavailable,
 } from "generated/prisma/client";
 
 /**

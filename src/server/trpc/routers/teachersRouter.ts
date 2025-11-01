@@ -1,13 +1,12 @@
 import { z } from "zod";
+import { TeacherSchema } from "generated/zod";
 import { authedProcedure, editorProcedure } from "../init";
+import {
+  verifyEntityOwnership,
+  verifyTimetableOwnership,
+} from "../utils/verifyTimetableOwnership";
 import type { TRPCRouterRecord } from "@trpc/server";
 import { zodIdSchema } from "@/server/utils/zodIdSchema";
-import {
-  verifyTimetableOwnership,
-  verifyEntityOwnership,
-} from "../utils/verifyTimetableOwnership";
-import { TeacherSchema } from "generated/zod";
-import { id } from "node_modules/zod/v4/locales/index.cjs";
 
 export const teachersRouter = {
   list: authedProcedure
@@ -44,6 +43,7 @@ export const teachersRouter = {
     .input(TeacherSchema)
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
+
       const { id, timetableId, ...rest } = input;
 
       // Verify teacher belongs to user's organization

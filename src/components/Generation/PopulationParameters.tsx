@@ -1,5 +1,5 @@
-import type { GAConfig } from "@/server/services/timetableGenerator/types";
 import { ConfigSection, NumericConfigField } from "./ConfigSections";
+import type { GAConfig } from "@/server/services/timetableGenerator/types";
 
 interface PopulationParametersProps {
   config: GAConfig;

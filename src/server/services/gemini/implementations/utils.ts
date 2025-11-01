@@ -1,5 +1,5 @@
-import type { prisma } from "@/server/prisma";
 import { DAY_NAMES } from "src/utils/constants";
+import type { prisma } from "@/server/prisma";
 
 type PrismaClient = typeof prisma;
 
@@ -13,7 +13,7 @@ type PrismaClient = typeof prisma;
 export async function verifyTimetableAccess(
   prisma: PrismaClient,
   timetableId: string,
-  organizationId: string
+  organizationId: string,
 ) {
   const timetable = await prisma.timetable.findFirst({
     where: {
@@ -32,18 +32,19 @@ export async function verifyTimetableAccess(
 /**
  * Find entity by ID or name
  */
-export async function findEntityByIdOrName<T extends { id: string; name: string }>(
+export function findEntityByIdOrName<T extends { id: string; name: string }>(
   items: T[],
   entityId?: string,
-  entityName?: string
-): Promise<T | null> {
+  entityName?: string,
+): T | null {
   if (entityId) {
     return items.find((item) => item.id === entityId) || null;
   }
   if (entityName) {
     const normalized = entityName.toLowerCase().trim();
     return (
-      items.find((item) => item.name.toLowerCase().trim() === normalized) || null
+      items.find((item) => item.name.toLowerCase().trim() === normalized) ||
+      null
     );
   }
   return null;
@@ -54,13 +55,21 @@ export async function findEntityByIdOrName<T extends { id: string; name: string 
  */
 export function findConsecutiveSlots(
   slots: Array<{ day: number; number: number }>,
-  minConsecutive: number = 1
-): Array<{ day: number; startSlot: number; count: number; slotNumbers: number[] }> {
-  const groupedByDay = slots.reduce((acc, slot) => {
-    if (!acc[slot.day]) acc[slot.day] = [];
-    acc[slot.day]!.push(slot.number);
-    return acc;
-  }, {} as Record<number, number[]>);
+  minConsecutive: number = 1,
+): Array<{
+  day: number;
+  startSlot: number;
+  count: number;
+  slotNumbers: number[];
+}> {
+  const groupedByDay = slots.reduce(
+    (acc, slot) => {
+      if (!acc[slot.day]) acc[slot.day] = [];
+      acc[slot.day]!.push(slot.number);
+      return acc;
+    },
+    {} as Record<number, number[]>,
+  );
 
   const consecutiveGroups: Array<{
     day: number;
@@ -72,7 +81,7 @@ export function findConsecutiveSlots(
   for (const [day, slotNumbers] of Object.entries(groupedByDay)) {
     const sorted = slotNumbers.sort((a, b) => a - b);
     if (sorted.length === 0) continue;
-    
+
     let currentGroup: number[] = [sorted[0]!];
 
     for (let i = 1; i < sorted.length; i++) {
@@ -118,7 +127,8 @@ export function calculateStandardDeviation(values: number[]): number {
   if (values.length === 0) return 0;
   const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
   const variance =
-    values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
+    values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
+    values.length;
   return Math.sqrt(variance);
 }
 
@@ -130,12 +140,15 @@ export function calculateFairnessScore(values: number[]): number {
   if (values.length === 0) return 100;
   const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
   if (mean === 0) return 100;
-  
+
   const stdDev = calculateStandardDeviation(values);
   const coefficientOfVariation = stdDev / mean;
-  
+
   // Convert to 0-100 scale (lower CV = higher fairness)
   // CV of 0.5 or more = 0 fairness, CV of 0 = 100 fairness
-  const fairness = Math.max(0, Math.min(100, 100 - (coefficientOfVariation * 200)));
+  const fairness = Math.max(
+    0,
+    Math.min(100, 100 - coefficientOfVariation * 200),
+  );
   return Math.round(fairness);
 }

@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { Box, CircularProgress } from "@mui/material";
 import { useAuthStore } from "@/zustand/authStore";
-import { CircularProgress, Box } from "@mui/material";
 
 export const Route = createFileRoute("/")({
   component: App,

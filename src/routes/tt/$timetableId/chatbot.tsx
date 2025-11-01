@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Container, Box, Typography, Paper } from "@mui/material";
+import { Box, Container, Paper, Typography } from "@mui/material";
 import SmartToyIcon from "@mui/icons-material/SmartToy";
 import { ChatInterface } from "@/components/Chatbot/ChatInterface";
 import { trpcClient } from "@/integrations/trpc";

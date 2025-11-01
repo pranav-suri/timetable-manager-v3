@@ -1,13 +1,13 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
+  Alert,
   Box,
-  Typography,
-  Paper,
-  Chip,
   Button,
+  Chip,
   Collapse,
   IconButton,
-  Alert,
+  Paper,
+  Typography,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -15,8 +15,8 @@ import ErrorIcon from "@mui/icons-material/Error";
 import WarningIcon from "@mui/icons-material/Warning";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { Link } from "@tanstack/react-router";
-import type { UseQueryResult } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
+import type { UseQueryResult } from "@tanstack/react-query";
 
 interface Job {
   id: string;
@@ -82,7 +82,7 @@ export function GenerationResults({
   // Parse result JSON if available
   let result:
     | {
-        assignments?: Array<any>;
+        assignments?: any[];
         stats?: {
           completionRate?: number;
           totalLectures?: number;

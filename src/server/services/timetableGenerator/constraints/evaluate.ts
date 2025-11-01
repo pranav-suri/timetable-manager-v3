@@ -1,11 +1,3 @@
-import type {
-  Chromosome,
-  ConstraintWeights,
-  FitnessResult,
-  GAInputData,
-  HardViolation,
-  SoftViolation,
-} from "../types";
 import { SoftConstraintType } from "../types";
 import { checkConsecutiveSlots } from "./hard/consecutiveSlots";
 import { checkDailyDistribution } from "./hard/dailyDistribution";
@@ -25,6 +17,14 @@ import { checkIdleTime } from "./soft/idleTime";
 import { checkMultiDurationLate } from "./soft/multiDurationLate";
 import { checkTeacherDailyLimit } from "./soft/teacherDailyLimit";
 import { checkTeacherWeeklyLimit } from "./soft/teacherWeeklyLimit";
+import type {
+  Chromosome,
+  ConstraintWeights,
+  FitnessResult,
+  GAInputData,
+  HardViolation,
+  SoftViolation,
+} from "../types";
 
 export function evaluateChromosome(
   chromosome: Chromosome,

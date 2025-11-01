@@ -1,4 +1,4 @@
-import type { Chromosome, Gene, GAConfig } from "../types";
+import type { Chromosome, GAConfig, Gene } from "../types";
 
 /**
  * Perform uniform crossover on two parent chromosomes.

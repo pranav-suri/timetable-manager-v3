@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { trpcClient } from "@/integrations/trpc";
 import type { PartialGAConfig } from "@/server/services/timetableGenerator/types";
+import { trpcClient } from "@/integrations/trpc";
 
 export function useJobs(timetableId: string) {
   const queryClient = useQueryClient();
@@ -34,7 +34,7 @@ export function useJobs(timetableId: string) {
         const result = await trpcClient.generate.status.query({ jobId });
 
         // If job status changed to completed/failed/cancelled, invalidate jobs list
-        const previousData = queryClient.getQueryData(["job", jobId]) as any;
+        const previousData = queryClient.getQueryData(["job", jobId]);
         if (
           previousData &&
           (previousData.status === "IN_PROGRESS" ||

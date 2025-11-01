@@ -1,4 +1,4 @@
-import type { Gene, Chromosome, GAInputData } from "../types";
+import type { Chromosome, GAInputData, Gene } from "../types";
 
 /**
  * Find a valid slot for a gene that doesn't create immediate clashes.

@@ -1,5 +1,5 @@
-import type { Population, FitnessResult, GAConfig } from "../types";
 import { compareFitness } from "../fitness";
+import type { FitnessResult, GAConfig, Population } from "../types";
 
 /**
  * Select a single parent using tournament selection.
@@ -90,8 +90,8 @@ export function selectParentPairs(
   population: Population,
   fitnessResults: FitnessResult[],
   config: GAConfig,
-): [number, number][] {
-  const pairs: [number, number][] = [];
+): Array<[number, number]> {
+  const pairs: Array<[number, number]> = [];
   const numPairs = Math.floor(config.populationSize / 2);
 
   for (let i = 0; i < numPairs; i++) {

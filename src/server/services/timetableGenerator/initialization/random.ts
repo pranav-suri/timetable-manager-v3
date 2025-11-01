@@ -1,4 +1,4 @@
-import type { Chromosome, Gene, GAInputData } from "../types";
+import type { Chromosome, GAInputData, Gene } from "../types";
 
 /**
  * Initialize a single chromosome with random assignments.
@@ -7,8 +7,7 @@ export function initializeRandomChromosome(inputData: GAInputData): Chromosome {
   const chromosome: Chromosome = [];
   const { eventIds, lookupMaps, slots } = inputData;
 
-  for (let i = 0; i < eventIds.length; i++) {
-    const eventId = eventIds[i]!;
+  for (const eventId of eventIds) {
     const lecture = lookupMaps.eventToLecture.get(eventId);
 
     if (!lecture) {

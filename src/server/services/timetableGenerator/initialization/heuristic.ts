@@ -1,4 +1,4 @@
-import type { Chromosome, Gene, GAInputData } from "../types";
+import type { Chromosome, GAInputData, Gene } from "../types";
 
 /**
  * Initialize a single chromosome using greedy heuristic.

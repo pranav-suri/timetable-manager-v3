@@ -1,18 +1,18 @@
-import { prisma } from "@/server/prisma";
 import { JobStatus } from "generated/prisma/client";
-import type {
-  GAInputData,
-  Chromosome,
-  FitnessResult,
-  PartialGAConfig,
-  GAResult,
-  GenerationStats,
-} from "./types";
 import { loadTimetableData } from "./dataLoader";
 import { runGA } from "./algorithm";
 import { mergeConfig, validateConfig } from "./config";
 import { chromosomeToLectureSlots } from "./decoder";
 import { generateQualityReport } from "./validator";
+import type {
+  Chromosome,
+  FitnessResult,
+  GAInputData,
+  GAResult,
+  GenerationStats,
+  PartialGAConfig,
+} from "./types";
+import { prisma } from "@/server/prisma";
 
 async function persistResults(
   jobId: string,

@@ -1,6 +1,6 @@
 import { Prisma, PrismaClient } from "generated/prisma/client";
-import sampleDataUpload from "./controllers/sampleData";
 import * as bcrypt from "bcrypt";
+import sampleDataUpload from "./controllers/sampleData";
 import "dotenv/config";
 
 const BCRYPT_ROUNDS = 12;

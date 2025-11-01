@@ -11,7 +11,7 @@ export const Route = createFileRoute("/demo/mcp-todos")({
 });
 
 function ORPCTodos() {
-  const [todos, setTodos] = useState<Array<Todo>>([]);
+  const [todos, setTodos] = useState<Todo[]>([]);
 
   useEffect(() => {
     const eventSource = new EventSource("/api/mcp-todos");
