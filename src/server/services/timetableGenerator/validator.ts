@@ -21,11 +21,9 @@ export function validateSolution(
   const weights = {
     hardConstraintWeight: 1000,
     idleTime: 5,
-    dailyDistribution: 3,
     consecutivePreference: 8,
     teacherDailyLimit: 10,
     teacherWeeklyLimit: 15,
-    cognitiveLoad: 7,
     excessiveDailyLectures: 6,
     excessivelyEmptyDay: 4,
     excessivelyFilledDay: 4,
@@ -133,7 +131,5 @@ export function generateQualityReport(
     classroomUtilization: calculateRoomUtilization(chromosome, inputData),
     averageIdleTime: idleTimeViolation?.penalty || 0,
     teacherLoadBalance: calculateTeacherLoadBalance(chromosome, inputData),
-    cognitiveLoadBalance: 0, // Placeholder
-    dailyDistributionScore: 0, // Placeholder
   };
 }

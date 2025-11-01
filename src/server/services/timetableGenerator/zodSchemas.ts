@@ -18,11 +18,9 @@ export const partialConstraintWeightsSchema = z
 
     // Soft constraint weights
     idleTime: z.number().min(0).optional(),
-    dailyDistribution: z.number().min(0).optional(),
     consecutivePreference: z.number().min(0).optional(),
     teacherDailyLimit: z.number().min(0).optional(),
     teacherWeeklyLimit: z.number().min(0).optional(),
-    cognitiveLoad: z.number().min(0).optional(),
     excessiveDailyLectures: z.number().min(0).optional(),
 
     // New soft constraint weights

@@ -30,11 +30,9 @@ export const DEFAULT_GA_CONFIG: GAConfig = {
   constraintWeights: {
     hardConstraintWeight: 1000,
     idleTime: 5,
-    dailyDistribution: 3,
     consecutivePreference: 8,
     teacherDailyLimit: 10,
     teacherWeeklyLimit: 15,
-    cognitiveLoad: 7,
     excessiveDailyLectures: 6,
     excessivelyEmptyDay: 4,
     excessivelyFilledDay: 4,

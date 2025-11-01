@@ -33,14 +33,15 @@ import { performReplacement } from "./replacement";
  *
  * @param inputData - The pre-processed data required for the GA.
  * @param config - The configuration for the GA run.
- * @param onProgress - Optional callback to report progress.
+ * @param onProgress - Optional callback to report progress. Can be async to allow database updates.
  * @returns A promise that resolves with the results of the GA run.
  */
 export async function runGA(
   inputData: GAInputData,
   config: GAConfig,
-  onProgress?: (stats: GenerationStats) => void,
+  onProgress?: (stats: GenerationStats) => void | Promise<void>,
 ): Promise<GAResult> {
+  console.time("GA Total Time");
   console.log("Starting GA with config:", config);
   const startTime = Date.now();
   const fitnessCache = new FitnessCache();
@@ -61,8 +62,17 @@ export async function runGA(
   let generationsWithoutImprovement = 0;
   const allGenerationStats: GenerationStats[] = [];
 
+  // Helper to yield control back to the event loop
+  const yieldToEventLoop = () =>
+    new Promise<void>((resolve) => setImmediate(resolve));
+
   // 3. Main Evolutionary Loop
   for (let generation = 0; generation < config.maxGenerations; generation++) {
+    if (generation % 10
+      
+      
+      === 0) await yieldToEventLoop();
+
     // a. Select Parents
     const parentIndices = selectParents(
       population,
@@ -141,7 +151,11 @@ export async function runGA(
       stagnation: generationsWithoutImprovement,
     };
     allGenerationStats.push(stats);
-    onProgress?.(stats);
+
+    // Call onProgress callback which will handle database updates
+    if (onProgress) {
+      await onProgress(stats);
+    }
 
     // Termination Condition: Stagnation
     if (generationsWithoutImprovement >= config.maxStagnantGenerations) {
@@ -164,7 +178,7 @@ export async function runGA(
   const bestChromosome = population[bestChromosomeIndex]!;
   const finalBestFitness = fitnesses[bestChromosomeIndex]!;
   const endTime = Date.now();
-
+  console.timeEnd("GA Total Time");
   return {
     bestChromosome,
     bestFitness: finalBestFitness,

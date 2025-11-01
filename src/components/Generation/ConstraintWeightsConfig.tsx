@@ -35,17 +35,6 @@ export function ConstraintWeightsConfig({
         />
 
         <NumericConfigField
-          label="Daily Distribution Weight"
-          value={weights.dailyDistribution}
-          onChange={(val) => onChange("dailyDistribution", val)}
-          disabled={disabled}
-          technical="Penalty for uneven distribution of lectures across days. Encourages spreading lectures evenly throughout the week."
-          humanSummary="How much to balance workload across the week. Higher = more even distribution of classes."
-          min={0}
-          max={50}
-        />
-
-        <NumericConfigField
           label="Consecutive Preference Weight"
           value={weights.consecutivePreference}
           onChange={(val) => onChange("consecutivePreference", val)}
@@ -74,17 +63,6 @@ export function ConstraintWeightsConfig({
           disabled={disabled}
           technical="Penalty for exceeding teacher's weekly maximum teaching hours. Ensures total workload stays within bounds."
           humanSummary="How strictly to enforce weekly teaching hour limits for teachers. Higher = stricter weekly limits."
-          min={0}
-          max={50}
-        />
-
-        <NumericConfigField
-          label="Cognitive Load Weight"
-          value={weights.cognitiveLoad}
-          onChange={(val) => onChange("cognitiveLoad", val)}
-          disabled={disabled}
-          technical="Penalty based on subject difficulty and scheduling. Harder subjects scheduled late in the day or back-to-back receive higher penalties."
-          humanSummary="How much to consider mental fatigue when scheduling difficult subjects. Higher = avoid hard subjects late or consecutively."
           min={0}
           max={50}
         />
@@ -161,7 +139,7 @@ export function ConstraintWeightsConfig({
           value={weights.multiDurationLate}
           onChange={(val) => onChange("multiDurationLate", val)}
           disabled={disabled}
-          technical="Penalty for starting multi-duration lectures too late in the day (after multiDurationPreferredFraction). Prevents lectures from running past school hours."
+          technical="Penalty for starting multi-duration lectures too late in the day (after multiDurationPreferredFraction). Prevents lectures from running past institute hours."
           humanSummary="How much to avoid starting long lectures late in the day. Higher = push multi-hour classes earlier."
           min={0}
           max={50}

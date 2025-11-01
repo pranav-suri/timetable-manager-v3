@@ -14,25 +14,6 @@ import { mergeConfig, validateConfig } from "./config";
 import { chromosomeToLectureSlots } from "./decoder";
 import { generateQualityReport } from "./validator";
 
-async function updateJobProgress(
-  jobId: string,
-  stats: GenerationStats,
-  maxGenerations: number,
-) {
-  const progress = Math.round((stats.generation / maxGenerations) * 100);
-  await prisma.job.update({
-    where: { id: jobId },
-    data: {
-      progress,
-      result: JSON.stringify({
-        currentBestFitness: stats.bestFitness,
-        hardViolations: stats.bestHardPenalty,
-        softViolations: stats.bestSoftPenalty,
-      }),
-    },
-  });
-}
-
 async function persistResults(
   jobId: string,
   timetableId: string,
@@ -114,27 +95,36 @@ export async function executeGenerationJob(
     const config = mergeConfig(userConfig);
     validateConfig(config);
 
-    // Throttle progress updates to avoid database timeout
-    // Update at least every 2 seconds
-    let lastUpdateTime = Date.now();
-    const UPDATE_INTERVAL_MS = 2000; // 2 seconds
-
+    // Progress callback - now properly async
     const onProgress = async (stats: GenerationStats) => {
-      const now = Date.now();
-      const timeSinceLastUpdate = now - lastUpdateTime;
-
-      // Only update if enough time has passed
-      // BUG: While GA Runs, it does not let the thread yield.
-      // So prisma.job.update() and prisma.job.findUnique() wait until GA completes.
-      // Thus, job status updates do not work during GA execution.
-      if (timeSinceLastUpdate >= UPDATE_INTERVAL_MS) {
-        lastUpdateTime = now;
-        const job = await prisma.job.findUnique({ where: { id: jobId } });
-        if (job?.status === JobStatus.CANCELLED) {
-          throw new Error("Job cancelled by user.");
-        }
-        await updateJobProgress(jobId, stats, config.maxGenerations);
+      // Check if job was cancelled
+      const job = await prisma.job.findUnique({ where: { id: jobId } });
+      if (job?.status === JobStatus.CANCELLED) {
+        throw new Error("Job cancelled by user.");
       }
+
+      // Update progress
+      const progress = Math.round(
+        (stats.generation / config.maxGenerations) * 100,
+      );
+      await prisma.job.update({
+        where: { id: jobId },
+        data: {
+          progress,
+          result: JSON.stringify({
+            metadata: {
+              currentGeneration: stats.generation,
+              maxGenerations: config.maxGenerations,
+              bestFitness: stats.bestFitness,
+              avgFitness: stats.avgFitness,
+              hardViolations: stats.bestHardPenalty,
+              softViolations: stats.bestSoftPenalty,
+              isFeasible: stats.isFeasible,
+              stagnation: stats.stagnation,
+            },
+          }),
+        },
+      });
     };
 
     const gaResult: GAResult = await runGA(inputData, config, onProgress);

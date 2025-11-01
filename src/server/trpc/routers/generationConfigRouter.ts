@@ -10,11 +10,9 @@ const constraintWeightsSchema = z
   .object({
     hardConstraintWeight: z.number().optional(),
     idleTime: z.number().optional(),
-    dailyDistribution: z.number().optional(),
     consecutivePreference: z.number().optional(),
     teacherDailyLimit: z.number().optional(),
     teacherWeeklyLimit: z.number().optional(),
-    cognitiveLoad: z.number().optional(),
     excessiveDailyLectures: z.number().optional(),
     excessivelyEmptyDay: z.number().optional(),
     excessivelyFilledDay: z.number().optional(),

@@ -259,11 +259,9 @@ export interface ConstraintWeights {
 
   // Soft constraint weights (relative importance)
   idleTime: number; // Default: 5
-  dailyDistribution: number; // Default: 3
   consecutivePreference: number; // Default: 8
   teacherDailyLimit: number; // Default: 10
   teacherWeeklyLimit: number; // Default: 15
-  cognitiveLoad: number; // Default: 7
   excessiveDailyLectures: number; // Default: 6
 
   // New soft constraint weights
@@ -439,11 +437,9 @@ export interface ConstraintWeights {
 
   // Soft constraint weights (relative importance)
   idleTime: number; // Default: 5
-  dailyDistribution: number; // Default: 3
   consecutivePreference: number; // Default: 8
   teacherDailyLimit: number; // Default: 10
   teacherWeeklyLimit: number; // Default: 15
-  cognitiveLoad: number; // Default: 7
   excessiveDailyLectures: number; // Default: 6
 
   // New soft constraint weights
@@ -619,11 +615,9 @@ export interface ConstraintWeights {
 
   // Soft constraint weights (relative importance)
   idleTime: number; // Default: 5
-  dailyDistribution: number; // Default: 3
   consecutivePreference: number; // Default: 8
   teacherDailyLimit: number; // Default: 10
   teacherWeeklyLimit: number; // Default: 15
-  cognitiveLoad: number; // Default: 7
   excessiveDailyLectures: number; // Default: 6
 
   // New soft constraint weights
@@ -793,8 +787,6 @@ export interface QualityMetrics {
   classroomUtilization: number; // Percentage of classroom capacity used
   averageIdleTime: number; // Average idle time per subdivision per day
   teacherLoadBalance: number; // Standard deviation of teacher workload
-  cognitiveLoadBalance: number; // Standard deviation of cognitive load
-  dailyDistributionScore: number; // How evenly lectures are distributed
 }
 
 // ============================================================================
