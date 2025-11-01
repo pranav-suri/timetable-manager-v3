@@ -44,15 +44,17 @@ function CollectionsLoader() {
       // Logic from src/routes/tt/$timetableId._loader/route.tsx
       for (const col of Object.values(collections)) {
         col.preload();
-        await col.stateWhenReady();
-        // console.log(col.id, await col.toArrayWhenReady())
       }
+      for (const col of Object.values(collections)) {
+        await col.stateWhenReady();
+      }
+      // console.log(col.id, await col.toArrayWhenReady())
       setAllCollectionsReady(true);
     };
     checkReady();
   }, [collections]);
 
-  if (!allCollectionsReady) return <>Loading Collections.</>;
+  // if (!allCollectionsReady) return <>Loading Collections.</>;
 
   // Render the child routes once collections are ready
   return (
