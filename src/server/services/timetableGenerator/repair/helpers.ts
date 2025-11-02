@@ -45,6 +45,9 @@ export function findValidSlotForGene(
     // Check if this would create a clash with existing assignments
     // (simple check: any other gene in this slot with same teacher/subdivision)
     let wouldCreateClash = false;
+    const currentLectureGroupId = lecture.subject.groupId;
+    const currentAllowSimultaneous = lecture.subject.group.allowSimultaneous;
+
     for (const otherGene of chromosome) {
       if (otherGene.lectureEventId === gene.lectureEventId) continue;
       if (otherGene.timeslotId !== slotId) continue;
@@ -60,13 +63,28 @@ export function findValidSlotForGene(
         break;
       }
 
-      // Subdivision clash check
+      // Subdivision clash check (considering allowSimultaneous)
       const otherSubdivisions =
         lookupMaps.eventToSubdivisions.get(otherGene.lectureEventId) || [];
       const hasCommonSubdivision = subdivisionIds.some((sid) =>
         otherSubdivisions.includes(sid),
       );
+
       if (hasCommonSubdivision) {
+        const otherAllowSimultaneous =
+          otherLecture.subject.group.allowSimultaneous;
+        const otherGroupId = otherLecture.subject.groupId;
+
+        // No clash if both are electives from the same group
+        if (
+          currentAllowSimultaneous &&
+          otherAllowSimultaneous &&
+          currentLectureGroupId === otherGroupId
+        ) {
+          continue; // This is allowed
+        }
+
+        // Otherwise, it's a clash
         wouldCreateClash = true;
         break;
       }
