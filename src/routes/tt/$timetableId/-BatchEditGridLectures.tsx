@@ -31,7 +31,7 @@ export type DropdownOption = {
 
 export type LectureColumnConfig = {
   data: keyof Lecture & string;
-  type: "text" | "numeric" | "checkbox" | "dropdown";
+  type: "text" | "numeric" | "checkbox" | "dropdown" | "autocomplete";
   header: string;
   readOnly?: boolean;
   options?: DropdownOption[];
@@ -273,7 +273,7 @@ export function BatchEditGrid({
         type: col.type,
         source: col.options?.map((option) => option.label) ?? [],
         readOnly: col.readOnly ?? false,
-        allowInvalid: false,
+        allowInvalid: true,
         strict: true,
         trimDropdown: false,
       } satisfies Handsontable.ColumnSettings;

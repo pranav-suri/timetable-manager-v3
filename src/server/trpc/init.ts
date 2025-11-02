@@ -4,13 +4,13 @@ import { logError } from "./errorLogger";
 import type { UserRole } from "generated/prisma/client";
 import { prisma } from "@/server/prisma";
 
-export function createContext() {
+export function createTrpcContext() {
   return {
     prisma,
   };
 }
 
-export type TrpcContext = Awaited<ReturnType<typeof createContext>> & {
+export type TrpcContext = Awaited<ReturnType<typeof createTrpcContext>> & {
   session?: {
     userId: string;
     organizationId: string;
@@ -55,10 +55,23 @@ const t = initTRPC.context<TrpcContext>().create({
 });
 
 export const createTRPCRouter = t.router;
-export const publicProcedure = t.procedure;
+
+const loggingMiddleware = t.middleware(async ({ path, type, next }) => {
+  const start = Date.now();
+  const result = await next();
+  const durationMs = Date.now() - start;
+  // durationMs > 100 ? console.warn("SLOW QUERY:", path, type, durationMs) : null;
+  // result.ok
+  //   ? console.log("INFO:", path, type, durationMs)
+  //   : console.log("ERROR:", path, type, durationMs);
+  return result;
+});
+const baseProcedure = t.procedure.use(loggingMiddleware);
+
+export const publicProcedure = baseProcedure;
 
 // Authentication middleware
-export const authedProcedure = t.procedure.use(async (opts) => {
+export const authedProcedure = baseProcedure.use(async (opts) => {
   const sessionToken = opts.ctx.sessionToken;
 
   if (!sessionToken) {
@@ -110,6 +123,7 @@ export const authedProcedure = t.procedure.use(async (opts) => {
         userRole: session.user.role,
         userEmail: session.user.email,
       },
+      sessionToken,
     },
   });
 });

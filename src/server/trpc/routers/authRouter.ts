@@ -2,22 +2,17 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import * as bcrypt from "bcrypt";
 import { nanoid } from "nanoid";
-import {
-  adminProcedure,
-  authedProcedure,
-  createTRPCRouter,
-  publicProcedure,
-} from "../init";
+import { adminProcedure, authedProcedure, publicProcedure } from "../init";
 
 const BCRYPT_ROUNDS = 12;
 const SESSION_EXPIRY_DAYS = 7;
 
-export const authRouter = createTRPCRouter({
+export const authRouter = {
   // Login
   login: publicProcedure
     .input(
       z.object({
-        email: z.string().email(),
+        email: z.email(),
         password: z.string().min(8),
       }),
     )
@@ -56,6 +51,7 @@ export const authRouter = createTRPCRouter({
         input.password,
         user.passwordHash,
       );
+
       if (!isPasswordValid) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
@@ -309,4 +305,4 @@ export const authRouter = createTRPCRouter({
         isActive: updatedUser.isActive,
       };
     }),
-});
+};

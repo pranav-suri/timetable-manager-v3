@@ -29,29 +29,33 @@ export const autoLecturesRouter = {
         classroomIds,
         subdivisionIds,
       } = input;
-      const lecture = await prisma.lecture.create({
-        data: { id, teacherId, subjectId, count, timetableId, duration },
+      const lec = await prisma.$transaction(async (tx) => {
+        const lecture = await tx.lecture.create({
+          data: { id, teacherId, subjectId, count, timetableId, duration },
+        });
+
+        if (classroomIds?.length) {
+          await tx.lectureClassroom.createMany({
+            data: classroomIds.map((classroomId) => ({
+              lectureId: lecture.id,
+              classroomId,
+            })),
+          });
+        }
+
+        if (subdivisionIds?.length) {
+          await tx.lectureSubdivision.createMany({
+            data: subdivisionIds.map((subdivisionId) => ({
+              lectureId: lecture.id,
+              subdivisionId,
+            })),
+          });
+        }
+
+        return lecture;
       });
 
-      if (classroomIds?.length) {
-        await prisma.lectureClassroom.createMany({
-          data: classroomIds.map((classroomId) => ({
-            lectureId: lecture.id,
-            classroomId,
-          })),
-        });
-      }
-
-      if (subdivisionIds?.length) {
-        await prisma.lectureSubdivision.createMany({
-          data: subdivisionIds.map((subdivisionId) => ({
-            lectureId: lecture.id,
-            subdivisionId,
-          })),
-        });
-      }
-
-      return { lecture };
+      return { lecture: lec };
     }),
   update: authedProcedure
     .input(
@@ -77,43 +81,47 @@ export const autoLecturesRouter = {
         duration,
       } = input;
 
-      const lecture = await prisma.lecture.update({
-        where: { id },
-        data: { teacherId, subjectId, count, duration },
-      });
-
-      await prisma.lectureClassroom.deleteMany({
-        where: {
-          lectureId: id,
-          classroomId: { not: { in: classroomIds } },
-        },
-      });
-      for (const classroomId of classroomIds) {
-        await prisma.lectureClassroom.upsert({
-          where: {
-            lectureId_classroomId: { lectureId: id, classroomId },
-          },
-          update: {},
-          create: { lectureId: id, classroomId },
+      const lec = await prisma.$transaction(async (tx) => {
+        const lecture = await tx.lecture.update({
+          where: { id },
+          data: { teacherId, subjectId, count, duration },
         });
-      }
 
-      await prisma.lectureSubdivision.deleteMany({
-        where: {
-          lectureId: id,
-          subdivisionId: { not: { in: subdivisionIds } },
-        },
-      });
-      for (const subdivisionId of subdivisionIds) {
-        await prisma.lectureSubdivision.upsert({
+        await tx.lectureClassroom.deleteMany({
           where: {
-            lectureId_subdivisionId: { lectureId: id, subdivisionId },
+            lectureId: id,
+            classroomId: { not: { in: classroomIds } },
           },
-          update: {},
-          create: { lectureId: id, subdivisionId },
         });
-      }
+        for (const classroomId of classroomIds) {
+          await tx.lectureClassroom.upsert({
+            where: {
+              lectureId_classroomId: { lectureId: id, classroomId },
+            },
+            update: {},
+            create: { lectureId: id, classroomId },
+          });
+        }
 
-      return { lecture };
+        await tx.lectureSubdivision.deleteMany({
+          where: {
+            lectureId: id,
+            subdivisionId: { not: { in: subdivisionIds } },
+          },
+        });
+        for (const subdivisionId of subdivisionIds) {
+          await tx.lectureSubdivision.upsert({
+            where: {
+              lectureId_subdivisionId: { lectureId: id, subdivisionId },
+            },
+            update: {},
+            create: { lectureId: id, subdivisionId },
+          });
+        }
+
+        return lecture;
+      });
+
+      return { lecture: lec };
     }),
 } satisfies TRPCRouterRecord;

@@ -28,7 +28,12 @@ async function main() {
       error.code === "P2002"
     );
   }
+  await prisma.$queryRawUnsafe("PRAGMA journal_mode = WAL;");
+  await prisma.$queryRawUnsafe("PRAGMA busy_timeout = 5000;");
+  console.log("✅ SQLite WAL mode enabled with 5s busy timeout");
+
   await prisma.timetable.findFirst();
+
   console.time(": Time taken for data upload");
   // Get or create default organization for sample data
   await prisma.organization

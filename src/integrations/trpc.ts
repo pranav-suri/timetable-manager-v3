@@ -1,6 +1,10 @@
 import { createTRPCContext } from "@trpc/tanstack-react-query";
 import superjson from "superjson";
-import { createTRPCClient, httpBatchStreamLink } from "@trpc/client";
+import {
+  createTRPCClient,
+  httpBatchLink,
+  loggerLink,
+} from "@trpc/client";
 import type { TRPCRouter } from "@/server/trpc/routers";
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 
@@ -14,7 +18,13 @@ function getUrl() {
 
 export const trpcClient = createTRPCClient<TRPCRouter>({
   links: [
-    httpBatchStreamLink({
+    // loggerLink({
+    //   enabled: (opts) =>
+    //     (process.env.NODE_ENV === "development" &&
+    //       typeof window !== "undefined") ||
+    //     (opts.direction === "down" && opts.result instanceof Error),
+    // }),
+    httpBatchLink({
       transformer: superjson,
       url: getUrl(),
       headers() {

@@ -1,15 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { trpcRouter } from "@/server/trpc/routers";
-import { createContext } from "@/server/trpc/init";
+import { createTrpcContext } from "@/server/trpc/init";
 
-function handler({ request }: { request: Request }) {
-  return fetchRequestHandler({
+async function handler({ request }: { request: Request }) {
+  const start = Date.now();
+  const response = await fetchRequestHandler({
     req: request,
     router: trpcRouter,
     endpoint: "/api/trpc",
     createContext: () => {
-      // Extract session token from cookie or header
       const sessionToken =
         request.headers.get("x-session-token") ||
         request.headers
@@ -19,11 +19,17 @@ function handler({ request }: { request: Request }) {
           ?.split("=")[1];
 
       return {
-        ...createContext(),
+        ...createTrpcContext(),
         sessionToken,
       };
     },
   });
+
+  const durationMs = Date.now() - start;
+  const path = request.url.split("/api/trpc")[1]?.split("?")[0] || "unknown";
+  // console.log(`[TRPC] URL: ${path}, Duration: ${durationMs}ms`);
+
+  return response;
 }
 
 export const Route = createFileRoute("/api/trpc/$")({
