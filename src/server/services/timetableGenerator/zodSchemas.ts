@@ -43,6 +43,18 @@ export const partialConstraintWeightsSchema = z
   .optional();
 
 /**
+ * Zod schema for MultiThreadedGAConfig
+ */
+const multiThreadedGAConfigSchema = z
+  .object({
+    numIslands: z.number().int().optional(),
+    migrationInterval: z.number().int().min(0).optional(),
+    migrationSize: z.number().int().min(0).optional(),
+    migrationStrategy: z.enum(["best", "random", "diverse"]).optional(),
+  })
+  .optional();
+
+/**
  * Zod schema for PartialGAConfig
  */
 export const partialGAConfigSchema = z.object({
@@ -74,4 +86,8 @@ export const partialGAConfigSchema = z.object({
   enableParallel: z.boolean().optional(),
   randomSeed: z.number().int().optional(),
   stopOnFeasible: z.boolean().optional(),
+
+  // Multi-threading options
+  multiThreaded: z.boolean().optional(),
+  multiThreadConfig: multiThreadedGAConfigSchema,
 });

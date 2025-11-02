@@ -17,8 +17,10 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import { PopulationParameters } from "./PopulationParameters";
 import { EvolutionParameters } from "./EvolutionParameters";
 import { ConstraintWeightsConfig } from "./ConstraintWeightsConfig";
+import { MultiThreadingParameters } from "./MultiThreadingParameters";
 import type {
   ConstraintWeights,
+  MultiThreadedGAConfig,
   PartialGAConfig,
 } from "@/server/services/timetableGenerator/types";
 import {
@@ -86,6 +88,48 @@ export function GenerationControls({
       ...config,
       constraintWeights: {
         ...config.constraintWeights,
+        [field]: value,
+      },
+    });
+  };
+
+  const handleMultiThreadedChange = (enabled: boolean) => {
+    setPreset("custom");
+
+    // Get current config or defaults
+    const currentMultiThreadConfig = config.multiThreadConfig ?? {
+      numIslands: 0, // 0 = auto-detect
+      migrationInterval: 50,
+      migrationSize: 2,
+      migrationStrategy: "best" as const,
+    };
+    console.log(enabled);
+
+    onConfigChange({
+      ...config,
+      multiThreaded: enabled,
+      multiThreadConfig: currentMultiThreadConfig,
+    });
+  };
+
+  const handleMultiThreadConfigChange = (
+    field: keyof MultiThreadedGAConfig,
+    value: number | string,
+  ) => {
+    setPreset("custom");
+
+    // Ensure we have a base config to spread from
+    const currentMultiThreadConfig = config.multiThreadConfig ?? {
+      numIslands: 0,
+      migrationInterval: 50,
+      migrationSize: 2,
+      migrationStrategy: "best" as const,
+    };
+
+    onConfigChange({
+      ...config,
+      multiThreadConfig: {
+        ...currentMultiThreadConfig,
         [field]: value,
       },
     });
@@ -198,6 +242,15 @@ export function GenerationControls({
             <ConstraintWeightsConfig
               weights={effectiveConfig.constraintWeights}
               onChange={handleConstraintWeightChange}
+              disabled={disabled}
+            />
+
+            {/* Multi-Threading Options */}
+            <MultiThreadingParameters
+              enabled={config.multiThreaded ?? false}
+              config={config.multiThreadConfig ?? {}}
+              onEnabledChange={handleMultiThreadedChange}
+              onChange={handleMultiThreadConfigChange}
               disabled={disabled}
             />
           </Box>

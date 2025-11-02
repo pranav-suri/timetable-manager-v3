@@ -4,58 +4,7 @@ import { verifyTimetableOwnership } from "../utils/verifyTimetableOwnership";
 import type { TRPCRouterRecord } from "@trpc/server";
 import type { PartialGAConfig } from "@/server/services/timetableGenerator/types";
 import { zodIdSchema } from "@/server/utils/zodIdSchema";
-
-// Zod schema for PartialGAConfig
-const constraintWeightsSchema = z
-  .object({
-    hardConstraintWeight: z.number().optional(),
-    idleTime: z.number().optional(),
-    consecutivePreference: z.number().optional(),
-    teacherDailyLimit: z.number().optional(),
-    teacherWeeklyLimit: z.number().optional(),
-    excessiveDailyLectures: z.number().optional(),
-    excessivelyEmptyDay: z.number().optional(),
-    excessivelyFilledDay: z.number().optional(),
-    multiDurationLate: z.number().optional(),
-    deprioritizedDay: z.number().optional(),
-    deprioritizedSlot: z.number().optional(),
-    deprioritizedDaySlot: z.number().optional(),
-    dailyDistribution: z.number().optional(),
-    minLecturesPerDay: z.number().optional(),
-    maxLecturesPerDay: z.number().optional(),
-    multiDurationPreferredFraction: z.number().optional(),
-    deprioritizedDays: z.array(z.number()).optional(),
-    deprioritizedSlotNumbers: z.array(z.number()).optional(),
-    deprioritizedDaySlots: z
-      .array(
-        z.object({
-          day: z.number(),
-          period: z.number(),
-        }),
-      )
-      .optional(),
-  })
-  .optional();
-
-const partialGAConfigSchema = z.object({
-  populationSize: z.number().optional(),
-  eliteCount: z.number().optional(),
-  heuristicInitRatio: z.number().optional(),
-  crossoverProbability: z.number().optional(),
-  mutationProbability: z.number().optional(),
-  swapMutationRatio: z.number().optional(),
-  tournamentSize: z.number().optional(),
-  maxGenerations: z.number().optional(),
-  maxStagnantGenerations: z.number().optional(),
-  targetFitness: z.number().optional(),
-  maxExecutionTimeMs: z.number().optional(),
-  enableRepair: z.boolean().optional(),
-  enableMemetic: z.boolean().optional(),
-  enableParallel: z.boolean().optional(),
-  randomSeed: z.number().optional(),
-  stopOnFeasible: z.boolean().optional(),
-  constraintWeights: constraintWeightsSchema,
-});
+import { partialGAConfigSchema } from "src/server/services/timetableGenerator/zodSchemas";
 
 export const generationConfigRouter = {
   // Get the generation config for a timetable
@@ -96,7 +45,6 @@ export const generationConfigRouter = {
     .mutation(async ({ ctx, input }) => {
       const { prisma } = ctx;
       const { timetableId, config } = input;
-
       // Verify timetable belongs to user's organization
       await verifyTimetableOwnership(ctx, timetableId);
 

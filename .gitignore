@@ -15,7 +15,7 @@ mcp-todos.json
 *.identifier
 
 generated
-*.db
+*.db*
 prisma/migrations
 
 routeTree.gen.ts

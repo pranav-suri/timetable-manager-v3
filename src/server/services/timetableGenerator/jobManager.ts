@@ -138,19 +138,22 @@ export async function executeGenerationJob(
 
     console.time("GA Total Time");
 
-    const gaResult: GAResult = await runGA(inputData, config, onProgress);
-    // TODO: Run via config option
-    // const gaResult: GAResult = await runGAMultiThreaded(
-    //   inputData,
-    //   config,
-    //   {
-    //     numIslands: 15,
-    //     migrationInterval: 10,
-    //     migrationSize: 3,
-    //     migrationStrategy: "random",
-    //   },
-    //   onProgress,
-    // );
+    let gaResult: GAResult;
+
+    // Use multi-threaded algorithm if enabled
+    if (userConfig.multiThreaded) {
+      console.log("Running multi-threaded GA with island model");
+      gaResult = await runGAMultiThreaded(
+        inputData,
+        config,
+        userConfig.multiThreadConfig ?? {},
+        onProgress,
+      );
+    } else {
+      console.log("Running single-threaded GA");
+      gaResult = await runGA(inputData, config, onProgress);
+    }
+
     console.timeEnd("GA Total Time");
 
     await persistResults(

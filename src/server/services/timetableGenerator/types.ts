@@ -797,12 +797,72 @@ export interface QualityMetrics {
 // ============================================================================
 
 /**
+ * Multi-threaded GA configuration for parallel island model execution.
+ */
+export interface MultiThreadedGAConfig {
+  /** Number of parallel islands (defaults to CPU count - 1) */
+  numIslands?: number;
+  /** How often to migrate individuals between islands (in generations) */
+  migrationInterval?: number;
+  /** Number of individuals to migrate between islands */
+  migrationSize?: number;
+  /** Selection strategy for migration: 'best' | 'random' | 'diverse' */
+  migrationStrategy?: "best" | "random" | "diverse";
+}
+
+/**
  * Partial configuration for user-provided overrides.
  * All fields are optional and will be merged with defaults.
  */
 export type PartialGAConfig = Partial<Omit<GAConfig, "constraintWeights">> & {
   constraintWeights?: Partial<ConstraintWeights>;
+  multiThreaded?: boolean;
+  multiThreadConfig?: Partial<MultiThreadedGAConfig>;
 };
+
+/**
+ * Island in the island model for parallel GA execution.
+ */
+export interface Island {
+  id: number;
+  population: Population;
+  fitnesses: FitnessResult[];
+  bestFitness: FitnessResult;
+  bestChromosome: Chromosome;
+  generationStats: GenerationStats[];
+}
+
+/**
+ * Worker message types for communication between main thread and workers.
+ */
+export interface WorkerMessage {
+  type: "init" | "evolve" | "migrate" | "terminate" | "getBest";
+  payload?: any;
+}
+
+export interface WorkerResponse {
+  type:
+    | "ready"
+    | "evolved"
+    | "migrated"
+    | "terminated"
+    | "bestChromosome"
+    | "error";
+  islandId: number;
+  payload?: any;
+}
+
+/**
+ * Island worker wrapper
+ */
+export interface IslandWorker {
+  id: number;
+  worker: Worker;
+  bestFitness: FitnessResult;
+  bestChromosome: Chromosome;
+  avgFitness: number;
+  generation: number;
+}
 
 /**
  * Progress callback function type for reporting generation progress.
