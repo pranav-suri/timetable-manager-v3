@@ -22,8 +22,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import GridOnIcon from "@mui/icons-material/GridOn";
 import ListIcon from "@mui/icons-material/List";
-import { BatchEditGrid } from "./-BatchEditGrid";
-import type { ColumnConfig } from "./-BatchEditGrid";
+import { BatchEditGridBasic } from "./-BatchEditGridBasic";
+import type { ColumnConfig } from "./-BatchEditGridBasic";
 import type { Teacher } from "generated/prisma/client";
 import { useCollections } from "@/db-collections/providers/useCollections";
 
@@ -118,7 +118,7 @@ function RouteComponent() {
       </Box>
 
       {batchEditMode ? (
-        <BatchEditGrid<Teacher>
+        <BatchEditGridBasic<Teacher>
           entityName="Teachers"
           columns={teacherColumns}
           data={teachers}

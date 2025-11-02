@@ -7,7 +7,7 @@
 ## Architecture: The Big Picture
 
 ### Technology Stack (React 19 SSR)
-
+- **Development**: Use Bun as the package manager and build tool
 - **Frontend**: React 19 + Material-UI v7 (NOT Tailwind despite package.json)
 - **Routing**: TanStack Router v1 (file-based, SSR-capable)
 - **State**: TanStack DB Collections (optimistic updates) + Zustand (UI state)

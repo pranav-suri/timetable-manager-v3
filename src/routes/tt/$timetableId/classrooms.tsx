@@ -23,9 +23,9 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import GridOnIcon from "@mui/icons-material/GridOn";
 import ListIcon from "@mui/icons-material/List";
-import { BatchEditGrid } from "./-BatchEditGrid";
+import { BatchEditGridBasic } from "./-BatchEditGridBasic";
 import type { Classroom } from "generated/prisma/client";
-import type { ColumnConfig } from "./-BatchEditGrid";
+import type { ColumnConfig } from "./-BatchEditGridBasic";
 import { useCollections } from "@/db-collections/providers/useCollections";
 
 export const Route = createFileRoute("/tt/$timetableId/classrooms")({
@@ -107,7 +107,7 @@ function RouteComponent() {
       </Box>
 
       {batchEditMode ? (
-        <BatchEditGrid<Classroom>
+        <BatchEditGridBasic<Classroom>
           entityName="Classroom"
           columns={classroomColumns}
           data={classrooms}
