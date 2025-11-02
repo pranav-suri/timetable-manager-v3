@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { nanoid } from "nanoid";
 import { HotTable } from "@handsontable/react-wrapper";
 import { registerAllModules } from "handsontable/registry";
 import "handsontable/styles/handsontable.min.css";
 import "handsontable/styles/ht-theme-main.min.css";
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -15,12 +16,22 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
-import type { HotTableProps, HotTableRef } from "@handsontable/react-wrapper";
+import type { HotTableRef } from "@handsontable/react-wrapper";
+
+// TODO: Critical bug when any columns of type "dropdown" have options with duplicate labels.
+
+type DropdownOption = {
+  label: string;
+  value: string;
+};
 
 export interface ColumnConfig<T> {
   data: keyof T & string;
-  type: "text" | "numeric" | "checkbox";
+  type: "text" | "numeric" | "checkbox" | "dropdown";
   header: string;
+  options?: DropdownOption[];
+  required?: boolean;
+  validate?: (value: unknown, row: Record<string, any>) => string | undefined;
 }
 
 export type CollectionEmulator<T> = {
@@ -47,12 +58,73 @@ export function BatchEditGrid<T extends Record<string, any> & { id: string }>({
   dataSchema,
   collection,
 }: BatchEditGridProps<T>) {
-  // Register Handsontable modules
-  registerAllModules();
+  const modulesRegisteredRef = useRef(false);
+  if (!modulesRegisteredRef.current) {
+    registerAllModules();
+    modulesRegisteredRef.current = true;
+  }
+
   const theme = useTheme();
 
   const hotTableComponent = useRef<HotTableRef>(null);
-  const gridRows = structuredClone(data);
+  const [validationMessages, setValidationMessages] = useState<string[]>([]);
+
+  const convertEntityToGridRow = useCallback(
+    (row: T) => {
+      const clone: Record<string, any> = structuredClone(row);
+      columns.forEach((col) => {
+        if (col.type === "dropdown") {
+          const match = col.options?.find(
+            (option) => option.value === clone[col.data],
+          );
+          clone[col.data] = match?.label ?? clone[col.data] ?? "";
+        }
+      });
+      return clone;
+    },
+    [columns],
+  );
+
+  const convertGridRowToEntity = (row: Record<string, any>) => {
+    const clone: Record<string, any> = structuredClone(row);
+    columns.forEach((col) => {
+      if (col.type === "dropdown") {
+        const match = col.options?.find(
+          (option) => option.label === clone[col.data],
+        );
+        clone[col.data] = match?.value ?? "";
+      }
+      if (col.type === "numeric") {
+        const value = clone[col.data];
+        if (value === "" || value === null || value === undefined) {
+          clone[col.data] = undefined;
+        } else if (typeof value === "string") {
+          const parsed = Number(value);
+          clone[col.data] = Number.isFinite(parsed) ? parsed : value;
+        }
+      }
+      if (col.type === "checkbox") {
+        clone[col.data] = Boolean(clone[col.data]);
+      }
+    });
+    return clone as T;
+  };
+
+  const tableDataRef = useRef<Array<Record<string, any>>>([]);
+
+  useEffect(() => {
+    const formatted = data.map(convertEntityToGridRow);
+    tableDataRef.current = formatted;
+    const hotInstance = hotTableComponent.current?.hotInstance;
+    if (hotInstance) {
+      hotInstance.loadData(formatted);
+    }
+  }, [convertEntityToGridRow, data]);
+
+  const tableDataSchema = useCallback(() => {
+    const schema = dataSchema();
+    return convertEntityToGridRow(schema);
+  }, [convertEntityToGridRow, dataSchema]);
 
   const handleAddRow = () => {
     if (hotTableComponent.current?.hotInstance) {
@@ -67,22 +139,99 @@ export function BatchEditGrid<T extends Record<string, any> & { id: string }>({
   };
 
   const handleSaveBatch = () => {
-    // Process updates and inserts
-    gridRows.forEach((row) => {
-      const original = collection.get(row.id);
-      if (!original) {
-        collection.insert(row);
+    const hotInstance = hotTableComponent.current?.hotInstance;
+    if (!hotInstance) {
+      return;
+    }
+
+    const currentRows = hotInstance.getSourceData() as Array<
+      Record<string, any>
+    >;
+    const normalizedRows = currentRows.map((row) => {
+      console.log("Raw Row: ", row);
+      const normalized = convertGridRowToEntity(row);
+      console.log("Normalized Row: ", normalized);
+      return normalized;
+    });
+
+    const errors: string[] = [];
+
+    normalizedRows.forEach((row, index) => {
+      const entity = { ...row };
+      if (!entity.id) {
+        entity.id = nanoid(4);
+      }
+
+      const rowRecord: Record<string, any> = entity;
+
+      const isEmptyRow = columns
+        .filter((col) => col.data !== "id")
+        .every((col) => {
+          const value = rowRecord[col.data];
+          return value === "" || value === null || value === undefined;
+        });
+
+      if (isEmptyRow && !collection.get(entity.id)) {
         return;
       }
-      // Check if any field changed
+
+      columns.forEach((col) => {
+        const value = rowRecord[col.data];
+        if (
+          col.required &&
+          (value === "" || value === null || value === undefined)
+        ) {
+          errors.push(`Row ${index + 1}: ${col.header} is required.`);
+        }
+        if (col.validate) {
+          const message = col.validate(value, rowRecord);
+          if (message) {
+            errors.push(`Row ${index + 1}: ${message}`);
+          }
+        }
+      });
+    });
+
+    if (errors.length) {
+      setValidationMessages(errors);
+      return;
+    }
+
+    setValidationMessages([]);
+
+    normalizedRows.forEach((row) => {
+      const entity = { ...row };
+      if (!entity.id) {
+        entity.id = nanoid(4);
+      }
+
+      const rowRecord = entity as Record<string, any>;
+
+      const isEmptyRow = columns
+        .filter((col) => col.data !== "id")
+        .every((col) => {
+          const value = rowRecord[col.data];
+          return value === "" || value === null || value === undefined;
+        });
+
+      if (isEmptyRow && !collection.get(entity.id)) {
+        return;
+      }
+
+      const original = collection.get(entity.id);
+      if (!original) {
+        collection.insert(entity);
+        return;
+      }
+
       const hasChanges = columns.some((col) => {
-        return original[col.data] !== row[col.data];
+        return original[col.data] !== rowRecord[col.data];
       });
 
       if (hasChanges) {
-        collection.update(row.id, (draft) => {
+        collection.update(entity.id, (draft) => {
           columns.forEach((col) => {
-            draft[col.data] = row[col.data];
+            draft[col.data] = rowRecord[col.data];
           });
         });
       }
@@ -90,17 +239,31 @@ export function BatchEditGrid<T extends Record<string, any> & { id: string }>({
   };
 
   const handleCancelBatch = () => {
-    // Reset to original data
     if (hotTableComponent.current?.hotInstance) {
       const hotInstance = hotTableComponent.current.hotInstance;
-      hotInstance.updateData(structuredClone(data));
+      const formatted = data.map(convertEntityToGridRow);
+      tableDataRef.current = formatted;
+      hotInstance.loadData(formatted);
     }
+    setValidationMessages([]);
   };
 
-  const hotColumns = columns.map((col) => ({
-    data: col.data,
-    type: col.type,
-  }));
+  const hotColumns = columns.map((col) => {
+    if (col.type === "dropdown") {
+      return {
+        data: col.data,
+        type: "dropdown" as const,
+        source: col.options?.map((option) => option.label) ?? [],
+        allowInvalid: false,
+        strict: true,
+        trimDropdown: false,
+      };
+    }
+    return {
+      data: col.data,
+      type: col.type,
+    };
+  });
 
   const hotColHeaders = columns.map((col) => col.header);
 
@@ -110,6 +273,13 @@ export function BatchEditGrid<T extends Record<string, any> & { id: string }>({
         <Typography variant="h5" component="h2" gutterBottom>
           Batch Edit {entityName}
         </Typography>
+        {validationMessages.length > 0 && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {validationMessages.map((message, index) => (
+              <Box key={`${message}-${index}`}>{message}</Box>
+            ))}
+          </Alert>
+        )}
         <Box sx={{ mb: 2 }}>
           <Button
             variant="outlined"
@@ -145,8 +315,9 @@ export function BatchEditGrid<T extends Record<string, any> & { id: string }>({
                 ? "ht-theme-main"
                 : "ht-theme-main-dark"
             }
-            data={gridRows}
-            dataSchema={dataSchema}
+            // readOnly={true}
+            data={tableDataRef.current}
+            dataSchema={tableDataSchema}
             colHeaders={hotColHeaders}
             columns={hotColumns}
             manualColumnResize={true}
@@ -155,7 +326,6 @@ export function BatchEditGrid<T extends Record<string, any> & { id: string }>({
             multiColumnSorting={true}
             sortByRelevance={true}
             allowInsertRow={true}
-            nestedRows={true}
             height={500}
             licenseKey="non-commercial-and-evaluation"
             renderAllRows={true}

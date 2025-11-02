@@ -25,8 +25,8 @@ import {
   useLectureUpdate,
 } from "@/db-collections/transactions";
 import { BatchEditGrid } from "./-BatchEditGrid";
-import type { ColumnConfig, CollectionEmulator } from "./-BatchEditGrid";
-import { Lecture, Classroom, Subdivision } from "generated/zod";
+import type { ColumnConfig } from "./-BatchEditGrid";
+import type { Lecture, Classroom, Subdivision } from "generated/prisma/client";
 import { LectureList } from "./-lecturesComponents";
 
 type Collections = ReturnType<typeof useCollections>;
@@ -183,24 +183,6 @@ function RouteComponent() {
     [lectureCollection],
   );
 
-  const lectureBatchCollection = useMemo<CollectionEmulator<Lecture>>(
-    () => ({
-      get: (id) => lectureCollection.get(id),
-      insert: (item) => {
-        lectureCollection.insert(item);
-      },
-      update: (id, updater) => {
-        lectureCollection.update(id, (draft) => {
-          updater(draft as Lecture);
-        });
-      },
-      delete: (id) => {
-        lectureCollection.delete(id);
-      },
-    }),
-    [lectureCollection],
-  );
-
   const teacherOptions = useMemo(
     () =>
       teachers.map((teacher) => ({
@@ -296,7 +278,7 @@ function RouteComponent() {
             timetableId,
             createdAt: new Date(),
           })}
-          collection={lectureBatchCollection}
+          collection={lectureCollection}
         />
       ) : (
         <>

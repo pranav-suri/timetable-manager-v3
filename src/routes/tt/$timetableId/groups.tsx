@@ -245,8 +245,8 @@ function SubjectTypeList({
   handleEdit,
   handleDelete,
 }: {
-  groups: any[];
-  handleEdit: (group: any) => void;
+  groups: Group[];
+  handleEdit: (group: Group) => void;
   handleDelete: (id: string) => void;
 }) {
   return (
