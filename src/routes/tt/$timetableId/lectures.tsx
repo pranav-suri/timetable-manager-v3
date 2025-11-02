@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { nanoid } from "nanoid";
 import { useLiveQuery } from "@tanstack/react-db";
 import { useForm } from "@tanstack/react-form";
@@ -24,10 +24,10 @@ import {
   useLectureInsert,
   useLectureUpdate,
 } from "@/db-collections/transactions";
-import { BatchEditGrid } from "./-BatchEditGrid";
-import type { ColumnConfig } from "./-BatchEditGrid";
 import type { Lecture, Classroom, Subdivision } from "generated/prisma/client";
+import type { LectureColumnConfig } from "./-BatchEditGridLectures";
 import { LectureList } from "./-lecturesComponents";
+import { BatchEditGrid } from "./-BatchEditGridLectures";
 
 type Collections = ReturnType<typeof useCollections>;
 
@@ -183,64 +183,52 @@ function RouteComponent() {
     [lectureCollection],
   );
 
-  const teacherOptions = useMemo(
-    () =>
-      teachers.map((teacher) => ({
-        label: teacher.name,
-        value: teacher.id,
-      })),
-    [teachers],
-  );
+  const teacherOptions = teachers.map((teacher) => ({
+    label: teacher.name,
+    value: teacher.id,
+  }));
 
-  const subjectOptions = useMemo(
-    () =>
-      subjects.map((subject) => ({
-        label: subject.name,
-        value: subject.id,
-      })),
-    [subjects],
-  );
+  const subjectOptions = subjects.map((subject) => ({
+    label: subject.name,
+    value: subject.id,
+  }));
 
-  const lectureColumns = useMemo(
-    () =>
-      [
-        {
-          data: "subjectId",
-          type: "dropdown",
-          header: "Subject",
-          options: subjectOptions,
-          required: true,
-        },
-        {
-          data: "teacherId",
-          type: "dropdown",
-          header: "Teacher",
-          options: teacherOptions,
-          required: true,
-        },
-        {
-          data: "count",
-          type: "numeric",
-          header: "Count",
-          required: true,
-          validate: (value) =>
-            typeof value === "number" && value >= 1
-              ? undefined
-              : "Count must be at least 1.",
-        },
-        {
-          data: "duration",
-          type: "numeric",
-          header: "Duration (slots)",
-          required: true,
-          validate: (value) =>
-            typeof value === "number" && value >= 1
-              ? undefined
-              : "Duration must be at least 1 slot.",
-        },
-      ] satisfies Array<ColumnConfig<Lecture>>,
-    [subjectOptions, teacherOptions],
-  );
+  const lectureColumns = [
+    {
+      data: "subjectId",
+      type: "dropdown",
+      header: "Subject",
+      options: subjectOptions,
+      required: true,
+    },
+    {
+      data: "teacherId",
+      type: "dropdown",
+      header: "Teacher",
+      options: teacherOptions,
+      required: true,
+    },
+    {
+      data: "count",
+      type: "numeric",
+      header: "Count",
+      required: true,
+      validate: (value: any) =>
+        typeof value === "number" && value >= 1
+          ? undefined
+          : "Count must be at least 1.",
+    },
+    {
+      data: "duration",
+      type: "numeric",
+      header: "Duration (slots)",
+      required: true,
+      validate: (value: any) =>
+        typeof value === "number" && value >= 1
+          ? undefined
+          : "Duration must be at least 1 slot.",
+    },
+  ] satisfies LectureColumnConfig[];
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -265,8 +253,7 @@ function RouteComponent() {
       </Box>
 
       {batchEditMode ? (
-        <BatchEditGrid<Lecture>
-          entityName="Lectures"
+        <BatchEditGrid
           columns={lectureColumns}
           data={lectures}
           dataSchema={() => ({

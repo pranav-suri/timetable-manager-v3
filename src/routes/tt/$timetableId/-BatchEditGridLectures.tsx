@@ -1,9 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { nanoid } from "nanoid";
-import { HotTable } from "@handsontable/react-wrapper";
-import { registerAllModules } from "handsontable/registry";
-import "handsontable/styles/handsontable.min.css";
-import "handsontable/styles/ht-theme-main.min.css";
 import {
   Alert,
   Box,
@@ -16,48 +12,130 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
+import { HotTable } from "@handsontable/react-wrapper";
+import { registerAllModules } from "handsontable/registry";
+import "handsontable/styles/handsontable.min.css";
+import "handsontable/styles/ht-theme-main.min.css";
 import type { HotTableRef } from "@handsontable/react-wrapper";
+import type { Lecture } from "generated/prisma/client";
+import Handsontable from "handsontable";
 
-// TODO: Critical bug when any columns of type "dropdown" have options with duplicate labels.
+// ============================================================================
+// Types
+// ============================================================================
 
-type DropdownOption = {
+export type DropdownOption = {
   label: string;
   value: string;
 };
 
-export interface ColumnConfig<T> {
-  data: keyof T & string;
+export type LectureColumnConfig = {
+  data: keyof Lecture & string;
   type: "text" | "numeric" | "checkbox" | "dropdown";
   header: string;
+  readOnly?: boolean;
   options?: DropdownOption[];
   required?: boolean;
-  validate?: (value: unknown, row: Record<string, any>) => string | undefined;
-}
+  validate?: (value: unknown) => string | undefined;
+};
 
-export type CollectionEmulator<T> = {
-  get: (id: string) => T | undefined;
-  update: (id: string, updater: (draft: T) => void) => void;
-  insert: (item: T) => void;
+// Grid row type - represents the transformed lecture for display
+export type LectureGridRow = Lecture;
+
+export type LectureCollectionEmulator = {
+  get: (id: string) => Lecture | undefined;
+  update: (id: string, updater: (draft: Lecture) => void) => void;
+  insert: (item: Lecture) => void;
   delete: (id: string) => void;
 };
 
-export interface BatchEditGridProps<
-  T extends Record<string, any> & { id: string },
-> {
-  entityName: string;
-  data: T[];
-  dataSchema: () => T;
-  columns: Array<ColumnConfig<T>>;
-  collection: CollectionEmulator<T>;
+export interface BatchEditGridProps {
+  data: Lecture[];
+  dataSchema: () => Lecture;
+  columns: LectureColumnConfig[];
+  collection: LectureCollectionEmulator;
 }
 
-export function BatchEditGrid<T extends Record<string, any> & { id: string }>({
-  entityName,
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+export function convertEntityToGridRow(
+  row: Lecture,
+  columns: LectureColumnConfig[],
+): LectureGridRow {
+  const clone = structuredClone(row);
+
+  // Transform subjectId: ID -> Label
+  const subjectColumn = columns.find((col) => col.data === "subjectId");
+  if (subjectColumn?.options) {
+    const match = subjectColumn.options.find(
+      (option) => option.value === clone.subjectId,
+    );
+    if (match) {
+      clone.subjectId = match.label;
+    }
+  }
+
+  // Transform teacherId: ID -> Label
+  const teacherColumn = columns.find((col) => col.data === "teacherId");
+  if (teacherColumn?.options) {
+    const match = teacherColumn.options.find(
+      (option) => option.value === clone.teacherId,
+    );
+    if (match) {
+      clone.teacherId = match.label;
+    }
+  }
+
+  return clone;
+}
+
+export const convertGridRowToEntity = (
+  row: LectureGridRow,
+  columns: LectureColumnConfig[],
+): Lecture => {
+  const clone = structuredClone(row);
+
+  // Transform subjectId: Label -> ID
+  const subjectColumn = columns.find((col) => col.data === "subjectId");
+  if (subjectColumn?.options) {
+    const match = subjectColumn.options.find(
+      (option) => option.label === clone.subjectId,
+    );
+    clone.subjectId = match?.value ?? "";
+  }
+
+  // Transform teacherId: Label -> ID
+  const teacherColumn = columns.find((col) => col.data === "teacherId");
+  if (teacherColumn?.options) {
+    const match = teacherColumn.options.find(
+      (option) => option.label === clone.teacherId,
+    );
+    clone.teacherId = match?.value ?? "";
+  }
+
+  return clone;
+};
+
+function assignProperty<T extends keyof Lecture>(
+  target: Lecture,
+  source: Lecture,
+  key: T,
+): void {
+  target[key] = source[key];
+}
+
+// ============================================================================
+// Batch Edit Grid Component
+// ============================================================================
+
+export function BatchEditGrid({
   columns,
   data,
   dataSchema,
   collection,
-}: BatchEditGridProps<T>) {
+}: BatchEditGridProps) {
   const modulesRegisteredRef = useRef(false);
   if (!modulesRegisteredRef.current) {
     registerAllModules();
@@ -69,70 +147,25 @@ export function BatchEditGrid<T extends Record<string, any> & { id: string }>({
   const hotTableComponent = useRef<HotTableRef>(null);
   const [validationMessages, setValidationMessages] = useState<string[]>([]);
 
-  const convertEntityToGridRow = useCallback(
-    (row: T) => {
-      const clone: Record<string, any> = structuredClone(row);
-      columns.forEach((col) => {
-        if (col.type === "dropdown") {
-          const match = col.options?.find(
-            (option) => option.value === clone[col.data],
-          );
-          clone[col.data] = match?.label ?? clone[col.data] ?? "";
-        }
-      });
-      return clone;
-    },
-    [columns],
-  );
-
-  const convertGridRowToEntity = (row: Record<string, any>) => {
-    const clone: Record<string, any> = structuredClone(row);
-    columns.forEach((col) => {
-      if (col.type === "dropdown") {
-        const match = col.options?.find(
-          (option) => option.label === clone[col.data],
-        );
-        clone[col.data] = match?.value ?? "";
-      }
-      if (col.type === "numeric") {
-        const value = clone[col.data];
-        if (value === "" || value === null || value === undefined) {
-          clone[col.data] = undefined;
-        } else if (typeof value === "string") {
-          const parsed = Number(value);
-          clone[col.data] = Number.isFinite(parsed) ? parsed : value;
-        }
-      }
-      if (col.type === "checkbox") {
-        clone[col.data] = Boolean(clone[col.data]);
-      }
-    });
-    return clone as T;
-  };
-
-  const tableDataRef = useRef<Array<Record<string, any>>>([]);
+  const tableDataRef = useRef<LectureGridRow[]>([]);
 
   useEffect(() => {
-    const formatted = data.map(convertEntityToGridRow);
+    const formatted = data.map((d) => convertEntityToGridRow(d, columns));
     tableDataRef.current = formatted;
     const hotInstance = hotTableComponent.current?.hotInstance;
     if (hotInstance) {
       hotInstance.loadData(formatted);
     }
-  }, [convertEntityToGridRow, data]);
+  }, [data, columns]);
 
-  const tableDataSchema = useCallback(() => {
+  const tableDataSchema = useCallback((): LectureGridRow => {
     const schema = dataSchema();
-    return convertEntityToGridRow(schema);
-  }, [convertEntityToGridRow, dataSchema]);
+    return convertEntityToGridRow(schema, columns);
+  }, [dataSchema, columns]);
 
   const handleAddRow = () => {
     if (hotTableComponent.current?.hotInstance) {
       const hotInstance = hotTableComponent.current.hotInstance;
-      // 'insert_row_below' inserts a row below the specified index.
-      // The second argument (1) indicates the number of rows to insert.
-      // The third argument (hotInstance.countRows()) specifies the index
-      // after which to insert the new row (effectively at the bottom).
       hotInstance.alter("insert_row_below", hotInstance.countRows(), 1);
       hotInstance.scrollViewportTo(hotInstance.countRows() - 1);
     }
@@ -144,12 +177,10 @@ export function BatchEditGrid<T extends Record<string, any> & { id: string }>({
       return;
     }
 
-    const currentRows = hotInstance.getSourceData() as Array<
-      Record<string, any>
-    >;
+    const currentRows = hotInstance.getSourceData() as LectureGridRow[];
     const normalizedRows = currentRows.map((row) => {
       console.log("Raw Row: ", row);
-      const normalized = convertGridRowToEntity(row);
+      const normalized = convertGridRowToEntity(row, columns);
       console.log("Normalized Row: ", normalized);
       return normalized;
     });
@@ -162,29 +193,21 @@ export function BatchEditGrid<T extends Record<string, any> & { id: string }>({
         entity.id = nanoid(4);
       }
 
-      const rowRecord: Record<string, any> = entity;
-
       const isEmptyRow = columns
         .filter((col) => col.data !== "id")
-        .every((col) => {
-          const value = rowRecord[col.data];
-          return value === "" || value === null || value === undefined;
-        });
+        .every((col) => !entity[col.data]);
 
       if (isEmptyRow && !collection.get(entity.id)) {
         return;
       }
 
       columns.forEach((col) => {
-        const value = rowRecord[col.data];
-        if (
-          col.required &&
-          (value === "" || value === null || value === undefined)
-        ) {
+        const value = entity[col.data];
+        if (col.required && !value) {
           errors.push(`Row ${index + 1}: ${col.header} is required.`);
         }
         if (col.validate) {
-          const message = col.validate(value, rowRecord);
+          const message = col.validate(value);
           if (message) {
             errors.push(`Row ${index + 1}: ${message}`);
           }
@@ -205,14 +228,9 @@ export function BatchEditGrid<T extends Record<string, any> & { id: string }>({
         entity.id = nanoid(4);
       }
 
-      const rowRecord = entity as Record<string, any>;
-
       const isEmptyRow = columns
         .filter((col) => col.data !== "id")
-        .every((col) => {
-          const value = rowRecord[col.data];
-          return value === "" || value === null || value === undefined;
-        });
+        .every((col) => !entity[col.data]);
 
       if (isEmptyRow && !collection.get(entity.id)) {
         return;
@@ -225,14 +243,14 @@ export function BatchEditGrid<T extends Record<string, any> & { id: string }>({
       }
 
       const hasChanges = columns.some((col) => {
-        return original[col.data] !== rowRecord[col.data];
+        return original[col.data] !== entity[col.data];
       });
 
       if (hasChanges) {
         collection.update(entity.id, (draft) => {
-          columns.forEach((col) => {
-            draft[col.data] = rowRecord[col.data];
-          });
+          for (const col of columns) {
+            assignProperty(draft, entity, col.data);
+          }
         });
       }
     });
@@ -241,7 +259,7 @@ export function BatchEditGrid<T extends Record<string, any> & { id: string }>({
   const handleCancelBatch = () => {
     if (hotTableComponent.current?.hotInstance) {
       const hotInstance = hotTableComponent.current.hotInstance;
-      const formatted = data.map(convertEntityToGridRow);
+      const formatted = data.map((d) => convertEntityToGridRow(d, columns));
       tableDataRef.current = formatted;
       hotInstance.loadData(formatted);
     }
@@ -254,10 +272,11 @@ export function BatchEditGrid<T extends Record<string, any> & { id: string }>({
         data: col.data,
         type: col.type,
         source: col.options?.map((option) => option.label) ?? [],
+        readOnly: col.readOnly ?? false,
         allowInvalid: false,
         strict: true,
         trimDropdown: false,
-      };
+      } satisfies Handsontable.ColumnSettings;
     }
     return {
       data: col.data,
@@ -271,7 +290,7 @@ export function BatchEditGrid<T extends Record<string, any> & { id: string }>({
     <Card>
       <CardContent>
         <Typography variant="h5" component="h2" gutterBottom>
-          Batch Edit {entityName}
+          Batch Edit Lectures
         </Typography>
         {validationMessages.length > 0 && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -315,7 +334,6 @@ export function BatchEditGrid<T extends Record<string, any> & { id: string }>({
                 ? "ht-theme-main"
                 : "ht-theme-main-dark"
             }
-            // readOnly={true}
             data={tableDataRef.current}
             dataSchema={tableDataSchema}
             colHeaders={hotColHeaders}
