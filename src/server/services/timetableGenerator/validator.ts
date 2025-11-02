@@ -31,6 +31,7 @@ export function validateSolution(
     deprioritizedDay: 3,
     deprioritizedSlot: 2,
     deprioritizedDaySlot: 5,
+    dailyDistribution: 5,
   };
   return evaluateChromosome(chromosome, inputData, weights);
 }

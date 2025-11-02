@@ -69,7 +69,7 @@ async function main() {
         organizationId: "default-org",
       },
     })
-    .then((user) => console.log(`✅ Created admin user: ${user.email}\n`))
+    .then((user) => console.log(`✅ Created admin user: ${user.email}`))
     .catch((e) => {
       if (isPrismaUniqueError(e))
         console.log(`✅ Admin user already exists: ${"admin@example.com"}`);
@@ -94,4 +94,11 @@ async function main() {
 // During prerendering, the database may not exist, so skip initialization
 if (process.env.NODE_ENV !== "production") {
   main();
+}
+// @ts-ignore Check the runtime environment
+if (typeof Bun !== "undefined") {
+  // Bun environment
+  console.log("🍔 Running in Bun environment.");
+} else {
+  console.log("🚀 Running in Non Bun environment, multi threading not supported.");
 }

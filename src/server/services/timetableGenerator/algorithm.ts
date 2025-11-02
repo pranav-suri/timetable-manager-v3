@@ -9,7 +9,7 @@
  *
  * @see research.md section 5 "Algorithm Configuration and Execution"
  */
-
+import { cpus } from "node:os";
 import { initializePopulation } from "./initialization";
 import {
   FitnessCache,
@@ -20,12 +20,15 @@ import { selectParents } from "./selection";
 import { crossover } from "./crossover";
 import { mutate } from "./mutation";
 import { performReplacement } from "./replacement";
+import { MemoryMonitor } from "./utils/memoryMonitor";
 import type {
   GAConfig,
   GAInputData,
   GAResult,
   GenerationStats,
   Population,
+  Chromosome,
+  FitnessResult,
 } from "./types";
 
 /**
@@ -41,10 +44,19 @@ export async function runGA(
   config: GAConfig,
   onProgress?: (stats: GenerationStats) => void | Promise<void>,
 ): Promise<GAResult> {
-  console.time("GA Total Time");
   console.log("Starting GA with config:", config);
   const startTime = Date.now();
-  const fitnessCache = new FitnessCache();
+
+  // Initialize cache with size limit based on population
+  const cacheMaxSize = Math.max(config.populationSize * 2);
+  const fitnessCache = new FitnessCache(cacheMaxSize);
+
+  // Initialize memory monitor for large populations
+  const memoryMonitor = new MemoryMonitor(10000, 80); // Check every 10s, GC at 80%
+
+  // Log initial memory state
+  console.log("Initial memory state:");
+  memoryMonitor.check("GA Start");
 
   // 1. Initialize Population
   let population = initializePopulation(config, inputData);
@@ -68,7 +80,13 @@ export async function runGA(
 
   // 3. Main Evolutionary Loop
   for (let generation = 0; generation < config.maxGenerations; generation++) {
+    // Yield to event loop every 10 generations AND clear cache every 50 generations
     if (generation % 10 === 0) await yieldToEventLoop();
+
+    // Monitor memory usage periodically
+    // memoryMonitor.check(`Gen ${generation}`);
+    // const cacheStats = fitnessCache.getStats();
+    fitnessCache.clear();
 
     // a. Select Parents
     const parentIndices = selectParents(
@@ -175,11 +193,491 @@ export async function runGA(
   const bestChromosome = population[bestChromosomeIndex]!;
   const finalBestFitness = fitnesses[bestChromosomeIndex]!;
   const endTime = Date.now();
-  console.timeEnd("GA Total Time");
+
+  // Final memory statistics
+  console.log("\nFinal GA Statistics:");
+  console.log(`Total Time: ${((endTime - startTime) / 1000).toFixed(2)}s`);
+  console.log(`Cache Stats:`, fitnessCache.getStats());
+  console.log(`Memory Trend:`, memoryMonitor.getTrend());
+  memoryMonitor.check("GA End");
+
   return {
     bestChromosome,
     bestFitness: finalBestFitness,
     stats: allGenerationStats,
     totalTime: endTime - startTime,
   };
+}
+
+/**
+ * Island in the island model for parallel GA execution.
+ */
+interface Island {
+  id: number;
+  population: Population;
+  fitnesses: FitnessResult[];
+  bestFitness: FitnessResult;
+  bestChromosome: Chromosome;
+  generationStats: GenerationStats[];
+}
+
+/**
+ * Configuration for multi-threaded GA execution.
+ */
+interface MultiThreadedGAConfig {
+  /** Number of parallel islands (defaults to CPU count - 1) */
+  numIslands?: number;
+  /** How often to migrate individuals between islands (in generations) */
+  migrationInterval?: number;
+  /** Number of individuals to migrate between islands */
+  migrationSize?: number;
+  /** Selection strategy for migration: 'best' | 'random' | 'diverse' */
+  migrationStrategy?: "best" | "random" | "diverse";
+}
+
+/**
+ * Worker message types for communication between main thread and workers.
+ */
+interface WorkerMessage {
+  type: "init" | "evolve" | "migrate" | "terminate" | "getBest";
+  payload?: any;
+}
+
+interface WorkerResponse {
+  type:
+    | "ready"
+    | "evolved"
+    | "migrated"
+    | "terminated"
+    | "bestChromosome"
+    | "error";
+  islandId: number;
+  payload?: any;
+}
+
+/**
+ * Island worker wrapper
+ */
+interface IslandWorker {
+  id: number;
+  worker: Worker;
+  bestFitness: FitnessResult;
+  bestChromosome: Chromosome;
+  avgFitness: number;
+  generation: number;
+}
+
+/**
+ * Runs the genetic algorithm using actual worker threads with an island model.
+ *
+ * This implementation creates true worker threads, each running an independent
+ * island population. Workers communicate via message passing to coordinate
+ * migration and track overall progress.
+ *
+ * Benefits:
+ * - True parallelization across CPU cores (not just async)
+ * - Each worker has isolated memory space
+ * - Better CPU utilization for compute-intensive fitness evaluation
+ * - Near-linear speedup on multi-core systems
+ *
+ * @param inputData - The pre-processed data required for the GA.
+ * @param config - The configuration for the GA run.
+ * @param multiThreadConfig - Configuration for multi-threaded execution.
+ * @param onProgress - Optional callback to report progress. Can be async to allow database updates.
+ * @returns A promise that resolves with the results of the GA run.
+ *
+ * @example
+ * ```typescript
+ * const result = await runGAMultiThreaded(
+ *   inputData,
+ *   config,
+ *   {
+ *     numIslands: 4,
+ *     migrationInterval: 50,
+ *     migrationSize: 2,
+ *     migrationStrategy: 'best'
+ *   },
+ *   (stats) => console.log(`Gen ${stats.generation}: ${stats.bestFitness}`)
+ * );
+ * ```
+ */
+export async function runGAMultiThreaded(
+  inputData: GAInputData,
+  config: GAConfig,
+  multiThreadConfig: MultiThreadedGAConfig = {},
+  onProgress?: (stats: GenerationStats) => void | Promise<void>,
+): Promise<GAResult> {
+  const startTime = Date.now();
+
+  // Determine number of islands (default to CPU count - 1, keeping one for main thread)
+  const numCPUs = cpus().length;
+  console.log(`System has ${numCPUs} CPU cores.`);
+
+  const numIslands = multiThreadConfig.numIslands ?? Math.max(2, numCPUs - 1);
+
+  config["eliteCount"] = Math.max(
+    1,
+    Math.floor(config.eliteCount / numIslands),
+  );
+  config["tournamentSize"] = Math.max(
+    2,
+    Math.floor(config.tournamentSize / numIslands),
+  );
+
+  const migrationInterval = multiThreadConfig.migrationInterval ?? 50;
+  const migrationSize = multiThreadConfig.migrationSize ?? 2;
+  const migrationStrategy = multiThreadConfig.migrationStrategy ?? "best";
+
+  console.log(
+    `Starting Multi-Threaded GA with ${numIslands} islands on ${numCPUs} CPU cores`,
+  );
+  console.log(
+    `Migration: every ${migrationInterval} generations, ${migrationSize} individuals using ${migrationStrategy} strategy`,
+  );
+
+  // Adjust population size per island
+  const populationPerIsland = Math.floor(config.populationSize / numIslands);
+  const islandConfig: GAConfig = {
+    ...config,
+    populationSize: populationPerIsland,
+    eliteCount: Math.max(1, Math.floor(config.eliteCount / numIslands)),
+  };
+
+  // Create worker threads for each island
+  // Bun has native TypeScript support, no need for tsx loader
+  const workerUrl = new URL("./gaWorker.ts", import.meta.url);
+  const islandWorkers: IslandWorker[] = [];
+  const workerPromises: Map<
+    number,
+    { resolve: (value: any) => void; reject: (error: any) => void }
+  > = new Map();
+
+  // Initialize workers
+  for (let i = 0; i < numIslands; i++) {
+    const worker = new Worker(workerUrl);
+
+    const islandWorker: IslandWorker = {
+      id: i,
+      worker,
+      bestFitness: {
+        totalPenalty: Infinity,
+        fitnessScore: 0,
+        isFeasible: false,
+        hardPenalty: Infinity,
+        softPenalty: 0,
+        hardViolations: [],
+        softViolations: [],
+        hardViolationCount: 0,
+        softViolationCount: 0,
+      },
+      bestChromosome: [],
+      avgFitness: 0,
+      generation: 0,
+    };
+
+    // Set up message handler for this worker (Bun uses addEventListener)
+    worker.addEventListener("message", (event: MessageEvent) => {
+      const message = event.data as WorkerResponse;
+      const promise = workerPromises.get(message.islandId);
+      if (promise) {
+        promise.resolve(message);
+        workerPromises.delete(message.islandId);
+      }
+
+      // Update island state
+      if (
+        message.type === "ready" ||
+        message.type === "evolved" ||
+        message.type === "migrated"
+      ) {
+        islandWorker.bestFitness = message.payload.bestFitness;
+        islandWorker.bestChromosome = message.payload.bestChromosome;
+        islandWorker.avgFitness = message.payload.avgFitness ?? 0;
+        islandWorker.generation = message.payload.generation ?? 0;
+      }
+    });
+
+    worker.addEventListener("error", (error: ErrorEvent) => {
+      console.error(`Worker ${i} error:`, error);
+      const promise = workerPromises.get(i);
+      if (promise) {
+        promise.reject(error);
+        workerPromises.delete(i);
+      }
+    });
+
+    islandWorkers.push(islandWorker);
+
+    // Initialize this worker
+    await new Promise<void>((resolve, reject) => {
+      workerPromises.set(i, { resolve: () => resolve(), reject });
+      worker.postMessage({
+        type: "init",
+        payload: {
+          islandId: i,
+          inputData,
+          config: islandConfig,
+        },
+      } as WorkerMessage);
+    });
+  }
+
+  console.log(`All ${numIslands} worker threads initialized`);
+
+  // Track overall best
+  let globalBestFitness = islandWorkers[0]!.bestFitness;
+  let globalBestChromosome = islandWorkers[0]!.bestChromosome;
+  let generationsWithoutImprovement = 0;
+  const allGenerationStats: GenerationStats[] = [];
+
+  // Main evolution loop
+  for (let generation = 0; generation < config.maxGenerations; generation++) {
+    // Tell all workers to evolve one generation
+    const evolvePromises = islandWorkers.map((iw) => {
+      return new Promise<void>((resolve, reject) => {
+        workerPromises.set(iw.id, { resolve: () => resolve(), reject });
+        iw.worker.postMessage({ type: "evolve" } as WorkerMessage);
+      });
+    });
+
+    // Wait for all workers to complete their generation
+    await Promise.all(evolvePromises);
+
+    // Update global best from all workers
+    let generationBestFitness = islandWorkers[0]!.bestFitness;
+    let generationBestChromosome = islandWorkers[0]!.bestChromosome;
+
+    for (const iw of islandWorkers) {
+      if (iw.bestFitness.fitnessScore > generationBestFitness.fitnessScore) {
+        generationBestFitness = iw.bestFitness;
+        generationBestChromosome = iw.bestChromosome;
+      }
+    }
+
+    // Update global best tracker
+    if (generationBestFitness.fitnessScore > globalBestFitness.fitnessScore) {
+      globalBestFitness = generationBestFitness;
+      globalBestChromosome = generationBestChromosome;
+      generationsWithoutImprovement = 0;
+    } else {
+      generationsWithoutImprovement++;
+    }
+
+    // Calculate average fitness across all islands
+    const totalFitness = islandWorkers.reduce(
+      (sum, iw) => sum + iw.avgFitness,
+      0,
+    );
+    const avgFitness = totalFitness / islandWorkers.length;
+
+    // Create generation stats
+    const stats: GenerationStats = {
+      generation,
+      bestFitness: globalBestFitness.fitnessScore,
+      bestHardPenalty: globalBestFitness.hardPenalty,
+      bestSoftPenalty: globalBestFitness.softPenalty,
+      isFeasible: globalBestFitness.isFeasible,
+      avgFitness,
+      stagnation: generationsWithoutImprovement,
+    };
+    allGenerationStats.push(stats);
+
+    // Report progress
+    if (onProgress) {
+      await onProgress(stats);
+    }
+
+    // Perform migration between islands
+    if ((generation + 1) % migrationInterval === 0 && generation > 0) {
+      await performWorkerMigration(
+        islandWorkers,
+        migrationSize,
+        migrationStrategy,
+        workerPromises,
+      );
+      console.log(`Migration completed at generation ${generation + 1}`);
+    }
+
+    // Check termination conditions
+    if (generationsWithoutImprovement >= config.maxStagnantGenerations) {
+      console.log(
+        `Termination: Stagnation limit of ${config.maxStagnantGenerations} reached.`,
+      );
+      break;
+    }
+
+    if (config.stopOnFeasible && globalBestFitness.isFeasible) {
+      console.log(
+        `Termination: Feasible solution found at generation ${generation}.`,
+      );
+      break;
+    }
+  }
+
+  // Terminate all workers
+  for (const iw of islandWorkers) {
+    iw.worker.postMessage({ type: "terminate" } as WorkerMessage);
+    await iw.worker.terminate();
+  }
+
+  const endTime = Date.now();
+
+  console.log("\nMulti-Threaded GA Statistics:");
+  console.log(`Total Time: ${((endTime - startTime) / 1000).toFixed(2)}s`);
+  console.log(`Number of Islands: ${numIslands}`);
+  console.log(`Best Fitness: ${globalBestFitness.fitnessScore.toFixed(6)}`);
+  console.log(`Is Feasible: ${globalBestFitness.isFeasible}`);
+
+  return {
+    bestChromosome: globalBestChromosome,
+    bestFitness: globalBestFitness,
+    stats: allGenerationStats,
+    totalTime: endTime - startTime,
+  };
+}
+
+/**
+ * Performs migration of individuals between worker threads.
+ *
+ * Uses ring topology: each island sends migrants to the next island.
+ * Workers coordinate migration via message passing.
+ */
+async function performWorkerMigration(
+  islandWorkers: IslandWorker[],
+  migrationSize: number,
+  _strategy: "best" | "random" | "diverse", // TODO: Implement different migration strategies in worker
+  workerPromises: Map<
+    number,
+    { resolve: (value: any) => void; reject: (error: any) => void }
+  >,
+): Promise<void> {
+  const numIslands = islandWorkers.length;
+
+  // Request best individuals from each worker
+  const migrantRequests = islandWorkers.map((iw) => {
+    return new Promise<{ islandId: number; migrants: any[] }>((resolve) => {
+      const handler = (event: MessageEvent) => {
+        const message = event.data as WorkerResponse;
+        if (message.type === "bestChromosome" && message.islandId === iw.id) {
+          iw.worker.removeEventListener("message", handler);
+          resolve({ islandId: iw.id, migrants: message.payload });
+        }
+      };
+
+      // Temporarily add message handler for this specific request
+      iw.worker.addEventListener("message", handler);
+
+      // Request best individuals
+      iw.worker.postMessage({
+        type: "getBest",
+        payload: { count: migrationSize },
+      } as WorkerMessage);
+    });
+  });
+
+  // Wait for all workers to send their best individuals
+  const migrantData = await Promise.all(migrantRequests);
+
+  // Send migrants to next island in ring (i -> (i+1) % numIslands)
+  const migrationPromises = islandWorkers.map((iw, i) => {
+    const sourceIslandId = (i - 1 + numIslands) % numIslands; // Previous island sends to this one
+    const migrants =
+      migrantData.find((m) => m.islandId === sourceIslandId)?.migrants ?? [];
+
+    return new Promise<void>((resolve, reject) => {
+      workerPromises.set(iw.id, { resolve: () => resolve(), reject });
+      iw.worker.postMessage({
+        type: "migrate",
+        payload: { migrants },
+      } as WorkerMessage);
+    });
+  });
+
+  // Wait for all migrations to complete
+  await Promise.all(migrationPromises);
+}
+
+/**
+ * Performs migration of individuals between islands.
+ *
+ * Migration strategies:
+ * - 'best': Migrate the best individuals from each island
+ * - 'random': Migrate random individuals
+ * - 'diverse': Migrate individuals that are most different from target island
+ */
+function performMigration(
+  islands: Island[],
+  migrationSize: number,
+  strategy: "best" | "random" | "diverse",
+): void {
+  const numIslands = islands.length;
+
+  for (let i = 0; i < numIslands; i++) {
+    const sourceIsland = islands[i]!;
+    const targetIsland = islands[(i + 1) % numIslands]!; // Ring topology
+
+    let migrantsIndices: number[] = [];
+
+    switch (strategy) {
+      case "best": {
+        // Select best individuals
+        const sortedIndices = sourceIsland.fitnesses
+          .map((f, idx) => ({ fitness: f.fitnessScore, idx }))
+          .sort((a, b) => b.fitness - a.fitness)
+          .map((item) => item.idx);
+        migrantsIndices = sortedIndices.slice(0, migrationSize);
+        break;
+      }
+      case "random": {
+        // Select random individuals
+        const population = sourceIsland.population;
+        for (let j = 0; j < migrationSize; j++) {
+          migrantsIndices.push(Math.floor(Math.random() * population.length));
+        }
+        break;
+      }
+      case "diverse": {
+        // Select most diverse individuals (simplified: select from different fitness ranges)
+        const sortedIndices = sourceIsland.fitnesses
+          .map((f, idx) => ({ fitness: f.fitnessScore, idx }))
+          .sort((a, b) => b.fitness - a.fitness)
+          .map((item) => item.idx);
+
+        // Take individuals from different quartiles
+        const quartileSize = Math.floor(sortedIndices.length / 4);
+        for (let j = 0; j < migrationSize; j++) {
+          const quartile = j % 4;
+          const idx =
+            quartile * quartileSize + Math.floor(Math.random() * quartileSize);
+          migrantsIndices.push(sortedIndices[idx] ?? 0);
+        }
+        break;
+      }
+    }
+
+    // Replace worst individuals in target island with migrants
+    const sortedTargetIndices = targetIsland.fitnesses
+      .map((f, idx) => ({ fitness: f.fitnessScore, idx }))
+      .sort((a, b) => a.fitness - b.fitness) // Ascending order (worst first)
+      .map((item) => item.idx);
+
+    for (let j = 0; j < migrationSize && j < migrantsIndices.length; j++) {
+      const migrantIdx = migrantsIndices[j]!;
+      const targetIdx = sortedTargetIndices[j]!;
+
+      // Copy migrant to target island
+      targetIsland.population[targetIdx] = [
+        ...sourceIsland.population[migrantIdx]!,
+      ];
+      targetIsland.fitnesses[targetIdx] = sourceIsland.fitnesses[migrantIdx]!;
+    }
+
+    // Update best in target island after migration
+    const bestIndex = findBestChromosome(
+      targetIsland.population,
+      targetIsland.fitnesses,
+    );
+    targetIsland.bestFitness = targetIsland.fitnesses[bestIndex]!;
+    targetIsland.bestChromosome = targetIsland.population[bestIndex]!;
+  }
 }

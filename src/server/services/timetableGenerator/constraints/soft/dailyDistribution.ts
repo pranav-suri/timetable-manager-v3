@@ -1,15 +1,15 @@
-import { HardConstraintType } from "../../types";
-import type { Chromosome, GAInputData, HardViolation } from "../../types";
+import { SoftConstraintType } from "../../types";
+import type { Chromosome, GAInputData, SoftViolation } from "../../types";
 
 /**
  * Check for daily distribution: uneven distribution of lectures across days.
- * HC11 - Converted from soft to hard constraint
+ * Soft constraint - penalizes uneven distribution but doesn't make solution infeasible
  */
 export function checkDailyDistribution(
   chromosome: Chromosome,
   inputData: GAInputData,
-): HardViolation[] {
-  const violations: HardViolation[] = [];
+): SoftViolation[] {
+  const violations: SoftViolation[] = [];
   const { lookupMaps, lectures } = inputData;
 
   // Group genes by lecture and day
@@ -35,21 +35,26 @@ export function checkDailyDistribution(
     const lecture = lectures.find((l) => l.id === lectureId);
     if (!lecture || lecture.count <= 1) continue;
 
-    const counts = Array.from(dayCounts.values());
-    const mean = counts.reduce((sum, c) => sum + c, 0) / counts.length;
+    const totalDays = 7; // TODO: Get days from input
+    const countsArray = Array.from(
+      { length: totalDays },
+      (_, i) => dayCounts.get(i + 1) || 0,
+    );
+    const mean = lecture.count / totalDays;
     const variance =
-      counts.reduce((sum, c) => sum + Math.pow(c - mean, 2), 0) / counts.length;
+      countsArray.reduce((sum, c) => sum + Math.pow(c - mean, 2), 0) /
+      totalDays;
 
-    if (variance > 1.0) {
-      // Threshold for acceptable variance
+    // Only penalize if variance is above a threshold
+    if (variance > 1.0) { // TODO: Get variance threshold from config
       const geneIndices = chromosome
         .map((gene, idx) => (gene.lectureId === lectureId ? idx : -1))
         .filter((idx) => idx !== -1);
 
       violations.push({
-        type: HardConstraintType.DAILY_DISTRIBUTION,
+        type: SoftConstraintType.DAILY_DISTRIBUTION,
         geneIndices,
-        severity: Math.floor(variance), // Severity proportional to variance
+        penalty: variance, // Penalty proportional to variance
         description: `Lecture ${lecture.subject.name} has uneven daily distribution (variance: ${variance.toFixed(2)})`,
         entityIds: [lectureId],
       });

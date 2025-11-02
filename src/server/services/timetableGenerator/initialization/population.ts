@@ -17,10 +17,8 @@ export function initializePopulation(
   );
   const randomCount = config.populationSize - heuristicCount;
 
-  console.log(`Initializing population:`);
-  console.log(`  Heuristic chromosomes: ${heuristicCount}`);
-  console.log(`  Random chromosomes: ${randomCount}`);
-  console.log(`  Total: ${config.populationSize}`);
+  console.log(`Initializing population: Total: ${config.populationSize}`);
+  console.log(`  Heuristic: ${heuristicCount} Random chromosomes: ${randomCount}`);
 
   // Generate heuristic chromosomes
   for (let i = 0; i < heuristicCount; i++) {

@@ -20,6 +20,7 @@ const constraintWeightsSchema = z
     deprioritizedDay: z.number().optional(),
     deprioritizedSlot: z.number().optional(),
     deprioritizedDaySlot: z.number().optional(),
+    dailyDistribution: z.number().optional(),
     minLecturesPerDay: z.number().optional(),
     maxLecturesPerDay: z.number().optional(),
     multiDurationPreferredFraction: z.number().optional(),

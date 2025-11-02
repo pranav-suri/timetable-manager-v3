@@ -14,22 +14,23 @@ const daySlotPairSchema = z.object({
 export const partialConstraintWeightsSchema = z
   .object({
     // Hard constraint base weight
-    hardConstraintWeight: z.number().min(0).optional(),
+    hardConstraintWeight: z.number().optional(),
 
     // Soft constraint weights
-    idleTime: z.number().min(0).optional(),
-    consecutivePreference: z.number().min(0).optional(),
-    teacherDailyLimit: z.number().min(0).optional(),
-    teacherWeeklyLimit: z.number().min(0).optional(),
-    excessiveDailyLectures: z.number().min(0).optional(),
+    idleTime: z.number().optional(),
+    consecutivePreference: z.number().optional(),
+    teacherDailyLimit: z.number().optional(),
+    teacherWeeklyLimit: z.number().optional(),
+    excessiveDailyLectures: z.number().optional(),
 
     // New soft constraint weights
-    excessivelyEmptyDay: z.number().min(0).optional(),
-    excessivelyFilledDay: z.number().min(0).optional(),
-    multiDurationLate: z.number().min(0).optional(),
-    deprioritizedDay: z.number().min(0).optional(),
-    deprioritizedSlot: z.number().min(0).optional(),
-    deprioritizedDaySlot: z.number().min(0).optional(),
+    excessivelyEmptyDay: z.number().optional(),
+    excessivelyFilledDay: z.number().optional(),
+    multiDurationLate: z.number().optional(),
+    dailyDistribution: z.number().optional(),
+    deprioritizedDay: z.number().optional(),
+    deprioritizedSlot: z.number().optional(),
+    deprioritizedDaySlot: z.number().optional(),
 
     // Thresholds / options
     minLecturesPerDay: z.number().int().min(0).optional(),

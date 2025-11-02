@@ -1,6 +1,5 @@
 import { SoftConstraintType } from "../types";
 import { checkConsecutiveSlots } from "./hard/consecutiveSlots";
-import { checkDailyDistribution } from "./hard/dailyDistribution";
 import { checkLockedSlots } from "./hard/lockedSlots";
 import { checkRoomCapacity } from "./hard/roomCapacity";
 import { checkRoomClash } from "./hard/roomClash";
@@ -10,6 +9,7 @@ import { checkSubdivisionUnavailability } from "./hard/subdivisionUnavailability
 import { checkTeacherClash } from "./hard/teacherClash";
 import { checkTeacherUnavailability } from "./hard/teacherUnavailability";
 import { checkConsecutivePreference } from "./soft/consecutivePreference";
+import { checkDailyDistribution } from "./soft/dailyDistribution";
 import { checkDeprioritizedSlots } from "./soft/deprioritizedSlots";
 import { checkExcessiveDailyLectures } from "./soft/excessiveDailyLectures";
 import { checkExcessivelyEmptyFilledDays } from "./soft/excessivelyEmptyFilledDays";
@@ -43,7 +43,6 @@ export function evaluateChromosome(
     // checkAllowedClassroom REMOVED - classrooms are now immutable per lecture
     ...checkConsecutiveSlots(chromosome, inputData),
     ...checkLockedSlots(chromosome, inputData),
-    ...checkDailyDistribution(chromosome, inputData),
   ];
 
   // Check all soft constraints
@@ -56,6 +55,7 @@ export function evaluateChromosome(
     ...checkExcessivelyEmptyFilledDays(chromosome, inputData),
     ...checkMultiDurationLate(chromosome, inputData, weights),
     ...checkDeprioritizedSlots(chromosome, inputData, weights),
+    ...checkDailyDistribution(chromosome, inputData),
   ];
 
   // Calculate penalties
@@ -116,6 +116,8 @@ function getSoftPenalty(
       return violation.penalty * weights.deprioritizedSlot;
     case SoftConstraintType.DEPRIORITIZED_DAY_SLOT:
       return violation.penalty * weights.deprioritizedDaySlot;
+    case SoftConstraintType.DAILY_DISTRIBUTION:
+      return violation.penalty * weights.dailyDistribution;
     default:
       return violation.penalty;
   }

@@ -121,7 +121,6 @@ export enum HardConstraintType {
   ROOM_FEATURES = "ROOM_FEATURES", // Room lacks required features
   CONSECUTIVE_SLOTS = "CONSECUTIVE_SLOTS", // Multi-slot lecture not in consecutive periods
   LOCKED_SLOT_VIOLATION = "LOCKED_SLOT_VIOLATION", // Locked slot assignment changed
-  DAILY_DISTRIBUTION = "DAILY_DISTRIBUTION", // Uneven distribution of lectures across days
 }
 
 /**
@@ -140,6 +139,7 @@ export enum SoftConstraintType {
   DEPRIORITIZED_DAY = "DEPRIORITIZED_DAY",
   DEPRIORITIZED_SLOT = "DEPRIORITIZED_SLOT",
   DEPRIORITIZED_DAY_SLOT = "DEPRIORITIZED_DAY_SLOT",
+  DAILY_DISTRIBUTION = "DAILY_DISTRIBUTION", // Uneven distribution of lectures across days
 }
 
 /**
@@ -271,6 +271,7 @@ export interface ConstraintWeights {
   deprioritizedDay: number; // Default: 3
   deprioritizedSlot: number; // Default: 3
   deprioritizedDaySlot: number; // Default: 4
+  dailyDistribution: number; // Default: 5
 
   // Thresholds / options for new soft constraints
   // Days with lectures < minLecturesPerDay will be penalized (per subdivision)
@@ -449,6 +450,7 @@ export interface ConstraintWeights {
   deprioritizedDay: number; // Default: 3
   deprioritizedSlot: number; // Default: 3
   deprioritizedDaySlot: number; // Default: 4
+  dailyDistribution: number; // Default: 5
 
   // Thresholds / options for new soft constraints
   // Days with lectures < minLecturesPerDay will be penalized (per subdivision)
@@ -627,6 +629,7 @@ export interface ConstraintWeights {
   deprioritizedDay: number; // Default: 3
   deprioritizedSlot: number; // Default: 3
   deprioritizedDaySlot: number; // Default: 4
+  dailyDistribution: number; // Default: 5
 
   // Thresholds / options for new soft constraints
   // Days with lectures < minLecturesPerDay will be penalized (per subdivision)

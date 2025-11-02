@@ -18,13 +18,21 @@ function hashChromosome(chromosome: Chromosome): string {
 
 /**
  * Cache for storing fitness evaluations to avoid redundant calculations.
- * The cache is generation-scoped and should be cleared between generations
- * to avoid unbounded memory growth.
+ * The cache is generation-scoped and uses an LRU eviction strategy
+ * to prevent unbounded memory growth with large populations.
  */
 export class FitnessCache {
   private cache: Map<string, FitnessResult> = new Map();
   private hits = 0;
   private misses = 0;
+  private maxSize: number;
+
+  /**
+   * @param maxSize - Maximum cache entries (default: 2x population size or 2000)
+   */
+  constructor(maxSize = 2000) {
+    this.maxSize = maxSize;
+  }
 
   /**
    * Get fitness result from cache, or evaluate and cache if not present.
@@ -39,11 +47,24 @@ export class FitnessCache {
 
     if (cached) {
       this.hits++;
+      // LRU: Move to end by deleting and re-inserting
+      this.cache.delete(key);
+      this.cache.set(key, cached);
       return cached;
     }
 
     this.misses++;
     const result = evaluateChromosome(chromosome, inputData, weights);
+
+    // Enforce size limit using LRU eviction
+    if (this.cache.size >= this.maxSize) {
+      // Delete oldest entry (first item in Map)
+      const firstKey = this.cache.keys().next().value;
+      if (firstKey !== undefined) {
+        this.cache.delete(firstKey);
+      }
+    }
+
     this.cache.set(key, result);
     return result;
   }
@@ -53,11 +74,20 @@ export class FitnessCache {
    */
   set(chromosome: Chromosome, result: FitnessResult): void {
     const key = hashChromosome(chromosome);
+
+    // Enforce size limit
+    if (this.cache.size >= this.maxSize && !this.cache.has(key)) {
+      const firstKey = this.cache.keys().next().value;
+      if (firstKey !== undefined) {
+        this.cache.delete(firstKey);
+      }
+    }
+
     this.cache.set(key, result);
   }
 
   /**
-   * Clear the cache (should be called at start of each generation).
+   * Clear the cache (should be called periodically to free memory).
    */
   clear(): void {
     this.cache.clear();

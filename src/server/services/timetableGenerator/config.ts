@@ -40,6 +40,7 @@ export const DEFAULT_GA_CONFIG: GAConfig = {
     deprioritizedDay: 3,
     deprioritizedSlot: 200,
     deprioritizedDaySlot: 5,
+    dailyDistribution: 5,
   },
 };
 

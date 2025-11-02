@@ -56,14 +56,14 @@ const t = initTRPC.context<TrpcContext>().create({
 
 export const createTRPCRouter = t.router;
 
-const loggingMiddleware = t.middleware(async ({ path, type, next }) => {
+const loggingMiddleware = t.middleware(async (opts) => {
   const start = Date.now();
-  const result = await next();
+  const result = await opts.next();
   const durationMs = Date.now() - start;
-  // durationMs > 100 ? console.warn("SLOW QUERY:", path, type, durationMs) : null;
+  // durationMs > 100 ? console.warn("SLOW QUERY:", opts.path, opts.type, durationMs) : null;
   // result.ok
-  //   ? console.log("INFO:", path, type, durationMs)
-  //   : console.log("ERROR:", path, type, durationMs);
+  //   ? console.log("INFO:", opts.path, opts.type, durationMs)
+  //   : console.log("ERROR:", opts.path, opts.type, durationMs);
   return result;
 });
 const baseProcedure = t.procedure.use(loggingMiddleware);

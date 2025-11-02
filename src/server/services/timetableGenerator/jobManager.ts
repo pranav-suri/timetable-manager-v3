@@ -1,6 +1,6 @@
 import { JobStatus } from "generated/prisma/client";
 import { loadTimetableData } from "./dataLoader";
-import { runGA } from "./algorithm";
+import { runGA, runGAMultiThreaded } from "./algorithm";
 import { mergeConfig, validateConfig } from "./config";
 import { chromosomeToLectureSlots } from "./decoder";
 import { generateQualityReport } from "./validator";
@@ -13,6 +13,8 @@ import type {
   PartialGAConfig,
 } from "./types";
 import { prisma } from "@/server/prisma";
+
+const UPDATE_INTERVAL_MS = 1000;
 
 async function persistResults(
   jobId: string,
@@ -86,6 +88,7 @@ export async function executeGenerationJob(
   userConfig: PartialGAConfig = {},
 ) {
   try {
+    let lastUpdate = new Date();
     await prisma.job.update({
       where: { id: jobId },
       data: { status: JobStatus.IN_PROGRESS },
@@ -97,12 +100,18 @@ export async function executeGenerationJob(
 
     // Progress callback - now properly async
     const onProgress = async (stats: GenerationStats) => {
+      const now = new Date();
+      const timeSinceLastUpdate = now.getTime() - lastUpdate.getTime();
+      if (timeSinceLastUpdate < UPDATE_INTERVAL_MS) return; // Skip update if interval hasn't passed
+      lastUpdate = now;
       // Check if job was cancelled
+      console.log(
+        `Generation ${stats.generation}: Best Fitness = ${stats.bestFitness}, Avg Fitness = ${stats.avgFitness}`,
+      );
       const job = await prisma.job.findUnique({ where: { id: jobId } });
       if (job?.status === JobStatus.CANCELLED) {
         throw new Error("Job cancelled by user.");
       }
-
       // Update progress
       const progress = Math.round(
         (stats.generation / config.maxGenerations) * 100,
@@ -127,7 +136,22 @@ export async function executeGenerationJob(
       });
     };
 
+    console.time("GA Total Time");
+
     const gaResult: GAResult = await runGA(inputData, config, onProgress);
+    // TODO: Run via config option
+    // const gaResult: GAResult = await runGAMultiThreaded(
+    //   inputData,
+    //   config,
+    //   {
+    //     numIslands: 15,
+    //     migrationInterval: 10,
+    //     migrationSize: 3,
+    //     migrationStrategy: "random",
+    //   },
+    //   onProgress,
+    // );
+    console.timeEnd("GA Total Time");
 
     await persistResults(
       jobId,

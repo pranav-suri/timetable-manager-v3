@@ -85,6 +85,15 @@ export function ConstraintWeightsConfig({
         description="Control how lectures are distributed throughout each day to avoid overloaded or underutilized days."
       >
         <NumericConfigField
+          label="Daily Distribution Weight"
+          value={weights.dailyDistribution}
+          onChange={(val) => onChange("dailyDistribution", val)}
+          disabled={disabled}
+          technical="Penalty for uneven distribution of a lecture's sessions across the week. Calculates variance across all days and penalizes high variance. Promotes even spread of each subject throughout the week."
+          humanSummary="How much to spread each subject evenly across the week. Higher = more balanced distribution across all days."
+        />
+
+        <NumericConfigField
           label="Excessively Empty Day Weight"
           value={weights.excessivelyEmptyDay}
           onChange={(val) => onChange("excessivelyEmptyDay", val)}

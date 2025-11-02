@@ -7,7 +7,6 @@ export * from "./hard/roomUnavailability";
 export * from "./hard/roomCapacity";
 export * from "./hard/consecutiveSlots";
 export * from "./hard/lockedSlots";
-export * from "./hard/dailyDistribution";
 
 export * from "./soft/idleTime";
 export * from "./soft/teacherDailyLimit";
