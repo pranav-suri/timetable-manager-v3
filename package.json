@@ -45,6 +45,7 @@
     "dotenv": "^17.2.3",
     "eslint-plugin-react-hooks": "^7.0.1",
     "handsontable": "^16.1.1",
+    "jszip": "^3.10.1",
     "nanoid": "^5.1.6",
     "papaparse": "^5.5.3",
     "react": "^19.2.0",

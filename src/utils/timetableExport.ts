@@ -1,8 +1,7 @@
 import * as XLSX from "xlsx-js-style";
-import { getInitials } from "src/routes/tt/$timetableId/edit/-components/utils";
-import { DAY_NAMES } from "./constants";
 import { prisma } from "@/server/prisma";
 import getColor from "@/utils/getColor";
+import { createExcelData } from "src/routes/tt/$timetableId/export/-utils/aggregateData";
 
 export interface LectureExportData {
   subjectName: string;
@@ -15,19 +14,6 @@ export interface SlotExportData {
   day: number;
   slotNumber: number;
   lectures: LectureExportData[];
-}
-
-/**
- * Formats a lecture for export as: SubjectName-TeacherName-Subdivisions-Classrooms
- */
-function formatLectureForExport(lecture: LectureExportData): string {
-  const { subjectName, teacherName, subdivisions, classrooms } = lecture;
-
-  const subdivisionsStr = subdivisions.length > 0 ? subdivisions.join(",") : "";
-  const classroomsStr = classrooms.length > 0 ? classrooms.join(",") : "";
-
-  // return `${getInitials(subjectName)} : ${getInitials(teacherName)}\n${subdivisionsStr}\n${classroomsStr}`;
-  return `${subjectName}\n${teacherName}\n${subdivisionsStr}\n${classroomsStr}`;
 }
 
 /**
@@ -85,114 +71,6 @@ export async function aggregateTimetableData(
   }
 
   return exportData;
-}
-
-/**
- * Creates Excel worksheet data from aggregated timetable data
- * Returns both the data and subject names for each cell (for coloring)
- */
-export function createExcelData(aggregatedData: SlotExportData[]): {
-  data: Array<Array<string | number>>;
-  subjectNames: Array<Array<string | null>>;
-} {
-  // Group data by day
-  const dataByDay = new Map<number, SlotExportData[]>();
-  for (const slotData of aggregatedData) {
-    if (!dataByDay.has(slotData.day)) {
-      dataByDay.set(slotData.day, []);
-    }
-    dataByDay.get(slotData.day)!.push(slotData);
-  }
-
-  // Get all unique slot numbers across all days
-  const allSlotNumbers = [
-    ...new Set(aggregatedData.map((d) => d.slotNumber)),
-  ].sort((a, b) => a - b);
-
-  // Create header row
-  const headerRow = ["Day", ...allSlotNumbers.map((n) => `Slot ${n}`)];
-
-  /**
-   * 2D array of rows for the Excel sheet
-   */
-  const rows: Array<Array<string | number>> = [headerRow];
-  /**
-   * 2D array of subject names for each cell (for coloring purposes)
-   */
-  const subjectNames: Array<Array<string | null>> = [
-    new Array(headerRow.length).fill(null),
-  ];
-
-  // Create data rows for each day
-  for (let day = 1; day <= 7; day++) {
-    const daySlots = dataByDay.get(day) || [];
-    const dayName = DAY_NAMES[day - 1] || `Day ${day}`;
-
-    // Group slots by slot number for this day
-    const slotsByNumber = new Map<number, SlotExportData>();
-    for (const slotData of daySlots) {
-      slotsByNumber.set(slotData.slotNumber, slotData);
-    }
-
-    // Create row data
-    const rowData: Array<string | number> = [dayName];
-    const rowSubjects: Array<string | null> = [null];
-
-    // For each slot number, add the first lecture (or empty if no lectures)
-    for (const slotNum of allSlotNumbers) {
-      const slotData = slotsByNumber.get(slotNum);
-      if (slotData && slotData.lectures.length > 0) {
-        // Put the first lecture in this row
-        const firstLecture = slotData.lectures[0];
-        if (firstLecture) {
-          rowData.push(formatLectureForExport(firstLecture));
-          rowSubjects.push(firstLecture.subjectName);
-        } else {
-          rowData.push("");
-          rowSubjects.push(null);
-        }
-      } else {
-        rowData.push(""); // Empty slot
-        rowSubjects.push(null);
-      }
-    }
-
-    rows.push(rowData);
-    subjectNames.push(rowSubjects);
-
-    // Handle multiple lectures per slot by creating additional rows
-    const maxLecturesInAnySlot = Math.max(
-      ...daySlots.map((s) => s.lectures.length),
-    );
-    if (maxLecturesInAnySlot > 1) {
-      // Create additional rows for extra lectures
-      for (
-        let lectureIndex = 1;
-        lectureIndex < maxLecturesInAnySlot;
-        lectureIndex++
-      ) {
-        const extraRow: Array<string | number> = [""]; // Empty day column
-        const extraSubjects: Array<string | null> = [null];
-
-        for (const slotNum of allSlotNumbers) {
-          const slotData = slotsByNumber.get(slotNum);
-          const lecture = slotData?.lectures[lectureIndex];
-          if (lecture) {
-            extraRow.push(formatLectureForExport(lecture));
-            extraSubjects.push(lecture.subjectName);
-          } else {
-            extraRow.push("");
-            extraSubjects.push(null);
-          }
-        }
-
-        rows.push(extraRow);
-        subjectNames.push(extraSubjects);
-      }
-    }
-  }
-
-  return { data: rows, subjectNames };
 }
 
 /**

@@ -58,9 +58,9 @@ function CollectionsLoader() {
 
   // Render the child routes once collections are ready
   return (
-    <Box>
+    <>
       <TimetableNavigationTabs timetableId={timetableId} />
       <Outlet />
-    </Box>
+    </>
   );
 }
