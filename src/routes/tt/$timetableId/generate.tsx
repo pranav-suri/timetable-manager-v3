@@ -15,6 +15,7 @@ import { useJobs } from "@/hooks/useJobs";
 import { GenerationControls } from "@/components/Generation/GenerationControls";
 import { GenerationProgress } from "@/components/Generation/GenerationProgress";
 import { GenerationResults } from "@/components/Generation/GenerationResults";
+import { nanoid } from "nanoid";
 
 export const Route = createFileRoute("/tt/$timetableId/generate")({
   component: RouteComponent,
@@ -52,6 +53,7 @@ function RouteComponent() {
   );
 
   const savedConfig = savedConfigs[0];
+  const config: PartialGAConfig = JSON.parse(savedConfig?.config || "{}");
 
   const currentTimetable = timetables.find((t) => t.id === timetableId);
 
@@ -69,27 +71,21 @@ function RouteComponent() {
   // Get the most recent job
   const latestJob = jobs[0];
 
-  const [config, setConfig] = useState<PartialGAConfig>({});
-
-  // Load saved config when available
-  useEffect(() => {
-    if (savedConfig?.config) {
-      setConfig(JSON.parse(savedConfig.config));
-    }
-  }, [savedConfig]);
-
   const handleConfigChange = (newConfig: PartialGAConfig) => {
-    setConfig(newConfig);
-
     // Save config to database
     if (savedConfig) {
-      try {
-        generationConfigCollection.update(savedConfig.id, (draft) => {
-          draft.config = JSON.stringify(newConfig);
-        });
-      } catch (error) {
-        console.error("Failed to save generation config:", error);
-      }
+      generationConfigCollection.update(savedConfig.id, (draft) => {
+        draft.config = JSON.stringify(newConfig);
+        draft.updatedAt = new Date();
+      });
+    } else {
+      generationConfigCollection.insert({
+        id: nanoid(4),
+        timetableId,
+        config: JSON.stringify(newConfig),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
     }
   };
 

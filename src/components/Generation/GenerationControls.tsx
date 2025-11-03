@@ -252,8 +252,8 @@ export function GenerationControls({
 
             {/* Multi-Threading Options */}
             <MultiThreadingParameters
-              enabled={effectiveConfig.multiThreaded ?? false}
-              config={effectiveConfig.multiThreadConfig ?? {}}
+              enabled={effectiveConfig.multiThreaded}
+              config={effectiveConfig.multiThreadConfig}
               onEnabledChange={handleMultiThreadedChange}
               onChange={handleMultiThreadConfigChange}
               disabled={disabled}
