@@ -16,7 +16,13 @@ import getColor from "@/utils/getColor";
 import { ThemeModeContext } from "@/context/ThemeModeContext";
 import { useCollections } from "@/db-collections/providers/useCollections";
 
-function LectureSlot({ lectureSlotId }: { lectureSlotId: string }) {
+function LectureSlot({
+  lectureSlotId,
+  dropDisabled = false,
+}: {
+  lectureSlotId: string;
+  dropDisabled?: boolean;
+}) {
   const { themeMode } = useContext(ThemeModeContext);
   const { lectureSlotCollection } = useCollections();
 
@@ -47,7 +53,7 @@ function LectureSlot({ lectureSlotId }: { lectureSlotId: string }) {
   };
 
   const handleLockToggle = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent drag from triggering
+    e.stopPropagation();
     setIsLocked(lectureSlotCollection, lectureSlotId, !isLocked);
   };
 
@@ -64,6 +70,8 @@ function LectureSlot({ lectureSlotId }: { lectureSlotId: string }) {
         "&:active": {
           cursor: isLocked ? "default" : "grabbing",
         },
+        pointerEvents: dropDisabled ? "none" : "auto",
+        opacity: dropDisabled ? 0.5 : 1,
       }}
     >
       <CardHeader

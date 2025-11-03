@@ -12,12 +12,12 @@ export function useTimetableDnD() {
   >; // Done to ensure type safety of props, add more handler to type as required
 
   const pointerSensor = useSensor(PointerSensor, {
-    activationConstraint: { distance: 1 },
+    activationConstraint: { distance: 0 },
   });
 
   // @ts-ignore Ignore unused variable warning
   const onDragStart = (event: DragStartEvent) => {
-    console.log("Drag start active", event.active?.id);
+    // console.log("Drag start active", event.active?.id);
     // Check if the lecture slot is locked
     const lectureSlot = lectureSlotCollection.get(event.active.id.toString());
     if (lectureSlot?.isLocked) {
@@ -34,9 +34,12 @@ export function useTimetableDnD() {
 
   const onDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    console.log("Drag end active", event.over);
 
     if (!over) return;
+
+    if (over.data.current?.disabled) {
+      return;
+    }
 
     const activeId = active.id.toString();
     const overId = over.id.toString();
@@ -50,7 +53,6 @@ export function useTimetableDnD() {
         const lecture = lectureCollection.get(activeId);
         if (lecture) console.log(`Lecture ${activeId} is already in inventory`);
       }
-      console.log(`Dropped on inventory zone`);
       return;
     }
 
@@ -66,9 +68,7 @@ export function useTimetableDnD() {
           slotId: overId,
           isLocked: false,
         });
-      console.log(`Scheduled lecture ${lecture?.id} to slot ${overId}`);
     }
-    console.log(`Dropped on ${overId}`);
   };
 
   return {

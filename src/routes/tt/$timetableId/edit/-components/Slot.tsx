@@ -1,7 +1,13 @@
 import { useFilteredLecturesInSlot } from "../-hooks/-useFilteredLecturesInSlot";
 import LectureSlot from "./LectureSlot";
 
-function Slot({ slotId }: { slotId: string }) {
+function Slot({
+  slotId,
+  dropDisabled = false,
+}: {
+  slotId: string;
+  dropDisabled?: boolean;
+}) {
   const orderedCompleteLectures = useFilteredLecturesInSlot(slotId);
   return (
     <div>
@@ -9,6 +15,7 @@ function Slot({ slotId }: { slotId: string }) {
         <LectureSlot
           key={completeLecture.lectureSlotId}
           lectureSlotId={completeLecture.lectureSlotId}
+          dropDisabled={dropDisabled}
         />
       ))}
     </div>

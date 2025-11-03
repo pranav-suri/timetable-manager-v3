@@ -1,6 +1,6 @@
-import { TableCell, TableRow } from "@mui/material";
-import { eq, useLiveQuery } from "@tanstack/react-db";
-import { useDroppable } from "@dnd-kit/core";
+import { TableCell, TableRow, useTheme } from "@mui/material";
+import { and, eq, useLiveQuery, not } from "@tanstack/react-db";
+import { useDndContext, useDroppable } from "@dnd-kit/core";
 import Slot from "./Slot";
 import { useCollections } from "@/db-collections/providers/useCollections";
 import { WEEK_DAYS } from "@/utils/constants";
@@ -50,31 +50,73 @@ export function DroppableCell({
   handleDrawerOpen,
   busySlots,
 }: DroppableCellProps) {
-  const { setNodeRef, isOver, active, over } = useDroppable({
+  const theme = useTheme();
+  const { lectureSlotCollection } = useCollections();
+  const { active } = useDndContext();
+
+  const activeLectureSlotId = active?.id.toString() ?? "";
+  const activeLectureSlot = lectureSlotCollection.get(activeLectureSlotId);
+
+  const activeLectureId = activeLectureSlot?.lectureId ?? "";
+
+  const { data: currentLectureSlot } = useLiveQuery(
+    (q) =>
+      q
+        .from({ lS: lectureSlotCollection })
+        .where(({ lS }) =>
+          and(
+            // find if there's a lecture slot in this cell for the active lecture
+            and(eq(lS.slotId, slotId), eq(lS.lectureId, activeLectureId)),
+            not(eq(lS.id, activeLectureSlotId)),
+          ),
+        )
+        .findOne(),
+    [slotId, activeLectureId, activeLectureSlotId, lectureSlotCollection],
+  );
+  const disabled = currentLectureSlot ? true : false;
+
+  const { setNodeRef, isOver } = useDroppable({
     id: slotId,
+    disabled,
+    data: {
+      disabled,
+    },
   });
 
-  const { lectureSlotCollection } = useCollections();
-  const lectureSlotId = active?.id.toString() ?? "";
-  const initialSlotId = lectureSlotCollection.get(lectureSlotId)?.slotId ?? "";
+  const activeSlotId = activeLectureSlot?.slotId ?? "";
   const handleClick = () => {
     handleDrawerOpen();
   };
 
-  const isInitial = initialSlotId === slotId;
+  const isInitial = activeSlotId === slotId; // if starting slot and current slot are the same
   const isBusy = busySlots.has(slotId);
+  const isDark = theme.palette.mode === "dark";
   let bgColor: string;
 
-  if (isInitial && isOver) {
-    bgColor = "rgba(0, 0, 0, 0.2)"; // same as hovering
+  if (disabled) {
+    bgColor = isDark
+      ? "rgba(255, 255, 255, 0.1)" // lighter grey for dark mode
+      : "rgba(128, 128, 128, 0.2)"; // light grey for light mode
+  } else if (isInitial && isOver) {
+    bgColor = isDark
+      ? "rgba(255, 255, 255, 0.15)" // lighter for dark mode hover
+      : "rgba(0, 0, 0, 0.2)"; // dark for light mode hover
   } else if (isInitial) {
-    bgColor = "rgba(0, 0, 0, 0.15)"; // light black/grey when initial
+    bgColor = isDark
+      ? "rgba(255, 255, 255, 0.1)" // lighter for dark mode
+      : "rgba(0, 0, 0, 0.15)"; // dark for light mode
   } else if (isBusy && isOver) {
-    bgColor = "rgba(255, 0, 0, 0.2)"; // darker red when busy and hovered
+    bgColor = isDark
+      ? "rgba(255, 100, 100, 0.25)" // brighter red for dark mode hover
+      : "rgba(255, 0, 0, 0.2)"; // red for light mode hover
   } else if (isBusy) {
-    bgColor = "rgba(255, 0, 0, 0.1)"; // light red when busy
+    bgColor = isDark
+      ? "rgba(255, 100, 100, 0.15)" // brighter red for dark mode
+      : "rgba(255, 0, 0, 0.1)"; // red for light mode
   } else if (isOver) {
-    bgColor = "rgba(0, 0, 0, 0.2)"; // light black/grey when hovered
+    bgColor = isDark
+      ? "rgba(255, 255, 255, 0.15)" // lighter for dark mode hover
+      : "rgba(0, 0, 0, 0.2)"; // dark for light mode hover
   } else {
     bgColor = "transparent"; // default
   }
@@ -87,9 +129,11 @@ export function DroppableCell({
       sx={{
         backgroundColor: bgColor,
         transition: "background-color 0.2s ease",
+        cursor: disabled ? "not-allowed" : "pointer",
+        opacity: disabled ? 0.5 : 1,
       }}
     >
-      <Slot slotId={slotId} />
+      <Slot slotId={slotId} dropDisabled={disabled} />
     </TableCell>
   );
 }
