@@ -6,6 +6,11 @@ import {
   Card,
   CardContent,
   CardActions,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  TextField,
 } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
 import { useCollections } from "@/db-collections/providers/useCollections";
@@ -17,14 +22,26 @@ import {
 import * as XLSX from "xlsx-js-style";
 import JSZip from "jszip";
 import getColor from "@/utils/getColor";
+import { useState } from "react";
+import type { Classroom, Subdivision, Teacher } from "generated/prisma/client";
+import { cornersOfRectangle } from "node_modules/@dnd-kit/core/dist/utilities/algorithms/helpers";
 
 export const Route = createFileRoute("/tt/$timetableId/export/")({
   component: ExportPage,
 });
+type ExportEntities = Teacher | Classroom | Subdivision;
 
 function ExportPage() {
   const { timetableId } = useParams({ from: "/tt/$timetableId/export/" });
   const collections = useCollections();
+
+  // State for custom grouped export
+  const [groupByEntityType, setGroupByEntityType] = useState<
+    "teacher" | "subdivision" | "classroom"
+  >("subdivision");
+  const [groupByFunction, setGroupByFunction] = useState(
+    `entity.name.split(" ").slice(0, 2).join(" ") + " " + entity.name.split(" ")[2][0]`,
+  );
 
   const handleExportFull = () => {
     exportTimetable("Full Timetable", {});
@@ -62,6 +79,85 @@ function ExportPage() {
       } satisfies TimetableExportFilters,
     }));
     await exportBulkAsZip(exportItems, "subdivision_timetables");
+  };
+  // TODO: Replace this with another method of user input that is safer than eval
+  // User shouldn't have to write raw JS code
+  const handleExportCustomGrouped = async () => {
+    if (!groupByFunction.trim()) {
+      alert("Please enter a group-by function");
+      return;
+    }
+
+    // Get entities based on selected type
+    let entities: ExportEntities[] = [];
+    let filterKey: keyof TimetableExportFilters;
+
+    switch (groupByEntityType) {
+      case "teacher":
+        entities = collections.teacherCollection.toArray;
+        filterKey = "teacherIds";
+        break;
+      case "subdivision":
+        entities = collections.subdivisionCollection.toArray;
+        filterKey = "subdivisionIds";
+        break;
+      case "classroom":
+        entities = collections.classroomCollection.toArray;
+        filterKey = "classroomIds";
+        break;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+    let groupFn: Function | undefined = undefined;
+    try {
+      // Create group-by function
+      groupFn = new Function("entity", `return ${groupByFunction}`);
+    } catch (error) {
+      console.error("Error in custom grouped export:", error);
+      alert("Error in group-by function. Please check your JavaScript syntax.");
+    }
+
+    if (!groupFn) return;
+    // Group entities by the function result
+    const groups: Record<string, ExportEntities[]> = {};
+    for (const entity of entities) {
+      try {
+        const groupKey = String(groupFn(entity));
+        console.log(groupKey);
+        if (!groups[groupKey]) {
+          groups[groupKey] = [];
+        }
+        groups[groupKey].push(entity);
+      } catch (error) {
+        console.error(
+          `Error evaluating function for entity ${entity.name}:`,
+          error,
+        );
+        alert(
+          `Error in group-by function for entity "${entity.name}". Please check your function syntax.`,
+        );
+        return;
+      }
+    }
+
+    // Create export items for each group
+    const exportItems = Object.entries(groups).map(
+      ([groupKey, groupEntities]) => ({
+        fileName: groupKey,
+        filters: {
+          [filterKey]: groupEntities.map((e) => e.id),
+        } satisfies TimetableExportFilters,
+      }),
+    );
+
+    if (exportItems.length === 0) {
+      alert("No groups were created. Please check your group-by function.");
+      return;
+    }
+
+    await exportBulkAsZip(
+      exportItems,
+      `grouped_${groupByEntityType}_timetables`,
+    );
   };
 
   const downloadBlobAsFile = (blob: Blob, filename: string) => {
@@ -149,7 +245,7 @@ function ExportPage() {
     }
   };
 
-  const exportTimetable = (title: string, filters: any) => {
+  const exportTimetable = (title: string, filters: TimetableExportFilters) => {
     const buffer = createExcelBuffer(title, filters);
     if (!buffer) return;
 
@@ -210,6 +306,7 @@ function ExportPage() {
           display: "grid",
           gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
           gap: 3,
+          mb: 4,
         }}
       >
         <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
@@ -300,6 +397,54 @@ function ExportPage() {
           </CardActions>
         </Card>
       </Box>
+
+      {/* Custom Grouped Export Section */}
+      <Card sx={{ maxWidth: 600, mx: "auto" }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            Custom Grouped Export
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            Create custom groups using a JavaScript function. Each group will
+            generate a separate timetable file in a ZIP download.
+          </Typography>
+
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <FormControl fullWidth>
+              <InputLabel>Entity Type</InputLabel>
+              <Select
+                value={groupByEntityType}
+                label="Entity Type"
+                onChange={(e) => setGroupByEntityType(e.target.value)}
+              >
+                <MenuItem value="teacher">Teachers</MenuItem>
+                <MenuItem value="subdivision">Subdivisions</MenuItem>
+                <MenuItem value="classroom">Classrooms</MenuItem>
+              </Select>
+            </FormControl>
+
+            <TextField
+              fullWidth
+              label="Group-by Function"
+              placeholder="e.g., entity.name.slice(0, 7) or entity.name.split(' ')[0]"
+              value={groupByFunction}
+              onChange={(e) => setGroupByFunction(e.target.value)}
+              helperText="JavaScript expression that returns a group key. The 'entity' object has properties like 'name', 'id', etc."
+            />
+          </Box>
+        </CardContent>
+        <CardActions>
+          <Button
+            startIcon={<DownloadIcon />}
+            variant="contained"
+            onClick={handleExportCustomGrouped}
+            fullWidth
+            disabled={!groupByFunction.trim()}
+          >
+            Export Custom Groups (ZIP)
+          </Button>
+        </CardActions>
+      </Card>
     </Box>
   );
 }

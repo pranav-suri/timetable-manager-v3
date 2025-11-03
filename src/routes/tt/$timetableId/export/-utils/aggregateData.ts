@@ -6,7 +6,12 @@ import type { useCollections } from "@/db-collections/providers/useCollections";
 import { DAY_NAMES } from "src/utils/constants";
 
 type Collections = ReturnType<typeof useCollections>;
-
+export type TimetableExportFilters = {
+  teacherIds?: string[];
+  subjectIds?: string[];
+  subdivisionIds?: string[];
+  classroomIds?: string[];
+};
 /**
  * Aggregates timetable data from collections for export
  * Uses collection.toArray property to access current state
@@ -14,12 +19,7 @@ type Collections = ReturnType<typeof useCollections>;
  */
 export function aggregateTimetableData(
   collections: Collections,
-  filters?: {
-    teacherIds?: string[];
-    subjectIds?: string[];
-    subdivisionIds?: string[];
-    classroomIds?: string[];
-  },
+  filters?: TimetableExportFilters,
 ): SlotExportData[] {
   // Access collections using .toArray property (not a function!)
   const slots = collections.slotCollection.toArray;
@@ -69,8 +69,9 @@ export function aggregateTimetableData(
     filteredLectures = lectures.filter((lecture) => {
       const teacher = teacherMap.get(lecture.teacherId);
       const subject = subjectMap.get(lecture.subjectId);
-      const lectureSubdivisionsList = lectureSubdivisionsMap.get(lecture.id) || [];
-      const lectureClassroomsList = lectureClassroomsMap.get(lecture.id) || [];
+      const _lectureSubdivisionsList =
+        lectureSubdivisionsMap.get(lecture.id) || [];
+      const _lectureClassroomsList = lectureClassroomsMap.get(lecture.id) || [];
 
       // Check teacher filter
       if (filters.teacherIds && filters.teacherIds.length > 0) {
@@ -92,7 +93,7 @@ export function aggregateTimetableData(
           .filter((ls) => ls.lectureId === lecture.id)
           .map((ls) => ls.subdivisionId);
         const hasMatchingSubdivision = lectureSubdivisionIds.some((id) =>
-          filters.subdivisionIds!.includes(id)
+          filters.subdivisionIds!.includes(id),
         );
         if (!hasMatchingSubdivision) {
           return false;
@@ -105,7 +106,7 @@ export function aggregateTimetableData(
           .filter((lc) => lc.lectureId === lecture.id)
           .map((lc) => lc.classroomId);
         const hasMatchingClassroom = lectureClassroomIds.some((id) =>
-          filters.classroomIds!.includes(id)
+          filters.classroomIds!.includes(id),
         );
         if (!hasMatchingClassroom) {
           return false;
