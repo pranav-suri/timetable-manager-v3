@@ -31,7 +31,6 @@ export function buildLookupMaps(data: {
   const classroomIdToClassroom = new Map<string, GAClassroom>();
   const classroomCapacity = new Map<string, number>();
   const lockedAssignments = new Map<string, { slotId: string }>();
-  const locked = new Map<string, string>(); // lectureEventId -> timeslotId
 
   for (const teacher of teachers) {
     const unavailableSet = new Set(
@@ -92,7 +91,6 @@ export function buildLookupMaps(data: {
       const lockedSlot = lecture.lockedSlots[eventIndex];
       if (lockedSlot?.isLocked) {
         lockedAssignments.set(lectureEventId, { slotId: lockedSlot.slotId });
-        locked.set(lectureEventId, lockedSlot.slotId);
       }
     }
   }
@@ -118,6 +116,5 @@ export function buildLookupMaps(data: {
     classroomIdToClassroom,
     classroomCapacity,
     lockedAssignments,
-    locked,
   };
 }
