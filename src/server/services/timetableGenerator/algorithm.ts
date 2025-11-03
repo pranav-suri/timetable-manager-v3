@@ -45,7 +45,9 @@ import type {
 export async function runGA(
   inputData: GAInputData,
   config: GAConfig,
-  onProgress?: (stats: GenerationStats) => void | Promise<void>,
+  onProgress?: (
+    stats: GenerationStats,
+  ) => void | Promise<void> | Promise<{ cancelled: boolean }>,
 ): Promise<GAResult> {
   console.log("Starting GA with config:", config);
   const startTime = Date.now();
@@ -172,7 +174,11 @@ export async function runGA(
 
     // Call onProgress callback which will handle database updates
     if (onProgress) {
-      await onProgress(stats);
+      const output = await onProgress(stats);
+      if (output?.cancelled) {
+        console.log("GA run cancelled via onProgress callback.");
+        break;
+      }
     }
 
     // Termination Condition: Stagnation
@@ -249,10 +255,12 @@ export async function runGA(
 export async function runGAMultiThreaded(
   inputData: GAInputData,
   config: GAConfig,
-  multiThreadConfig: MultiThreadedGAConfig = {},
-  onProgress?: (stats: GenerationStats) => void | Promise<void>,
+  onProgress?: (
+    stats: GenerationStats,
+  ) => void | Promise<void> | Promise<{ cancelled: boolean }>,
 ): Promise<GAResult> {
   const startTime = Date.now();
+  const multiThreadConfig = config.multiThreadConfig;
 
   // Determine number of islands (default to CPU count - 1, keeping one for main thread)
   const numCPUs = cpus().length;
@@ -289,7 +297,6 @@ export async function runGAMultiThreaded(
   };
 
   // Create worker threads for each island
-  // Bun has native TypeScript support, no need for tsx loader
   const workerUrl = new URL("./gaWorker.ts", import.meta.url);
   const islandWorkers: IslandWorker[] = [];
   const workerPromises: Map<
@@ -429,7 +436,12 @@ export async function runGAMultiThreaded(
 
     // Report progress
     if (onProgress) {
-      await onProgress(stats);
+      const output = await onProgress(stats);
+      if (output?.cancelled) {
+        console.log("GA run cancelled via onProgress callback.");
+        await terminateWorkers(islandWorkers);
+        break;
+      }
     }
 
     // Perform migration between islands
@@ -460,10 +472,7 @@ export async function runGAMultiThreaded(
   }
 
   // Terminate all workers
-  for (const iw of islandWorkers) {
-    iw.worker.postMessage({ type: "terminate" } as WorkerMessage);
-    await iw.worker.terminate();
-  }
+  await terminateWorkers(islandWorkers);
 
   const endTime = Date.now();
 
@@ -540,6 +549,13 @@ async function performWorkerMigration(
 
   // Wait for all migrations to complete
   await Promise.all(migrationPromises);
+}
+
+async function terminateWorkers(islandWorkers: IslandWorker[]) {
+  for (const iw of islandWorkers) {
+    iw.worker.postMessage({ type: "terminate" } as WorkerMessage);
+    await iw.worker.terminate();
+  }
 }
 
 /**

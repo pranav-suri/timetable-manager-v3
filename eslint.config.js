@@ -54,6 +54,7 @@ export default [
       "import/order": "off",
       "sort-imports": "off",
       "@typescript-eslint/consistent-type-imports": "off",
+      "@typescript-eslint/naming-convention": "off",
     },
   },
 ];

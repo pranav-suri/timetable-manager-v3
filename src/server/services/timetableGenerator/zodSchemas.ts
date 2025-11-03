@@ -59,8 +59,8 @@ const multiThreadedGAConfigSchema = z
  */
 export const partialGAConfigSchema = z.object({
   // Population parameters
-  populationSize: z.number().int().min(10).optional(),
-  eliteCount: z.number().int().min(1).optional(),
+  populationSize: z.number().int().optional(),
+  eliteCount: z.number().int().optional(),
   heuristicInitRatio: z.number().min(0).max(1).optional(),
 
   // Genetic operator probabilities
@@ -69,13 +69,13 @@ export const partialGAConfigSchema = z.object({
   swapMutationRatio: z.number().min(0).max(1).optional(),
 
   // Selection parameters
-  tournamentSize: z.number().int().min(2).optional(),
+  tournamentSize: z.number().int().optional(),
 
   // Termination conditions
   maxGenerations: z.number().int().min(1).optional(),
   maxStagnantGenerations: z.number().int().min(1).optional(),
   targetFitness: z.number().min(0).max(1).optional(),
-  maxExecutionTimeMs: z.number().int().min(1000).optional(),
+  maxExecutionTimeMs: z.number().int().optional(),
 
   // Constraint weights
   constraintWeights: partialConstraintWeightsSchema,

@@ -20,6 +20,7 @@ import { ConstraintWeightsConfig } from "./ConstraintWeightsConfig";
 import { MultiThreadingParameters } from "./MultiThreadingParameters";
 import type {
   ConstraintWeights,
+  GAConfig,
   MultiThreadedGAConfig,
   PartialGAConfig,
 } from "@/server/services/timetableGenerator/types";
@@ -136,12 +137,16 @@ export function GenerationControls({
   };
 
   // Get effective config (merge with defaults)
-  const effectiveConfig = {
+  const effectiveConfig: GAConfig = {
     ...DEFAULT_GA_CONFIG,
     ...config,
     constraintWeights: {
       ...DEFAULT_GA_CONFIG.constraintWeights,
       ...config.constraintWeights,
+    },
+    multiThreadConfig: {
+      ...DEFAULT_GA_CONFIG.multiThreadConfig,
+      ...config.multiThreadConfig,
     },
   };
 
@@ -247,8 +252,8 @@ export function GenerationControls({
 
             {/* Multi-Threading Options */}
             <MultiThreadingParameters
-              enabled={config.multiThreaded ?? false}
-              config={config.multiThreadConfig ?? {}}
+              enabled={effectiveConfig.multiThreaded ?? false}
+              config={effectiveConfig.multiThreadConfig ?? {}}
               onEnabledChange={handleMultiThreadedChange}
               onChange={handleMultiThreadConfigChange}
               disabled={disabled}

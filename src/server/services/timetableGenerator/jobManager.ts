@@ -99,19 +99,18 @@ export async function executeGenerationJob(
     validateConfig(config);
 
     // Progress callback - now properly async
-    const onProgress = async (stats: GenerationStats) => {
+    const onProgress = async (
+      stats: GenerationStats,
+    ): Promise<{ cancelled: boolean }> => {
       const now = new Date();
       const timeSinceLastUpdate = now.getTime() - lastUpdate.getTime();
-      if (timeSinceLastUpdate < UPDATE_INTERVAL_MS) return; // Skip update if interval hasn't passed
+      if (timeSinceLastUpdate < UPDATE_INTERVAL_MS) return { cancelled: false }; // Skip update if interval hasn't passed
       lastUpdate = now;
       // Check if job was cancelled
       console.log(
         `Generation ${stats.generation}: Best Fitness = ${stats.bestFitness}, Avg Fitness = ${stats.avgFitness}`,
       );
       const job = await prisma.job.findUnique({ where: { id: jobId } });
-      if (job?.status === JobStatus.CANCELLED) {
-        throw new Error("Job cancelled by user.");
-      }
       // Update progress
       const progress = Math.round(
         (stats.generation / config.maxGenerations) * 100,
@@ -134,6 +133,10 @@ export async function executeGenerationJob(
           }),
         },
       });
+      if (job?.status === JobStatus.CANCELLED) {
+        return { cancelled: true };
+      }
+      return { cancelled: false };
     };
 
     console.time("GA Total Time");
@@ -141,14 +144,9 @@ export async function executeGenerationJob(
     let gaResult: GAResult;
 
     // Use multi-threaded algorithm if enabled
-    if (userConfig.multiThreaded) {
+    if (config.multiThreaded) {
       console.log("Running multi-threaded GA with island model");
-      gaResult = await runGAMultiThreaded(
-        inputData,
-        config,
-        userConfig.multiThreadConfig ?? {},
-        onProgress,
-      );
+      gaResult = await runGAMultiThreaded(inputData, config, onProgress);
     } else {
       console.log("Running single-threaded GA");
       gaResult = await runGA(inputData, config, onProgress);

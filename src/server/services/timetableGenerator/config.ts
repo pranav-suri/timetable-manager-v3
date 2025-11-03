@@ -42,6 +42,13 @@ export const DEFAULT_GA_CONFIG: GAConfig = {
     deprioritizedDaySlot: 5,
     dailyDistribution: 5,
   },
+  multiThreaded: false,
+  multiThreadConfig: {
+    numIslands: 4,
+    migrationInterval: 10,
+    migrationSize: 5,
+    migrationStrategy: "best",
+  },
 };
 
 /**
@@ -93,6 +100,10 @@ export function mergeConfig(partialConfig?: PartialGAConfig): GAConfig {
     constraintWeights: {
       ...DEFAULT_GA_CONFIG.constraintWeights,
       ...partialConfig.constraintWeights,
+    },
+    multiThreadConfig: {
+      ...DEFAULT_GA_CONFIG.multiThreadConfig,
+      ...partialConfig.multiThreadConfig,
     },
   };
 

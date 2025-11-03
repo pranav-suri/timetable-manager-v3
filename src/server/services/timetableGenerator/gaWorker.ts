@@ -7,7 +7,7 @@
  * migration events.
  */
 
-import { parentPort, workerData } from "node:worker_threads";
+import { parentPort } from "node:worker_threads";
 import { initializePopulation } from "./initialization";
 import {
   FitnessCache,

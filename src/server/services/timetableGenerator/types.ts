@@ -14,6 +14,8 @@ import type {
   TeacherUnavailable,
 } from "generated/prisma/client";
 
+type StrictOmit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+
 /**
  * Lecture with all necessary relationships loaded for GA processing.
  * This includes subdivisions, combined classrooms (immutable), and locked slots.
@@ -319,6 +321,9 @@ export interface GAConfig {
   enableParallel: boolean; // Default: false (future enhancement)
   randomSeed?: number; // For reproducibility (optional)
   stopOnFeasible: boolean; // if true, the algorithm will stop when a feasible solution is found
+
+  multiThreaded: boolean;
+  multiThreadConfig: MultiThreadedGAConfig;
 }
 
 // ============================================================================
@@ -443,22 +448,23 @@ export interface QualityMetrics {
  */
 export interface MultiThreadedGAConfig {
   /** Number of parallel islands (defaults to CPU count - 1) */
-  numIslands?: number;
+  numIslands: number;
   /** How often to migrate individuals between islands (in generations) */
-  migrationInterval?: number;
+  migrationInterval: number;
   /** Number of individuals to migrate between islands */
-  migrationSize?: number;
+  migrationSize: number;
   /** Selection strategy for migration: 'best' | 'random' | 'diverse' */
-  migrationStrategy?: "best" | "random" | "diverse";
+  migrationStrategy: "best" | "random" | "diverse";
 }
 
 /**
  * Partial configuration for user-provided overrides.
  * All fields are optional and will be merged with defaults.
  */
-export type PartialGAConfig = Partial<Omit<GAConfig, "constraintWeights">> & {
+export type PartialGAConfig = Partial<
+  StrictOmit<GAConfig, "constraintWeights" | "multiThreadConfig">
+> & {
   constraintWeights?: Partial<ConstraintWeights>;
-  multiThreaded?: boolean;
   multiThreadConfig?: Partial<MultiThreadedGAConfig>;
 };
 
