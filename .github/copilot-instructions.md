@@ -23,6 +23,9 @@ bun run check           # Format + lint auto-fix
 bunx prisma studio      # Browse database
 ```
 
+**Note**: This project does NOT have automated tests currently.
+**Note**: This project uses Tanstack DB, this is a new library and patterns are documented in `memory-bank/tanstackDbDocs.md`.
+
 **What's Next**: Preferred unavailability UI → Export filtering → Undo/Redo
 
 ---
@@ -41,7 +44,6 @@ bunx prisma studio      # Browse database
 - **State**: TanStack DB Collections (optimistic updates) + Zustand (UI state)
 - **API**: tRPC v11 (type-safe server procedures)
 - **Database**: Prisma 6 + SQLite (split schema pattern)
-- **Testing**: Vitest + React Testing Library
 
 ### The Core Pattern: Collections → tRPC → Prisma
 
@@ -76,7 +78,14 @@ Core rules:
 
 1. Collections fetch data and handle database state
 2. Always include collections in `useLiveQuery` deps
-4. Register collections in `CollectionProvider.tsx`
+3. Register collections in `CollectionProvider.tsx`
+4. **Route-Based File Organization**: Store feature-specific components, hooks, and utilities within the route directory using prefixed folders:
+   - `-components/` for route-specific UI components
+   - `-hooks/` for route-specific custom hooks
+   - `-utils/` for route-specific utility functions
+   - Example: `routes/tt/$timetableId/edit/export/{-components,-hooks,-utils}`
+   - This keeps related code colocated and improves maintainability
+5. Do not use useEffect for managing state derived from collections, derive directly into variables.
 
 ## Critical Workflows & Commands
 
@@ -84,7 +93,7 @@ Core rules:
 
 ```bash
 bun run dev              # Start dev server (port 3000)
-bunx tsc --noEmit        # Type check (MUST pass before commit)
+bunx tsgo --noEmit        # Type check (MUST pass before commit)
 bun run check           # Format + lint (auto-fix)
 bunx prisma studio       # Browse database visually
 ```
@@ -98,14 +107,7 @@ bunx prisma generate
 # 3. Push to dev database
 bunx prisma db push
 # 4. Type check
-bunx tsc --noEmit
-```
-
-### Testing
-
-```bash
-bun run test            # Run all tests
-bun run test -- src/server/services/timetableGenerator  # Specific path
+bunx tsgo --noEmit
 ```
 
 ## Memory Bank System (Agent Continuity)
@@ -118,7 +120,7 @@ bun run test -- src/server/services/timetableGenerator  # Specific path
 2. `systemPatterns.md` - Architecture decisions
 3. `activeContext.md` - Current work state
 4. `tt-gen/steps.md` - Timetable algorithm implementation roadmap
-5. `tanstackDbDocs.md` - Advanced TanStack DB patterns
+5. `tanstackDbDocs.md` - TanStack DB patterns, must refer to this if going to use collections or `useLiveQuery`.
 
 **After completing features**: Update `activeContext.md` and `progress.md`
 
@@ -146,13 +148,6 @@ bun run test -- src/server/services/timetableGenerator  # Specific path
 - Optimistic updates with automatic error rollback
 - Split Prisma schema files in `prisma/schema/`
 
-### Read Before Tasks
-
-**For new features**: Check `activeContext.md` (current status)
-**For architecture**: Reference `systemPatterns.md` (core patterns)
-**For requirements**: See `projectbrief.md` (core needs)
-**For timetable algorithm**: Follow `tt-gen/steps.md` (implementation checklist)
-
 ## Common Integration Points
 
 See memory-bank/systemPatterns.md for detailed patterns:
@@ -160,10 +155,6 @@ See memory-bank/systemPatterns.md for detailed patterns:
 - Cross-component data sharing with collections
 - Form validation with Zod schemas
 - Many-to-many relationships via junction tables
-
-## Testing Patterns
-
-Use Vitest + React Testing Library. See memory-bank/systemPatterns.md for examples.
 
 **Import pattern**: Use `config.ts` for DEFAULT_GA_CONFIG, not `types.ts`
 
@@ -197,6 +188,10 @@ Use Vitest + React Testing Library. See memory-bank/systemPatterns.md for exampl
 **Symptom**: Navigation fails with 404
 **Cause**: Using wrong route prefix
 **Fix**: Use `/tt/$timetableId/...` not `/timetable/$timetableId/...`
+
+### 6. Collection Data Access
+
+Refer to `memory-bank/tanstackDbDocs.md` for proper patterns.
 
 ## Support & Documentation
 
@@ -237,9 +232,14 @@ src/
 │   └── tt/$timetableId/              # Timetable routes
 │       ├── index.tsx, route.tsx      # Dashboard & layout
 │       ├── edit/                     # Drag-and-drop editor
+│       │   ├── index.tsx             # Main edit page component
 │       │   ├── -components/          # Editor UI (9+ components)
 │       │   ├── -conflictList/        # Conflict detection & display
-│       │   └── -hooks/               # Editor hooks (DnD, filtering)
+│       │   ├── -hooks/               # Editor hooks (DnD, filtering)
+│       │   └── export/               # Export feature (colocated)
+│       │       ├── -components/      # ExportButton.tsx
+│       │       ├── -hooks/           # useExportTimetable.ts
+│       │       └── -utils/           # aggregateData.ts
 │       ├── generate.tsx, chatbot.tsx # Generation & AI chat
 │       ├── teachers.tsx, subjects.tsx, classrooms.tsx
 │       ├── lectures.tsx, groups.tsx, subdivisions.tsx
@@ -319,11 +319,11 @@ memory-bank/                           # Agent memory system
 
 1. ❌ Using `trpc.entity.list.useQuery()` in components → Use collections
 2. ❌ Creating collections with internal `useLiveQuery` → Collections are data sources
-4. ❌ Using Tailwind classes → This is Material-UI v7
-5. ❌ Naming tRPC query as `getAll` → Use `list`
-6. ❌ Skipping `bunx tsgo --noEmit` before commit → Breaks production build
-7. ❌ Adding mutation handlers to read-only collections → Causes runtime errors
-8. ❌ Direct Prisma calls from components → Bypasses cache/optimistic updates
+3. ❌ Using Tailwind classes → This is Material-UI v7
+4. ❌ Naming tRPC query as `getAll` → Use `list`
+5. ❌ Skipping `bunx tsgo --noEmit` before commit → Breaks production build
+6. ❌ Adding mutation handlers to read-only collections → Causes runtime errors
+7. ❌ Direct Prisma calls from components → Bypasses cache/optimistic updates
 
 ## Support & Documentation
 
