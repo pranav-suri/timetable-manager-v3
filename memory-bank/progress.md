@@ -61,7 +61,7 @@
 - **PDF Export**: Printable timetable generation with various layout options
 - **JSON Export**: Machine-readable format for timetables
 - **Individual Timetables**: Export per-teacher, per-classroom, per-subdivision views
-- **Exporting with Filters**: Add functionality to export timetables with specific filtering options
+- **Exporting with Filters**: ✅ Completed - Export with filters functionality including custom grouped exports
 - **Generating with Filters**: Implement options to generate timetables based on specific filters
 - **Calendar Integration**: iCal export for calendar applications
 
@@ -221,7 +221,7 @@
 - **API Layer**: ✅ 100% complete (Complete tRPC router structure with all procedures)
 - **UI Components**: ✅ 95% complete (All entity management + timetable visualization with drag-and-drop + generation interface)
 - **Timetable Generation**: ✅ 100% complete (Genetic algorithm fully functional end-to-end with job management)
-- **Data Import/Export**: 🔄 70% complete (CSV import functional, advanced filtering and export options pending)
+- **Data Import/Export**: 🔄 85% complete (CSV import functional, export with filters completed, additional formats pending)
 - **User Management**: ❌ 0% complete (Authentication system pending)
 
 ### User Experience Metrics

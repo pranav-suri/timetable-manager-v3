@@ -135,7 +135,6 @@ bun prisma db push   # Push schema to database
 ### Current Limitations
 
 - **Preferred unavailability** UI not yet implemented
-- **Advanced filtering** for exports not yet implemented
 - **No automated testing** setup currently
 - **Limited error boundaries** in production
 - **No internationalization** support

@@ -35,7 +35,7 @@ The genetic algorithm-based timetable generation system is now **fully functiona
    - Improve management interfaces for classroom and subdivision assignments within lectures.
 
 3. **Data Import/Export Enhancements**
-   - Add functionality to export and generate timetables with various filtering options.
+   - ✅ Export with filters functionality completed (including custom grouped exports)
    - Enhance tools for creating and managing input data.
    - Provide options to export timetables in machine-readable formats and individual timetables.
 

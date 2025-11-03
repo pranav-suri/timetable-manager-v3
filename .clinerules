@@ -1,93 +1,339 @@
-# Cline's Memory Bank
+# AI Coding Agent Instructions: Timetable Manager V3
 
-I am Cline, an expert software engineer with a unique characteristic: my memory resets completely between sessions. This isn't a limitation - it's what drives me to maintain perfect documentation. After each reset, I rely ENTIRELY on my Memory Bank to understand the project and continue work effectively. I MUST read ALL memory bank files at the start of EVERY task - this is not optional.
+## 🎯 TL;DR - Current Project State (November 3, 2025)
 
-## Memory Bank Structure
+**Status**: Production Ready - Timetable generation system COMPLETE ✅
 
-The Memory Bank consists of core files and optional context files, all in Markdown format. Files build upon each other in a clear hierarchy:
+**What Works**:
 
-flowchart TD
-    PB[projectbrief.md] --> PC[productContext.md]
-    PB --> SP[systemPatterns.md]
-    PB --> TC[techContext.md]
-    TC --> (Usage of useLiveQuery and collections)[tanstackDbDocs.md]
+- Generate conflict-free timetables using genetic algorithm
+- Full CRUD for teachers, subjects, classrooms, lectures, groups, subdivisions
+- Drag-and-drop timetable editor with real-time sync
+- Material-UI v7 responsive design
+- Type-safe API (tRPC) with optimistic updates
 
-    PC --> AC[activeContext.md]
-    SP --> AC
-    TC --> AC
+**Tech Stack**: React 19 + TanStack Router + TanStack DB Collections + tRPC + Prisma + SQLite
 
-    AC --> P[progress.md]
+**Quick Commands**:
 
-### Core Files (Required)
-1. `projectbrief.md`
-   - Foundation document that shapes all other files
-   - Created at project start if it doesn't exist
-   - Defines core requirements and goals
-   - Source of truth for project scope
+```bash
+bun run dev              # Start dev server
+bunx tsgo --noEmit        # Type check (MUST pass)
+bun run check           # Format + lint auto-fix
+bunx prisma studio      # Browse database
+```
 
-2. `productContext.md`
-   - Why this project exists
-   - Problems it solves
-   - How it should work
-   - User experience goals
+**Note**: This project does NOT have automated tests currently.
+**Note**: This project uses Tanstack DB, this is a new library and patterns are documented in `memory-bank/tanstackDbDocs.md`.
 
-3. `activeContext.md`
-   - Current work focus
-   - Recent changes
-   - Next steps
-   - Active decisions and considerations
-   - Important patterns and preferences
-   - Learnings and project insights
+**What's Next**: Preferred unavailability UI → Export filtering → Undo/Redo
 
-4. `systemPatterns.md`
-   - System architecture
-   - Key technical decisions
-   - Design patterns in use
-   - Component relationships
-   - Critical implementation paths
+---
 
-5. `techContext.md`
-   - Technologies used
-   - Development setup
-   - Technical constraints
-   - Dependencies
-   - Tool usage patterns
+## Project Identity & Purpose
 
-6. `progress.md`
-   - What works
-   - What's left to build
-   - Current status
-   - Known issues
-   - Evolution of project decisions
+**Educational timetable management system** for scheduling courses, teachers, classrooms, and student groups with automated constraint optimization. Built for universities/colleges to generate conflict-free course schedules.
 
-### Additional Context
-Create additional files/folders within memory-bank/ when they help organize:
-- Complex feature documentation
-- Integration specifications
-- API documentation
-- Testing strategies
-- Deployment procedures
+## Architecture: The Big Picture
 
-## Core Workflows
+### Technology Stack (React 19 SSR)
 
-### Plan Mode
-flowchart TD
-    Start[Start] --> ReadFiles[Read Memory Bank]
-    ReadFiles --> CheckFiles{Files Complete?}
+- **Development**: Use Bun as the package manager and build tool
+- **Frontend**: React 19 + Material-UI v7 (NOT Tailwind despite package.json)
+- **Routing**: TanStack Router v1 (file-based, SSR-capable)
+- **State**: TanStack DB Collections (optimistic updates) + Zustand (UI state)
+- **API**: tRPC v11 (type-safe server procedures)
+- **Database**: Prisma 6 + SQLite (split schema pattern)
 
-    CheckFiles -->|No| Plan[Create Plan]
-    Plan --> Document[Document in Chat]
+### The Core Pattern: Collections → tRPC → Prisma
 
-    CheckFiles -->|Yes| Verify[Verify Context]
-    Verify --> Strategy[Develop Strategy]
-    Strategy --> Present[Present Approach]
+```
+UI Component
+    ↓ useCollections()
+TanStack DB Collection (client-side cache + optimistic updates)
+    ↓ onInsert/onUpdate/onDelete callbacks
+tRPC Procedure (type-safe API)
+    ↓ ctx.prisma
+Prisma ORM
+    ↓
+SQLite Database
+```
 
-### Act Mode
-flowchart TD
-    Start[Start] --> Context[Check Memory Bank]
-    Context --> Update[Update Documentation]
-    Update --> Execute[Execute Task]
-    Execute --> Document[Document Changes]
+**Critical**: Data ALWAYS flows through collections. Direct tRPC usage in components is forbidden.
+
+### Why Collections? (The "Why" Behind This Pattern)
+
+Traditional React Query pattern causes stale data issues when switching between timetables. Collections solve this by:
+
+1. Clearing cache on timetable change (`queryClient.clear()` in `CollectionProvider.tsx`)
+2. Providing optimistic updates that auto-rollback on error
+3. Centralizing mutation logic (no scattered `onSuccess` callbacks)
+4. Enabling cross-component reactivity via `useLiveQuery`
+
+## Essential Implementation Patterns
+
+**See memory-bank/systemPatterns.md and README examples for detailed patterns**
+
+Core rules:
+
+1. Collections fetch data and handle database state
+2. Always include collections in `useLiveQuery` deps
+3. Register collections in `CollectionProvider.tsx`
+4. **Route-Based File Organization**: Store feature-specific components, hooks, and utilities within the route directory using prefixed folders:
+   - `-components/` for route-specific UI components
+   - `-hooks/` for route-specific custom hooks
+   - `-utils/` for route-specific utility functions
+   - Example: `routes/tt/$timetableId/edit/export/{-components,-hooks,-utils}`
+   - This keeps related code colocated and improves maintainability
+5. Do not use useEffect for managing state derived from collections, derive directly into variables.
+
+## Critical Workflows & Commands
+
+### Development Cycle
+
+```bash
+bun run dev              # Start dev server (port 3000)
+bunx tsgo --noEmit        # Type check (MUST pass before commit)
+bun run check           # Format + lint (auto-fix)
+bunx prisma studio       # Browse database visually
+```
+
+### After Schema Changes
+
+```bash
+# 1. Edit prisma/schema/*.prisma
+# 2. Generate client
+bunx prisma generate
+# 3. Push to dev database
+bunx prisma db push
+# 4. Type check
+bunx tsgo --noEmit
+```
+
+## Memory Bank System (Agent Continuity)
+
+**Location**: `memory-bank/` directory
+
+**Before any task**: Read these files in order:
+
+1. `projectbrief.md` - Core requirements
+2. `systemPatterns.md` - Architecture decisions
+3. `activeContext.md` - Current work state
+4. `tt-gen/steps.md` - Timetable algorithm implementation roadmap
+5. `tanstackDbDocs.md` - TanStack DB patterns, must refer to this if going to use collections or `useLiveQuery`.
+
+**After completing features**: Update `activeContext.md` and `progress.md`
+
+### Quick Context Summary
+
+**What's Done** ✅
+
+- Full timetable generation system (genetic algorithm, UI, job management)
+- Complete CRUD interfaces for all entities (teachers, subjects, classrooms, lectures, groups, subdivisions)
+- TanStack DB collections with optimistic updates
+- Material-UI v7 integration (responsive design)
+- Zero TypeScript errors
+
+**What's Next** 🔄
+
+1. Preferred unavailability UI (soft constraints)
+2. Advanced export/import with filtering
+3. Undo/Redo (Ctrl+Z) for timetable edits
+4. Loading state improvements
+
+**Current Architecture**
+
+- Collections → tRPC → Prisma → SQLite
+- UI uses `useLiveQuery` for reactive data updates
+- Optimistic updates with automatic error rollback
+- Split Prisma schema files in `prisma/schema/`
+
+## Common Integration Points
+
+See memory-bank/systemPatterns.md for detailed patterns:
+
+- Cross-component data sharing with collections
+- Form validation with Zod schemas
+- Many-to-many relationships via junction tables
+
+**Import pattern**: Use `config.ts` for DEFAULT_GA_CONFIG, not `types.ts`
+
+## Known Gotchas & Solutions
+
+### 1. Collection Not Updating UI
+
+**Symptom**: Data changes but UI doesn't refresh
+**Cause**: Missing collection in `useLiveQuery` dependency array
+**Fix**: `useLiveQuery((q) => ..., [collection])` ← MUST include
+
+### 2. TypeScript Errors After Schema Change
+
+**Symptom**: Type errors referencing Prisma models
+**Solution**: Run `bunx prisma generate` to regenerate types
+
+### 3. Optimistic Update Not Rolling Back
+
+**Symptom**: On error, UI shows stale data
+**Cause**: Mutation handler caught error without re-throwing
+**Fix**: Always `throw error` after logging in catch blocks
+
+### 4. "Collection Not Found" Runtime Error
+
+**Symptom**: `teacherCollection is undefined`
+**Cause**: Forgot to add to `CollectionProvider.tsx`
+**Fix**: Add `entityCollection: getEntityCollection(input)` to collections object
+
+### 5. Route Not Found (404)
+
+**Symptom**: Navigation fails with 404
+**Cause**: Using wrong route prefix
+**Fix**: Use `/tt/$timetableId/...` not `/timetable/$timetableId/...`
+
+### 6. Collection Data Access
+
+Refer to `memory-bank/tanstackDbDocs.md` for proper patterns.
+
+## Support & Documentation
+
+- **TanStack DB**: `memory-bank/tanstackDbDocs.md`
+- **Architecture**: `memory-bank/systemPatterns.md`
+- **Algorithm Work**: `memory-bank/tt-gen/steps.md`
+- **Active Context**: `memory-bank/activeContext.md`
+
+**When stuck**: Check Memory Bank first, then ask specific questions referencing relevant files.
+
+```
+
+```
+
+## Quick Reference: File Locations
+
+```
+src/
+├── components/                        # Reusable UI components
+│   ├── Availability/                 # Unavailability editors (Teacher/Classroom/Subdivision)
+│   ├── Buttons/                      # Shared buttons (ToggleDarkMode, etc.)
+│   ├── Chatbot/                      # Chat interface components
+│   ├── CognitiveLoad/                # Load visualization
+│   └── Generation/                   # Generation config & controls (7+ components)
+│
+├── db-collections/                    # TanStack DB Collections (optimistic updates)
+│   ├── providers/                    # CollectionProvider, context, hooks
+│   ├── availability/                 # Unavailability collections (3 types)
+│   ├── utils/                        # Error handling utilities
+│   ├── *Collection.tsx               # Entity collections (15+ files)
+│   ├── liveCollections.tsx           # Live query helpers
+│   └── transactions.tsx              # Transaction utilities
+│
+├── routes/                            # File-based routing (TanStack Router)
+│   ├── __root.tsx, index.tsx         # App layout & home
+│   ├── api/                          # API routes (trpc endpoint, demo data)
+│   ├── demo/                         # Demo pages (TanStack Query examples)
+│   └── tt/$timetableId/              # Timetable routes
+│       ├── index.tsx, route.tsx      # Dashboard & layout
+│       ├── edit/                     # Drag-and-drop editor
+│       │   ├── index.tsx             # Main edit page component
+│       │   ├── -components/          # Editor UI (9+ components)
+│       │   ├── -conflictList/        # Conflict detection & display
+│       │   ├── -hooks/               # Editor hooks (DnD, filtering)
+│       │   └── export/               # Export feature (colocated)
+│       │       ├── -components/      # ExportButton.tsx
+│       │       ├── -hooks/           # useExportTimetable.ts
+│       │       └── -utils/           # aggregateData.ts
+│       ├── generate.tsx, chatbot.tsx # Generation & AI chat
+│       ├── teachers.tsx, subjects.tsx, classrooms.tsx
+│       ├── lectures.tsx, groups.tsx, subdivisions.tsx
+│       └── timetables.tsx            # Entity CRUD pages
+│
+├── server/
+│   ├── controllers/                  # Business logic
+│   │   └── sampleData/               # CSV import controllers
+│   ├── services/
+│   │   ├── gemini/                   # AI chatbot service (Gemini)
+│   │   └── timetableGenerator/       # Genetic Algorithm (GA) engine
+│   │       ├── constraints/          # Hard & soft constraints (18+ files)
+│   │       ├── crossover/            # Crossover operators
+│   │       ├── dataLoader/           # Data loading & lookup maps
+│   │       ├── fitness/              # Fitness evaluation & caching
+│   │       ├── initialization/       # Population initialization
+│   │       ├── mutation/             # Mutation operators
+│   │       ├── repair/               # Constraint repair strategies
+│   │       ├── replacement/          # Replacement strategies
+│   │       ├── selection/            # Selection operators
+│   │       ├── utils/                # Grouping, memory monitoring
+│   │       ├── algorithm.ts          # Main GA algorithm
+│   │       ├── decoder.ts, validator.ts
+│   │       ├── gaWorker.ts           # Worker thread implementation
+│   │       └── jobManager.ts         # Job queue management
+│   │
+│   ├── trpc/
+│   │   ├── routers/                  # tRPC procedures (20+ routers)
+│   │   │   ├── availability/         # Unavailability routers
+│   │   │   ├── *Router.ts            # Entity routers
+│   │   │   ├── generateRouter.ts     # Generation endpoint
+│   │   │   └── chatbotRouter.ts      # Chatbot endpoint
+│   │   ├── utils/                    # Ownership verification
+│   │   └── init.ts, errorLogger.ts   # tRPC setup & middleware
+│   │
+│   └── prisma.ts, utils/             # Prisma client & server utils
+│
+├── context/                           # React contexts (ThemeModeContext)
+├── hooks/                             # Custom hooks (useJobs)
+├── integrations/                      # tRPC client, providers, devtools
+├── zustand/                           # Zustand stores (5 stores)
+├── utils/                             # Utilities (cognitiveLoad, export, constants)
+├── env.ts, router.tsx                # Environment & routing config
+└── routeTree.gen.ts, styles.css      # Generated routes & styles
+
+prisma/
+├── schema/                            # Split Prisma schemas (11+ entity files)
+│   ├── index.prisma
+│   ├── Teacher.prisma, Subject.prisma, Classroom.prisma
+│   ├── Lecture.prisma, Timetable.prisma, Slot.prisma # Lecture.prisma stores the lecture and slot mapping
+│   ├── Group.prisma, Subdivision.prisma
+│   ├── GenerationConfig.prisma, Job.prisma
+│   └── User.prisma, Organization.prisma
+└── migrations/                        # Database migrations
+
+generated/
+├── prisma/                            # Generated Prisma client
+└── zod/                               # Generated Zod schemas
+
+memory-bank/                           # Agent memory system
+├── activeContext.md                   # Current state & priorities
+├── productContext.md                  # Product vision
+├── progress.md                        # Feature completion tracking
+├── projectbrief.md                    # Core requirements
+├── systemPatterns.md                  # Architecture patterns
+├── techContext.md                     # Tech stack details
+├── tanstackDbDocs.md                  # TanStack DB patterns
+└── tt-gen/                            # Timetable generation docs
+    ├── steps.md                       # Algorithm roadmap
+    ├── research.md                    # GA theory
+    └── README.md                      # Generation overview
+```
+
+**Important Config Files** (root): `vite.config.ts`, `tsconfig.json`, `prisma.config.ts`, `package.json`
+
+## Anti-Patterns to Avoid
+
+1. ❌ Using `trpc.entity.list.useQuery()` in components → Use collections
+2. ❌ Creating collections with internal `useLiveQuery` → Collections are data sources
+3. ❌ Using Tailwind classes → This is Material-UI v7
+4. ❌ Naming tRPC query as `getAll` → Use `list`
+5. ❌ Skipping `bunx tsgo --noEmit` before commit → Breaks production build
+6. ❌ Adding mutation handlers to read-only collections → Causes runtime errors
+7. ❌ Direct Prisma calls from components → Bypasses cache/optimistic updates
+
+## Support & Documentation
+
+- **TanStack DB**: `memory-bank/tanstackDbDocs.md`
+- **Architecture**: `memory-bank/systemPatterns.md`
+- **Algorithm Work**: `memory-bank/tt-gen/steps.md`
+- **Active Context**: `memory-bank/activeContext.md`
+- **Existing Cline Memory**: `.clinerules` (agent continuity patterns)
+
+**When stuck**: Check Memory Bank first, then ask specific questions referencing relevant files.
 
 ## Documentation Updates
 
