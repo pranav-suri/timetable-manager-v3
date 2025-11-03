@@ -28,7 +28,7 @@
 ### Prerequisites
 
 - Node.js 18+
-- npm or yarn package manager
+- bun package manager
 - Git
 
 ### Quick Start
@@ -36,17 +36,17 @@
 ```bash
 git clone https://github.com/pranav-suri/timetable-manager-v3.git
 cd timetable-manager-v3
-npm install
-npm run dev
+bun install
+bun dev
 ```
 
 ### Key Commands
 
 ```bash
-npm run dev          # Start development server
-npm run build        # Build for production
-npx prisma generate  # Generate Prisma client
-npx prisma db push   # Push schema to database
+bun dev          # Start development server
+bun build        # Build for production
+bun prisma generate  # Generate Prisma client
+bun prisma db push   # Push schema to database
 ```
 
 ## Dependencies
@@ -134,7 +134,8 @@ npx prisma db push   # Push schema to database
 
 ### Current Limitations
 
-- **Sample data generation** relies on CSV/XLSX parsing
+- **Preferred unavailability** UI not yet implemented
+- **Advanced filtering** for exports not yet implemented
 - **No automated testing** setup currently
 - **Limited error boundaries** in production
 - **No internationalization** support
@@ -145,3 +146,9 @@ npx prisma db push   # Push schema to database
 - **Error monitoring** with Sentry
 - **Performance monitoring** with analytics
 - **Progressive Web App** capabilities
+- **Undo/Redo Functionality (Ctrl+Z)**: Implement undo/redo for timetable edits
+- **Loading State Management**: Improve loading state indicators when data is not synced
+- **Advanced Filtering**: Implement filtering options for exports and generation
+- **Bulk Operations**: Multi-select editing capabilities for timetable management
+- **User Authentication & Authorization**: Role-based access control system
+- **Performance Optimization**: Database query optimization and frontend bundle size reduction

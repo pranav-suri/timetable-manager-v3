@@ -28,155 +28,51 @@
 - **Normalized Schema**: Clean separation of entities with proper relationships
 - **Prisma Best Practices**: Type-safe database operations with generated client
 
-## Design Patterns in Use
-
-### Provider Composition Pattern
-
-```typescript
-// Pattern: Hierarchical provider composition
-// Usage: Clean dependency injection and context management
-  <ThemeProvider>
-    <QueryClientProvider>
-      <RouterProvider>
-        <CollectionsProvider>
-          <App />
-        </CollectionsProvider>
-      </RouterProvider>
-    </QueryClientProvider>
-  </ThemeProvider>
-```
 
 ## Component Relationships
 
-### Data Flow Architecture
-
-```
-User Interaction → Component → Collection Hook → tRPC Procedure → Prisma Query → Database
-                                      ↓
-                                 TanStack Query Cache
-                                      ↓
-                                 UI State Update
-```
-
-### Collection System Architecture
-
-```
-CollectionProvider (Context)
-├── CollectionContext (State)
-├── useCollection (Hook)
-│   ├── CRUD Operations
-│   ├── Cache Management
-│   └── Error Handling
-└── Collection Components
-    ├── List View
-    ├── Create Form
-    └── Edit Form
-```
+- **Data Flow Architecture**: User Interaction → Component → Collection Hook → tRPC Procedure → Prisma Query → Database → TanStack Query Cache → UI State Update.
+- **Collection System Architecture**: Provider-based architecture with hooks for CRUD operations, cache management, and error handling.
 
 ## Critical Implementation Paths
 
-### Timetable Generation Flow
-
-1. **Data Collection**: Gather teachers, subjects, classrooms, constraints
-2. **Validation**: Ensure data integrity and constraint satisfaction
-3. **Algorithm Execution**: Run scheduling algorithm with optimization
-4. **Conflict Resolution**: Handle and resolve scheduling conflicts
-5. **Result Persistence**: Save generated timetable to database
-
-### CRUD Operation Flow
-
-1. **User Action**: Trigger create/update/delete operation
-2. **Optimistic Update**: Automatic via Tanstack DB.
-3. **API Call**: Defined within collection definition
-4. **Cache Invalidation**: Automatic
-5. **UI Synchronization**: Reflect changes across all dependent components
-
-### Error Handling Flow
-
-1. **Error Occurrence**: Catch errors at component or API level
-2. **Error Classification**: Determine error type (validation, network, server)
-3. **User Feedback**: Display appropriate error messages via snackbar
-4. **Recovery Actions**: Provide options to retry or recover state
-5. **Logging**: Record errors for debugging and monitoring
-
-### Optimistic Update Error Handling
-
-1. **Mutation Failure**: When tRPC mutations fail, throw errors from `onInsert`/`onUpdate`/`onDelete` callbacks
-2. **Automatic Rollback**: TanStack DB automatically rolls back optimistic updates on thrown errors
-3. **User Notification**: Catch errors at call site and display user-friendly messages via snackbar
+- **Timetable Generation Flow**: Data collection, validation, algorithm execution, conflict resolution, and result persistence.
+- **CRUD Operation Flow**: User action, optimistic update via Tanstack DB, API call, cache invalidation, and UI synchronization.
+- **Error Handling Flow**: Error occurrence, classification, user feedback via snackbar, recovery actions, and logging.
+- **Optimistic Update Error Handling**: Mutation failures trigger automatic rollback by TanStack DB, with user notification via snackbar.
 
 ## Performance Patterns
 
-### Lazy Loading Strategy
-
-- **Route-based code splitting** for faster initial page loads
-- **Component lazy loading** for non-critical UI elements
-- **Data prefetching** for anticipated user navigation
-
-### Caching Strategy
-
-- **Query caching** with TanStack Query for API responses
-- **Component memoization** for expensive computations
-- **Asset caching** through Vite build optimization
-
-### Optimization Patterns
-
-- **Virtual scrolling** for large data sets
-- **Debounced search** for efficient filtering
-- **Pagination** for data-heavy operations
+- **Lazy Loading Strategy**: Route-based code splitting, component lazy loading, and data prefetching.
+- **Caching Strategy**: Query caching with TanStack Query, component memoization, and asset caching.
+- **Optimization Patterns**: Virtual scrolling, debounced search, and pagination.
 
 ## Security Patterns
 
-### Input Validation
-
-- **Zod schemas** for runtime type validation
-- **Sanitization** of user inputs before database operations
-- **Authorization checks** at API procedure level
-
-### Data Protection
-
-- **Environment-based secrets** management
-- **SQL injection prevention** through Prisma ORM
-- **XSS protection** through React's built-in sanitization
+- **Input Validation**: Zod schemas for runtime type validation, sanitization of user inputs, and authorization checks.
+- **Data Protection**: Environment-based secrets management, SQL injection prevention via Prisma ORM, and XSS protection.
 
 ## Testing Patterns
 
-### Component Testing
-
-- **Unit tests** for individual components with React Testing Library
-- **Integration tests** for component interactions
-- **E2E tests** for critical user journeys
-
-### API Testing
-
-- **tRPC procedure tests** for business logic validation
-- **Database integration tests** for data operations
-- **Performance tests** for critical paths
+- **Component Testing**: Unit tests with React Testing Library, integration tests, and E2E tests.
+- **API Testing**: tRPC procedure tests, database integration tests, and performance tests.
 
 ## Deployment Patterns
 
-### Build Optimization
-
-- **Tree shaking** to eliminate unused code
-- **Asset optimization** through Vite bundling
-- **CDN integration** for static assets
-
-### Environment Management
-
-- **Configuration as code** for different environments
-- **Feature flags** for gradual rollouts
-- **Rollback strategies** for failed deployments
+- **Build Optimization**: Tree shaking, asset optimization, and CDN integration.
+- **Environment Management**: Configuration as code, feature flags, and rollback strategies.
 
 ## Evolution Patterns
 
-### Migration Strategy
+#### Migration Strategy
 
-- **Database migrations** with Prisma for schema changes
-- **API versioning** for backward compatibility
-- **Feature toggles** for gradual feature adoption
+- **Database migrations** with Prisma for schema changes.
+- **Migration Size**: Implement migration size to be configurable as a percentage.
+- **API versioning** for backward compatibility.
+- **Feature toggles** for gradual adoption.
 
 ### Refactoring Guidelines
 
-- **Incremental changes** to minimize risk
-- **Comprehensive testing** before refactoring
-- **Documentation updates** alongside code changes
+- **Incremental changes** to minimize risk.
+- **Comprehensive testing** before refactoring.
+- **Documentation updates** alongside code changes.

@@ -1,5 +1,32 @@
 # AI Coding Agent Instructions: Timetable Manager V3
 
+## 🎯 TL;DR - Current Project State (November 3, 2025)
+
+**Status**: Production Ready - Timetable generation system COMPLETE ✅
+
+**What Works**:
+
+- Generate conflict-free timetables using genetic algorithm
+- Full CRUD for teachers, subjects, classrooms, lectures, groups, subdivisions
+- Drag-and-drop timetable editor with real-time sync
+- Material-UI v7 responsive design
+- Type-safe API (tRPC) with optimistic updates
+
+**Tech Stack**: React 19 + TanStack Router + TanStack DB Collections + tRPC + Prisma + SQLite
+
+**Quick Commands**:
+
+```bash
+bun run dev              # Start dev server
+bunx tsgo --noEmit        # Type check (MUST pass)
+bun run check           # Format + lint auto-fix
+bunx prisma studio      # Browse database
+```
+
+**What's Next**: Preferred unavailability UI → Export filtering → Undo/Redo
+
+---
+
 ## Project Identity & Purpose
 
 **Educational timetable management system** for scheduling courses, teachers, classrooms, and student groups with automated constraint optimization. Built for universities/colleges to generate conflict-free course schedules.
@@ -7,6 +34,7 @@
 ## Architecture: The Big Picture
 
 ### Technology Stack (React 19 SSR)
+
 - **Development**: Use Bun as the package manager and build tool
 - **Frontend**: React 19 + Material-UI v7 (NOT Tailwind despite package.json)
 - **Routing**: TanStack Router v1 (file-based, SSR-capable)
@@ -42,233 +70,23 @@ Traditional React Query pattern causes stale data issues when switching between 
 
 ## Essential Implementation Patterns
 
-### Pattern 1: Creating a New Collection
+**See memory-bank/systemPatterns.md and README examples for detailed patterns**
 
-**File**: `src/db-collections/entityCollection.tsx`
+Core rules:
 
-```typescript
-import { createCollection, queryCollectionOptions } from "@tanstack/react-db";
-import type { CollectionInput } from "./providers/CollectionProvider";
-
-export function getEntityCollection(input: CollectionInput) {
-  const { timetableId, trpc, queryClient, trpcClient } = input;
-
-  return createCollection(
-    queryCollectionOptions({
-      queryClient,
-      queryKey: ["entity", timetableId],
-      queryFn: () => trpcClient.entity.list.query({ timetableId }),
-
-      // CRITICAL: These callbacks trigger optimistic updates + server sync
-      onInsert: async (newEntity) => {
-        try {
-          return await trpcClient.entity.add.mutate(newEntity);
-        } catch (error) {
-          throw error; // Thrown errors trigger automatic rollback
-        }
-      },
-
-      onUpdate: async (updatedEntity) => {
-        return await trpcClient.entity.update.mutate(updatedEntity);
-      },
-
-      onDelete: async (id) => {
-        await trpcClient.entity.delete.mutate({ id });
-      },
-    }),
-  );
-}
-```
-
-**Register in `CollectionProvider.tsx`**:
-
-```typescript
-entityCollection: getEntityCollection(input),
-```
-
-**Exception**: Read-only/computed collections (e.g., `cognitiveLoadCollection`) omit mutation handlers.
-
-### Pattern 2: Using Collections in Components
-
-```tsx
-import { useCollections } from "@/db-collections/providers/useCollections";
-import { useLiveQuery } from "@tanstack/react-db";
-
-function TeachersList() {
-  const { teacherCollection } = useCollections();
-
-  // Reactive query - auto-updates when collection changes
-  const { data: teachers } = useLiveQuery(
-    (q) => q.from({ teacher: teacherCollection }),
-    [teacherCollection], // MUST include collection in deps
-  );
-
-  // Mutations with automatic optimistic updates
-  const handleAdd = async (teacher) => {
-    try {
-      await teacherCollection.insert(teacher);
-      // Success feedback handled by collection
-    } catch (error) {
-      // Show error snackbar - optimistic update auto-rolled back
-      console.error(error);
-    }
-  };
-
-  return (/* UI using teachers data */);
-}
-```
-
-**Why this works**: `useLiveQuery` subscribes to collection changes. When you call `.insert()`, it:
-
-1. Immediately updates local cache (optimistic)
-2. Calls `onInsert` callback → tRPC mutation
-3. On success: cache stays updated
-4. On error: throws, collection auto-reverts cache
-
-### Pattern 3: tRPC Router Structure
-
-**File**: `src/server/trpc/routers/entityRouter.ts`
-
-```typescript
-import { authedProcedure, router } from "../trpc";
-import { zodIdSchema } from "../utils";
-import { z } from "zod";
-
-export const entityRouter = router({
-  // Query: ALWAYS named "list", returns array
-  list: authedProcedure
-    .input(z.object({ timetableId: zodIdSchema }))
-    .query(async ({ ctx, input }) => {
-      return await ctx.prisma.entity.findMany({
-        where: { timetableId: input.timetableId },
-        include: {
-          /* relations */
-        },
-      });
-    }),
-
-  // Mutations: add/update/delete
-  add: authedProcedure
-    .input(z.object({ timetableId: zodIdSchema, name: z.string() /* ... */ }))
-    .mutation(async ({ ctx, input }) => {
-      return await ctx.prisma.entity.create({ data: input });
-    }),
-
-  update: authedProcedure
-    .input(z.object({ id: zodIdSchema, name: z.string().optional() /* ... */ }))
-    .mutation(async ({ ctx, input }) => {
-      const { id, ...data } = input;
-      return await ctx.prisma.entity.update({ where: { id }, data });
-    }),
-
-  delete: authedProcedure
-    .input(z.object({ id: zodIdSchema }))
-    .mutation(async ({ ctx, input }) => {
-      await ctx.prisma.entity.delete({ where: { id: input.id } });
-    }),
-});
-```
-
-**Register in `src/server/trpc/routers/index.ts`**:
-
-```typescript
-entity: entityRouter,
-```
-
-### Pattern 4: Prisma Schema (Split Files)
-
-**Files**: `prisma/schema/*.prisma`
-
-Each entity gets its own file (e.g., `Teacher.prisma`):
-
-```prisma
-model Teacher {
-  id            String   @id @default(nanoid(4))
-  name          String
-  email         String
-  timetableId   String
-  dailyMaxHours Int      @default(8)
-  weeklyMaxHours Int     @default(40)
-  createdAt     DateTime @default(now())
-
-  timetable     Timetable @relation(fields: [timetableId], references: [id], onDelete: Cascade)
-  lectures      Lecture[]
-  unavailableSlots TeacherUnavailable[]
-}
-```
-
-**After changes**: `npx prisma generate` → regenerates `generated/prisma/client.ts`
-
-### Pattern 5: Material-UI Component Usage
-
-**File**: `src/routes/tt/$timetableId/teachers.tsx`
-
-```tsx
-import {
-  Container,
-  Card,
-  Typography,
-  Button,
-  TextField,
-  List,
-  ListItem,
-  ListItemText,
-  Alert,
-  IconButton,
-} from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-
-function TeachersPage() {
-  return (
-    <Container maxWidth="lg">
-      <Card sx={{ p: 3, mb: 2 }}>
-        <Typography variant="h4" gutterBottom>
-          Teachers
-        </Typography>
-
-        <TextField label="Name" variant="outlined" fullWidth sx={{ mb: 2 }} />
-
-        <Button variant="contained" color="primary">
-          Add Teacher
-        </Button>
-      </Card>
-
-      <List>
-        {teachers.map((teacher) => (
-          <ListItem
-            key={teacher.id}
-            secondaryAction={
-              <IconButton edge="end">
-                <DeleteIcon />
-              </IconButton>
-            }
-          >
-            <ListItemText primary={teacher.name} secondary={teacher.email} />
-          </ListItem>
-        ))}
-      </List>
-    </Container>
-  );
-}
-```
-
-**Key MUI patterns**:
-
-- Use `sx` prop for styling, not Tailwind classes
-- `Container maxWidth="lg"` for page wrappers
-- `Card sx={{ p: 2 }}` for content sections
-- `variant="outlined"` for form inputs
-- Icon imports from `@mui/icons-material`
+1. Collections fetch data and handle database state
+2. Always include collections in `useLiveQuery` deps
+4. Register collections in `CollectionProvider.tsx`
 
 ## Critical Workflows & Commands
 
 ### Development Cycle
 
 ```bash
-npm run dev              # Start dev server (port 3000)
-npx tsc --noEmit        # Type check (MUST pass before commit)
-npm run check           # Format + lint (auto-fix)
-npx prisma studio       # Browse database visually
+bun run dev              # Start dev server (port 3000)
+bunx tsc --noEmit        # Type check (MUST pass before commit)
+bun run check           # Format + lint (auto-fix)
+bunx prisma studio       # Browse database visually
 ```
 
 ### After Schema Changes
@@ -276,18 +94,18 @@ npx prisma studio       # Browse database visually
 ```bash
 # 1. Edit prisma/schema/*.prisma
 # 2. Generate client
-npx prisma generate
+bunx prisma generate
 # 3. Push to dev database
-npx prisma db push
+bunx prisma db push
 # 4. Type check
-npx tsc --noEmit
+bunx tsc --noEmit
 ```
 
 ### Testing
 
 ```bash
-npm run test            # Run all tests
-npm run test -- src/server/services/timetableGenerator  # Specific path
+bun run test            # Run all tests
+bun run test -- src/server/services/timetableGenerator  # Specific path
 ```
 
 ## Memory Bank System (Agent Continuity)
@@ -304,114 +122,48 @@ npm run test -- src/server/services/timetableGenerator  # Specific path
 
 **After completing features**: Update `activeContext.md` and `progress.md`
 
-**For timetable algorithm work**: Follow `tt-gen/steps.md` strictly - each step has completion checklist
+### Quick Context Summary
 
-## Project-Specific Conventions
+**What's Done** ✅
 
-### Routing Paths
+- Full timetable generation system (genetic algorithm, UI, job management)
+- Complete CRUD interfaces for all entities (teachers, subjects, classrooms, lectures, groups, subdivisions)
+- TanStack DB collections with optimistic updates
+- Material-UI v7 integration (responsive design)
+- Zero TypeScript errors
 
-- ✅ Use: `/tt/$timetableId/teachers`
-- ❌ Avoid: `/timetable/$timetableId/teachers`
+**What's Next** 🔄
 
-The `/tt/` prefix is the established convention (see all route files in `src/routes/tt/`).
+1. Preferred unavailability UI (soft constraints)
+2. Advanced export/import with filtering
+3. Undo/Redo (Ctrl+Z) for timetable edits
+4. Loading state improvements
 
-### tRPC Procedure Naming
+**Current Architecture**
 
-- ✅ Use: `list`, `add`, `update`, `delete`
-- ❌ Avoid: `getAll`, `create`, `modify`, `remove`
+- Collections → tRPC → Prisma → SQLite
+- UI uses `useLiveQuery` for reactive data updates
+- Optimistic updates with automatic error rollback
+- Split Prisma schema files in `prisma/schema/`
 
-Consistency across all routers enables predictable collection implementation.
+### Read Before Tasks
 
-### ID Generation
-
-- Uses `nanoid(4)` for all primary keys (see Prisma schemas)
-- 4-character IDs balance uniqueness with readability
-- Import via `import { nanoid } from "nanoid"`
-
-### Error Handling in Collections
-
-```typescript
-onInsert: async (newEntity) => {
-  try {
-    return await trpcClient.entity.add.mutate(newEntity);
-  } catch (error) {
-    // Log to console
-    console.error("Failed to add entity:", error);
-    // Re-throw to trigger optimistic update rollback
-    throw error;
-  }
-};
-```
-
-**Critical**: Must throw errors to trigger TanStack DB's automatic rollback.
+**For new features**: Check `activeContext.md` (current status)
+**For architecture**: Reference `systemPatterns.md` (core patterns)
+**For requirements**: See `projectbrief.md` (core needs)
+**For timetable algorithm**: Follow `tt-gen/steps.md` (implementation checklist)
 
 ## Common Integration Points
 
-### Cross-Component Data Sharing
+See memory-bank/systemPatterns.md for detailed patterns:
 
-**Problem**: Multiple components need same data (e.g., teacher list in dropdown + teacher page)
-**Solution**: Both use same collection - TanStack DB handles cache sharing
-
-```tsx
-// Component A
-const { teacherCollection } = useCollections();
-const { data: teachers } = useLiveQuery(
-  (q) => q.from({ teacher: teacherCollection }),
-  [teacherCollection],
-);
-
-// Component B (different file)
-const { teacherCollection } = useCollections();
-const { data: teachers } = useLiveQuery(
-  (q) => q.from({ teacher: teacherCollection }),
-  [teacherCollection],
-);
-// Same query, same cache - no duplicate requests
-```
-
-### Form Validation with Zod
-
-```typescript
-import { z } from "zod";
-
-const teacherSchema = z.object({
-  name: z.string().min(1, "Name required"),
-  email: z.string().email("Invalid email"),
-  dailyMaxHours: z.number().min(1).max(24),
-});
-
-// In form component
-const handleSubmit = (data) => {
-  const validated = teacherSchema.parse(data); // Throws on invalid
-  await teacherCollection.insert(validated);
-};
-```
-
-### Relationship Handling
-
-Many-to-many relationships use junction tables:
-
-- `SubjectTeacher` (subjects ↔ teachers)
-- `SubjectClassroom` (subjects ↔ classrooms)
-- `LectureSubdivision` (lectures ↔ subdivisions)
-
-Pattern: Create separate collections for junction tables, use in UI with multi-select.
+- Cross-component data sharing with collections
+- Form validation with Zod schemas
+- Many-to-many relationships via junction tables
 
 ## Testing Patterns
 
-### Component Tests (Vitest)
-
-```typescript
-import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
-
-describe("TeachersList", () => {
-  it("renders teacher names", () => {
-    render(<TeachersList />);
-    expect(screen.getByText("John Doe")).toBeInTheDocument();
-  });
-});
-```
+Use Vitest + React Testing Library. See memory-bank/systemPatterns.md for examples.
 
 **Import pattern**: Use `config.ts` for DEFAULT_GA_CONFIG, not `types.ts`
 
@@ -426,7 +178,7 @@ describe("TeachersList", () => {
 ### 2. TypeScript Errors After Schema Change
 
 **Symptom**: Type errors referencing Prisma models
-**Solution**: Run `npx prisma generate` to regenerate types
+**Solution**: Run `bunx prisma generate` to regenerate types
 
 ### 3. Optimistic Update Not Rolling Back
 
@@ -446,66 +198,130 @@ describe("TeachersList", () => {
 **Cause**: Using wrong route prefix
 **Fix**: Use `/tt/$timetableId/...` not `/timetable/$timetableId/...`
 
-## Current State & Active Work (October 2025)
+## Support & Documentation
 
-**Completed**:
+- **TanStack DB**: `memory-bank/tanstackDbDocs.md`
+- **Architecture**: `memory-bank/systemPatterns.md`
+- **Algorithm Work**: `memory-bank/tt-gen/steps.md`
+- **Active Context**: `memory-bank/activeContext.md`
 
-- ✅ All CRUD interfaces (teachers, subjects, classrooms, lectures, etc.)
-- ✅ Material-UI v7 migration complete
-- ✅ Zero TypeScript compilation errors
-- ✅ TanStack DB collections for all entities
-- ✅ Cognitive load tracking (read-only collection)
-- ✅ Timetable algorithm foundation (types, fitness evaluation, operators)
+**When stuck**: Check Memory Bank first, then ask specific questions referencing relevant files.
 
-**In Progress**:
+```
 
-- 🚧 Genetic Algorithm implementation (Phase 3 - see `memory-bank/tt-gen/steps.md`)
-- 🚧 Job management for async timetable generation
-- 🚧 Step 3.3: Result persistence and job status tracking
-
-**Next Up**:
-
-- ⏳ Timetable visualization UI
-- ⏳ Drag-and-drop schedule editing
-- ⏳ PDF/CSV export
-
-**Reference**: Check `memory-bank/activeContext.md` for latest updates.
+```
 
 ## Quick Reference: File Locations
 
 ```
 src/
-├── db-collections/          # TanStack DB collections
-│   ├── providers/
-│   │   └── CollectionProvider.tsx    # Central registration
-│   └── *Collection.tsx               # Individual collections
-├── server/
-│   ├── trpc/routers/                 # tRPC procedures
-│   └── services/timetableGenerator/  # GA algorithm
-├── routes/                            # File-based routing
-│   ├── __root.tsx                    # App layout
+├── components/                        # Reusable UI components
+│   ├── Availability/                 # Unavailability editors (Teacher/Classroom/Subdivision)
+│   ├── Buttons/                      # Shared buttons (ToggleDarkMode, etc.)
+│   ├── Chatbot/                      # Chat interface components
+│   ├── CognitiveLoad/                # Load visualization
+│   └── Generation/                   # Generation config & controls (7+ components)
+│
+├── db-collections/                    # TanStack DB Collections (optimistic updates)
+│   ├── providers/                    # CollectionProvider, context, hooks
+│   ├── availability/                 # Unavailability collections (3 types)
+│   ├── utils/                        # Error handling utilities
+│   ├── *Collection.tsx               # Entity collections (15+ files)
+│   ├── liveCollections.tsx           # Live query helpers
+│   └── transactions.tsx              # Transaction utilities
+│
+├── routes/                            # File-based routing (TanStack Router)
+│   ├── __root.tsx, index.tsx         # App layout & home
+│   ├── api/                          # API routes (trpc endpoint, demo data)
+│   ├── demo/                         # Demo pages (TanStack Query examples)
 │   └── tt/$timetableId/              # Timetable routes
-└── components/                        # Reusable UI
+│       ├── index.tsx, route.tsx      # Dashboard & layout
+│       ├── edit/                     # Drag-and-drop editor
+│       │   ├── -components/          # Editor UI (9+ components)
+│       │   ├── -conflictList/        # Conflict detection & display
+│       │   └── -hooks/               # Editor hooks (DnD, filtering)
+│       ├── generate.tsx, chatbot.tsx # Generation & AI chat
+│       ├── teachers.tsx, subjects.tsx, classrooms.tsx
+│       ├── lectures.tsx, groups.tsx, subdivisions.tsx
+│       └── timetables.tsx            # Entity CRUD pages
+│
+├── server/
+│   ├── controllers/                  # Business logic
+│   │   └── sampleData/               # CSV import controllers
+│   ├── services/
+│   │   ├── gemini/                   # AI chatbot service (Gemini)
+│   │   └── timetableGenerator/       # Genetic Algorithm (GA) engine
+│   │       ├── constraints/          # Hard & soft constraints (18+ files)
+│   │       ├── crossover/            # Crossover operators
+│   │       ├── dataLoader/           # Data loading & lookup maps
+│   │       ├── fitness/              # Fitness evaluation & caching
+│   │       ├── initialization/       # Population initialization
+│   │       ├── mutation/             # Mutation operators
+│   │       ├── repair/               # Constraint repair strategies
+│   │       ├── replacement/          # Replacement strategies
+│   │       ├── selection/            # Selection operators
+│   │       ├── utils/                # Grouping, memory monitoring
+│   │       ├── algorithm.ts          # Main GA algorithm
+│   │       ├── decoder.ts, validator.ts
+│   │       ├── gaWorker.ts           # Worker thread implementation
+│   │       └── jobManager.ts         # Job queue management
+│   │
+│   ├── trpc/
+│   │   ├── routers/                  # tRPC procedures (20+ routers)
+│   │   │   ├── availability/         # Unavailability routers
+│   │   │   ├── *Router.ts            # Entity routers
+│   │   │   ├── generateRouter.ts     # Generation endpoint
+│   │   │   └── chatbotRouter.ts      # Chatbot endpoint
+│   │   ├── utils/                    # Ownership verification
+│   │   └── init.ts, errorLogger.ts   # tRPC setup & middleware
+│   │
+│   └── prisma.ts, utils/             # Prisma client & server utils
+│
+├── context/                           # React contexts (ThemeModeContext)
+├── hooks/                             # Custom hooks (useJobs)
+├── integrations/                      # tRPC client, providers, devtools
+├── zustand/                           # Zustand stores (5 stores)
+├── utils/                             # Utilities (cognitiveLoad, export, constants)
+├── env.ts, router.tsx                # Environment & routing config
+└── routeTree.gen.ts, styles.css      # Generated routes & styles
 
 prisma/
-└── schema/                            # Split schema files
+├── schema/                            # Split Prisma schemas (11+ entity files)
+│   ├── index.prisma
+│   ├── Teacher.prisma, Subject.prisma, Classroom.prisma
+│   ├── Lecture.prisma, Timetable.prisma, Slot.prisma # Lecture.prisma stores the lecture and slot mapping
+│   ├── Group.prisma, Subdivision.prisma
+│   ├── GenerationConfig.prisma, Job.prisma
+│   └── User.prisma, Organization.prisma
+└── migrations/                        # Database migrations
+
+generated/
+├── prisma/                            # Generated Prisma client
+└── zod/                               # Generated Zod schemas
 
 memory-bank/                           # Agent memory system
-├── activeContext.md                   # Current state
-├── systemPatterns.md                  # Architecture
-└── tt-gen/
+├── activeContext.md                   # Current state & priorities
+├── productContext.md                  # Product vision
+├── progress.md                        # Feature completion tracking
+├── projectbrief.md                    # Core requirements
+├── systemPatterns.md                  # Architecture patterns
+├── techContext.md                     # Tech stack details
+├── tanstackDbDocs.md                  # TanStack DB patterns
+└── tt-gen/                            # Timetable generation docs
     ├── steps.md                       # Algorithm roadmap
-    └── research.md                    # GA theory
+    ├── research.md                    # GA theory
+    └── README.md                      # Generation overview
 ```
+
+**Important Config Files** (root): `vite.config.ts`, `tsconfig.json`, `prisma.config.ts`, `package.json`
 
 ## Anti-Patterns to Avoid
 
 1. ❌ Using `trpc.entity.list.useQuery()` in components → Use collections
 2. ❌ Creating collections with internal `useLiveQuery` → Collections are data sources
-3. ❌ Forgetting to throw errors in mutation handlers → Breaks optimistic updates
 4. ❌ Using Tailwind classes → This is Material-UI v7
 5. ❌ Naming tRPC query as `getAll` → Use `list`
-6. ❌ Skipping `npx tsc --noEmit` before commit → Breaks production build
+6. ❌ Skipping `bunx tsgo --noEmit` before commit → Breaks production build
 7. ❌ Adding mutation handlers to read-only collections → Causes runtime errors
 8. ❌ Direct Prisma calls from components → Bypasses cache/optimistic updates
 

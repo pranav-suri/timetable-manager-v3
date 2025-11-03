@@ -32,7 +32,7 @@ This document outlines the core requirements and goals for the Timetable Manager
 ### 2.2 Non-Functional Requirements
 
 - **Usability:** Intuitive and user-friendly interface requiring minimal training.
-- **Performance:** Efficient generation of timetables, even with a large number of constraints and entities. Responsive UI for editing. Frontend using tanstack-db for this.
+- **Performance:** Efficient generation of timetables, even with a large number of constraints and entities. Responsive UI for editing.
 - **Reliability:** Stable operation with robust error handling, especially during generation.
 - **Scalability:** Ability to handle a growing number of teachers, subjects, lectures, and classrooms without significant performance degradation.
 - **Security:** Protection of sensitive data (e.g., user credentials, personal teacher data).
@@ -69,7 +69,6 @@ This document outlines the core requirements and goals for the Timetable Manager
 - Integration with existing student information systems (SIS) or learning management systems (LMS) – initial focus on standalone functionality.
 - Advanced AI/ML-driven predictive scheduling or "what-if" scenario analysis (future enhancement).
 - Mobile-specific applications (web-responsive design will be prioritized).
-- Complex payroll or attendance tracking integrations.
 
 ## 5. Target Audience
 

@@ -48,21 +48,34 @@
 
 ### 🔄 High Priority (Next 2-4 weeks)
 
-#### 1. Data Import/Export
+#### 1. Preferred Unavailability Management
 
-- **UI Pages for Data Entry**
-- **Filtering Views**: Filtering teachers/classroom/subdivision for viewing.
-- **Enhanced CSV Import**: Robust error handling and validation
-- **PDF Export**: Printable timetable generation
+- **Database Table**: ✅ Already exists in schema
+- **UI Page for Editing**: Create dedicated UI for editing both absolute and preferred unavailability for teachers, classrooms, and subdivisions
+- **Logic Integration**: Integrate soft constraints into generation algorithm (reduce fitness score rather than hard constraint)
+
+#### 2. Advanced Data Export/Import
+
+- **Filtering Views**: Implement filtering for teachers/classroom/subdivision viewing
+- **Enhanced CSV Import**: Robust error handling and validation (partially complete)
+- **PDF Export**: Printable timetable generation with various layout options
+- **JSON Export**: Machine-readable format for timetables
+- **Individual Timetables**: Export per-teacher, per-classroom, per-subdivision views
+- **Exporting with Filters**: Add functionality to export timetables with specific filtering options
+- **Generating with Filters**: Implement options to generate timetables based on specific filters
 - **Calendar Integration**: iCal export for calendar applications
-- **Data Backup**: Automated backup and restore functionality
 
-#### 2. Timetable Generation Engine
+#### 3. Lecture Management Enhancements
 
-- **Core Algorithm**: Implement scheduling algorithm with constraint optimization
-- **Conflict Detection**: Real-time conflict identification and resolution
-- **Optimization Goals**: Minimize teacher conflicts, maximize resource utilization
-- **Performance**: Efficient algorithm for large datasets
+- **Classroom Assignment UI**: Improved interface for assigning classrooms to lectures
+- **Subdivision Assignment UI**: Better UX for multi-subdivision lecture management
+- **Batch Operations**: Bulk updates to lecture properties
+
+#### 4. User Experience Improvements
+
+- **Undo/Redo Functionality**: Implement Ctrl+Z for timetable edits
+- **Loading State Management**: Improve visual indicators when data is syncing
+- **Conflict Alerts**: Real-time notifications of scheduling conflicts
 
 ### 🔄 Medium Priority (1-2 months)
 
@@ -103,14 +116,15 @@
 - **Performance Metrics**: System performance monitoring
 - **Scheduling Analytics**: Optimization success rate tracking
 - **Resource Utilization**: Classroom and teacher utilization reports
+- **AI Agent Integration**: Explore and integrate AI agent capabilities (low priority).
 
 ## Current Status
 
-### Development Phase: Entity Management + UI Development
+### Development Phase: Post-Generation System Enhancements
 
-**Progress**: ~75% complete
-**Estimated Completion**: Core features functional within 2-3 months
-**Current Focus**: Timetable generation algorithm and Entitu Management
+**Progress**: ~80% complete
+**Estimated Completion**: Core features fully functional, enhancements continuing
+**Current Focus**: Preferred unavailability UI, advanced filtering, and data export enhancements
 
 ### Architecture Stability: Stable
 
@@ -205,8 +219,9 @@
 
 - **Core CRUD**: ✅ 100% complete (All entity management interfaces implemented)
 - **API Layer**: ✅ 100% complete (Complete tRPC router structure with all procedures)
-- **UI Components**: ✅ 90% complete (All entity management + timetable visualization with drag-and-drop)
-- **Timetable Generation**: ❌ 0% complete (Algorithm not yet implemented)
+- **UI Components**: ✅ 95% complete (All entity management + timetable visualization with drag-and-drop + generation interface)
+- **Timetable Generation**: ✅ 100% complete (Genetic algorithm fully functional end-to-end with job management)
+- **Data Import/Export**: 🔄 70% complete (CSV import functional, advanced filtering and export options pending)
 - **User Management**: ❌ 0% complete (Authentication system pending)
 
 ### User Experience Metrics
@@ -223,7 +238,6 @@
 **Deadline**: 4 weeks from current date
 **Deliverables**:
 
-- Functional timetable generation algorithm
 - Interactive timetable editing interface
 - Complete data import/export functionality
 - Basic user authentication
