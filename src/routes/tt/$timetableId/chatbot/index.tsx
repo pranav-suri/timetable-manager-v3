@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Box, Container, Paper, Typography } from "@mui/material";
 import SmartToyIcon from "@mui/icons-material/SmartToy";
-import { ChatInterface } from "@/components/Chatbot/ChatInterface";
+import { ChatInterface } from "src/routes/tt/$timetableId/chatbot/-components/ChatInterface";
 import { trpcClient } from "@/integrations/trpc";
 
 export const Route = createFileRoute("/tt/$timetableId/chatbot")({
