@@ -10,21 +10,33 @@ import { prisma } from "@/server/prisma";
 import { BALANCED_PRESET } from "@/server/services/timetableGenerator/config";
 
 async function sampleDataUpload(timetableName: string, organizationId: string) {
-  const timetable = await prisma.timetable.upsert({
-    create: {
+  // const timetable = await prisma.timetable.upsert({
+  //   create: {
+  //     name: timetableName,
+  //     organizationId,
+  //     generationConfig: {
+  //       create: {
+  //         config: JSON.stringify(BALANCED_PRESET),
+  //       },
+  //     },
+  //   },
+  //   update: {},
+  //   where: {
+  //     name_organizationId: {
+  //       name: timetableName,
+  //       organizationId,
+  //     },
+  //   },
+  // });
+
+  const timetable = await prisma.timetable.create({
+    data: {
       name: timetableName,
       organizationId,
       generationConfig: {
         create: {
           config: JSON.stringify(BALANCED_PRESET),
         },
-      },
-    },
-    update: {},
-    where: {
-      name_organizationId: {
-        name: timetableName,
-        organizationId,
       },
     },
   });

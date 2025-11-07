@@ -10,7 +10,7 @@ model Teacher {
   lectures        Lecture[]
   subjectTeachers SubjectTeacher[]
 
-  @@unique([email, timetableId])
+  // @@unique([email, timetableId])
 }
 
 model TeacherUnavailable {

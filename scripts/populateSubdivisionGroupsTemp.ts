@@ -120,3 +120,5 @@ for (const timetable of timetables) {
 }
 
 console.log("Subdivision groups temp populated.");
+
+prisma.$disconnect();

@@ -262,7 +262,7 @@ function TeacherList({
   handleEdit,
   handleDelete,
 }: {
-  teachers: any[];
+  teachers: Teacher[];
   handleEdit: (teacher: any) => void;
   handleDelete: (id: string) => void;
 }) {

@@ -153,8 +153,8 @@ async function fetchInformation(row: TimetableData, timetableId: string) {
     subdivisionName,
   });
 
-  const teacher = await prisma.teacher.findUnique({
-    where: { email_timetableId: { email: teacherEmail, timetableId } },
+  const teacher = await prisma.teacher.findFirst({
+    where: { email: teacherEmail, timetableId },
   });
   const group = await prisma.group.findUnique({
     where: { name_timetableId: { name: groupName, timetableId } },
