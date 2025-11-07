@@ -324,7 +324,7 @@ memory-bank/                           # Agent memory system
 5. ❌ Skipping `bunx tsgo --noEmit` before commit → Breaks production build
 6. ❌ Adding mutation handlers to read-only collections → Causes runtime errors
 7. ❌ Direct Prisma calls from components → Bypasses cache/optimistic updates
-
+8. ❌ Hardcoding colors
 ## Support & Documentation
 
 - **TanStack DB**: `memory-bank/tanstackDbDocs.md`

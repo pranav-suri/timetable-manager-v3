@@ -1,0 +1,14 @@
+// This is temporary workaround for data entry,
+// It is being used as a helper table in the frontend
+// This table is populated using the scripts/populateSubdivisionGroupTemp.ts
+
+model SubdivisionGroupTemp {
+    id            String      @id @default(nanoid(4))
+    name          String
+    subdivisionId String
+    timetableId   String
+    timetable     Timetable   @relation(fields: [timetableId], references: [id], onDelete: Cascade)
+    subdivision   Subdivision @relation(fields: [subdivisionId], references: [id], onDelete: Cascade)
+
+    @@unique([name, subdivisionId, timetableId])
+}

@@ -5,6 +5,7 @@ model Subdivision {
   timetable              Timetable                @relation(fields: [timetableId], references: [id], onDelete: Cascade)
   subdivsionUnavailables SubdivisionUnavailable[]
   lectureSubdivisions    LectureSubdivision[]
+  sudvisionGroups        SubdivisionGroupTemp[]
 
   @@unique([name, timetableId])
 }

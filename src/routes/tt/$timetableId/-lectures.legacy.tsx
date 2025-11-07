@@ -176,28 +176,12 @@ function RouteComponent() {
     editingId,
   } = useLectureHandlers(collections);
   const { timetableId } = Route.useParams();
-  const { lectureCollection, subdivisionGroupTempCollection } = collections;
+  const { lectureCollection } = collections;
   const [batchEditMode, setBatchEditMode] = useState(false);
   const { data: lectures } = useLiveQuery(
     (q) => q.from({ lectureCollection }),
     [lectureCollection],
   );
-  const { data: subdivisionGroupsComplete } = useLiveQuery(
-    (q) => q.from({ subdivisionGroupTempCollection }),
-    [subdivisionGroupTempCollection],
-  );
-
-  // Create map from group names to subdivision IDs
-  const groupNameToSubdivisionIds: Record<string, string[]> = {};
-  subdivisionGroupsComplete.forEach((sg) => {
-    groupNameToSubdivisionIds[sg.name] ??= [];
-    if (!groupNameToSubdivisionIds[sg.name]!.includes(sg.subdivisionId)) {
-      groupNameToSubdivisionIds[sg.name]!.push(sg.subdivisionId);
-    }
-  });
-
-  // Get unique group names for the dropdown
-  const groupNames = Object.keys(groupNameToSubdivisionIds).sort();
 
   const teacherOptions = teachers.map((teacher) => ({
     label: teacher.name,
@@ -418,41 +402,6 @@ function RouteComponent() {
                     />
                   )}
                 </form.Field>
-
-                {/* Subdivision Groups Selection */}
-                <Autocomplete
-                  multiple
-                  options={groupNames}
-                  value={[]}
-                  onChange={(_, selectedGroups) => {
-                    // Get current subdivision IDs
-                    const currentSubdivisionIds =
-                      form.state.values.subdivisionIds;
-
-                    // Get subdivision IDs from selected groups
-                    const newSubdivisionIds = selectedGroups.flatMap(
-                      (groupName) => groupNameToSubdivisionIds[groupName] || [],
-                    );
-
-                    // Combine and deduplicate
-                    const combinedSubdivisionIds = [
-                      ...new Set([
-                        ...currentSubdivisionIds,
-                        ...newSubdivisionIds,
-                      ]),
-                    ];
-
-                    // Update the form field
-                    form.setFieldValue(
-                      "subdivisionIds",
-                      combinedSubdivisionIds,
-                    );
-                  }}
-                  renderInput={(params) => (
-                    <TextField {...params} label="Add Subdivision Groups" />
-                  )}
-                  fullWidth
-                />
 
                 {/* Classrooms Selection */}
                 <form.Field name="classroomIds">

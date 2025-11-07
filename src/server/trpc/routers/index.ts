@@ -21,6 +21,7 @@ import { subjectTeachersRouter } from "./subjectTeachersRouter";
 import { classroomUnavailabilitiesRouter } from "./classroomUnavailabilitiesRouter";
 import { teacherUnavailabilitiesRouter } from "./teacherUnavailabilitiesRouter";
 import { subdivisionUnavailabilitiesRouter } from "./subdivisionUnavailabilitiesRouter";
+import { subdivisionGroupTempRouter } from "./subdivisionGroupTempRouter";
 
 export const trpcRouter = createTRPCRouter({
   auth: authRouter,
@@ -40,6 +41,7 @@ export const trpcRouter = createTRPCRouter({
   subjectClassrooms: subjectClassroomsRouter,
   subjectTeachers: subjectTeachersRouter,
   subdivisions: subdivisionsRouter,
+  subdivisionGroupTemp: subdivisionGroupTempRouter,
   subdivisionUnavailabilities: subdivisionUnavailabilitiesRouter,
   teachers: teachersRouter,
   teacherUnavailabilities: teacherUnavailabilitiesRouter,

@@ -21,6 +21,7 @@ import { CollectionsContext } from "./CollectionsContext";
 import type { ReactNode } from "react";
 import type { QueryClient } from "@tanstack/react-query";
 import { useTRPC, useTRPCClient } from "@/integrations/trpc";
+import { getSubdivisionGroupTempCollection } from "../subdivisionGroupTemp";
 
 export type CollectionInput = {
   timetableId: string;
@@ -48,6 +49,7 @@ function getCollections(input: CollectionInput) {
     lectureSubdivisionCollection: getLectureSubdivisionCollection(input),
     slotCollection: getSlotCollection(input),
     subdivisionCollection: getSubdivisionCollection(input),
+    subdivisionGroupTempCollection: getSubdivisionGroupTempCollection(input),
     subdivisionUnavailableCollection:
       getSubdivisionUnavailableCollection(input),
     subjectCollection: getSubjectCollection(input),
