@@ -3,7 +3,9 @@ import superjson from "superjson";
 import {
   createTRPCClient,
   httpBatchLink,
+  httpSubscriptionLink,
   loggerLink,
+  splitLink,
 } from "@trpc/client";
 import type { TRPCRouter } from "@/server/trpc/routers";
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
@@ -16,6 +18,17 @@ function getUrl() {
   return `${base}/api/trpc`;
 }
 
+function getTokenFromCookie(): string {
+  if (typeof document !== "undefined") {
+    const token = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("session="))
+      ?.split("=")[1];
+    return token || "";
+  }
+  return "";
+}
+
 export const trpcClient = createTRPCClient<TRPCRouter>({
   links: [
     // loggerLink({
@@ -24,23 +37,22 @@ export const trpcClient = createTRPCClient<TRPCRouter>({
     //       typeof window !== "undefined") ||
     //     (opts.direction === "down" && opts.result instanceof Error),
     // }),
-    httpBatchLink({
-      transformer: superjson,
-      url: getUrl(),
-      headers() {
-        // Get session token from cookie
-        if (typeof document !== "undefined") {
-          const token = document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("session="))
-            ?.split("=")[1];
-
-          return {
-            "x-session-token": token || "",
-          };
-        }
-        return {};
-      },
+    splitLink({
+      condition: (op) => op.type === "subscription",
+      true: httpSubscriptionLink({
+        transformer: superjson,
+        url: getUrl(),
+        connectionParams() {
+          return { "x-session-token": getTokenFromCookie() };
+        },
+      }),
+      false: httpBatchLink({
+        transformer: superjson,
+        url: getUrl(),
+        headers() {
+          return { "x-session-token": getTokenFromCookie() };
+        },
+      }),
     }),
   ],
 });
