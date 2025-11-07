@@ -36,7 +36,7 @@ interface LectureSlotFiltersState {
   // Action to check if any filters are applied
   hasActiveFilters: () => boolean;
 }
-// TODO: Persist in URL, Do not use localStorage as it may cause issues with multiple tabs
+// TODO: Persist in URL for UX, Do not use localStorage as it may cause issues with multiple tabs
 export const useLectureSlotFiltersStore = create<LectureSlotFiltersState>(
   (set, get) => ({
     // Initial state - all empty

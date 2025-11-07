@@ -100,5 +100,5 @@ if (typeof Bun !== "undefined") {
   // Bun environment
   console.log("🍔 Running in Bun environment.");
 } else {
-  console.log("🚀 Running in Non Bun environment, multi threading not supported.");
+  console.log("🚀 Running in Non Bun environment, multi threading disabled.");
 }

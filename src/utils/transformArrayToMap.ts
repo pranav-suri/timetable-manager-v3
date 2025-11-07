@@ -15,7 +15,7 @@
  *   3: { id: 3, name: 'Charlie' },
  * }
  */
-// eslint-disable-next-line @typescript-eslint/naming-convention
+ 
 export function transformArrayToMap<T, K extends string | number>(
   array: T[],
   keyFn: (item: T) => K,

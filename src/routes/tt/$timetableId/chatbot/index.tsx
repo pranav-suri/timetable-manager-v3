@@ -4,7 +4,7 @@ import SmartToyIcon from "@mui/icons-material/SmartToy";
 import { ChatInterface } from "src/routes/tt/$timetableId/chatbot/-components/ChatInterface";
 import { trpcClient } from "@/integrations/trpc";
 
-export const Route = createFileRoute("/tt/$timetableId/chatbot")({
+export const Route = createFileRoute("/tt/$timetableId/chatbot/")({
   component: ChatbotPage,
 });
 

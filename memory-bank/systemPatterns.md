@@ -28,7 +28,6 @@
 - **Normalized Schema**: Clean separation of entities with proper relationships
 - **Prisma Best Practices**: Type-safe database operations with generated client
 
-
 ## Component Relationships
 
 - **Data Flow Architecture**: User Interaction → Component → Collection Hook → tRPC Procedure → Prisma Query → Database → TanStack Query Cache → UI State Update.

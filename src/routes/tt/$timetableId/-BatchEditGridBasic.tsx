@@ -40,7 +40,9 @@ export interface BatchEditGridProps<
   collection: CollectionEmulator<T>;
 }
 
-export function BatchEditGridBasic<T extends Record<string, any> & { id: string }>({
+export function BatchEditGridBasic<
+  T extends Record<string, unknown> & { id: string },
+>({
   entityName,
   columns,
   data,

@@ -264,9 +264,10 @@ export async function runGAMultiThreaded(
 
   // Determine number of islands (default to CPU count - 1, keeping one for main thread)
   const numCPUs = cpus().length;
+
   console.log(`System has ${numCPUs} CPU cores.`);
 
-  const numIslands = multiThreadConfig.numIslands ?? Math.max(2, numCPUs - 1);
+  const numIslands = multiThreadConfig.numIslands;
 
   config["eliteCount"] = Math.max(
     1,
@@ -277,9 +278,9 @@ export async function runGAMultiThreaded(
     Math.floor(config.tournamentSize / numIslands),
   );
 
-  const migrationInterval = multiThreadConfig.migrationInterval ?? 50;
-  const migrationSize = multiThreadConfig.migrationSize ?? 2;
-  const migrationStrategy = multiThreadConfig.migrationStrategy ?? "best";
+  const migrationInterval = multiThreadConfig.migrationInterval;
+  const migrationSize = multiThreadConfig.migrationSize;
+  const migrationStrategy = multiThreadConfig.migrationStrategy;
 
   console.log(
     `Starting Multi-Threaded GA with ${numIslands} islands on ${numCPUs} CPU cores`,
@@ -370,7 +371,7 @@ export async function runGAMultiThreaded(
           inputData,
           config: islandConfig,
         },
-      } as WorkerMessage);
+      } satisfies WorkerMessage);
     });
   }
 
@@ -388,7 +389,7 @@ export async function runGAMultiThreaded(
     const evolvePromises = islandWorkers.map((iw) => {
       return new Promise<void>((resolve, reject) => {
         workerPromises.set(iw.id, { resolve: () => resolve(), reject });
-        iw.worker.postMessage({ type: "evolve" } as WorkerMessage);
+        iw.worker.postMessage({ type: "evolve" } satisfies WorkerMessage);
       });
     });
 
@@ -525,7 +526,7 @@ async function performWorkerMigration(
       iw.worker.postMessage({
         type: "getBest",
         payload: { count: migrationSize },
-      } as WorkerMessage);
+      } satisfies WorkerMessage);
     });
   });
 
@@ -543,7 +544,7 @@ async function performWorkerMigration(
       iw.worker.postMessage({
         type: "migrate",
         payload: { migrants },
-      } as WorkerMessage);
+      } satisfies WorkerMessage);
     });
   });
 
@@ -553,92 +554,7 @@ async function performWorkerMigration(
 
 async function terminateWorkers(islandWorkers: IslandWorker[]) {
   for (const iw of islandWorkers) {
-    iw.worker.postMessage({ type: "terminate" } as WorkerMessage);
+    iw.worker.postMessage({ type: "terminate" } satisfies WorkerMessage);
     await iw.worker.terminate();
-  }
-}
-
-/**
- * Performs migration of individuals between islands.
- *
- * Migration strategies:
- * - 'best': Migrate the best individuals from each island
- * - 'random': Migrate random individuals
- * - 'diverse': Migrate individuals that are most different from target island
- */
-function performMigration(
-  islands: Island[],
-  migrationSize: number,
-  strategy: "best" | "random" | "diverse",
-): void {
-  const numIslands = islands.length;
-
-  for (let i = 0; i < numIslands; i++) {
-    const sourceIsland = islands[i]!;
-    const targetIsland = islands[(i + 1) % numIslands]!; // Ring topology
-
-    let migrantsIndices: number[] = [];
-
-    switch (strategy) {
-      case "best": {
-        // Select best individuals
-        const sortedIndices = sourceIsland.fitnesses
-          .map((f, idx) => ({ fitness: f.fitnessScore, idx }))
-          .sort((a, b) => b.fitness - a.fitness)
-          .map((item) => item.idx);
-        migrantsIndices = sortedIndices.slice(0, migrationSize);
-        break;
-      }
-      case "random": {
-        // Select random individuals
-        const population = sourceIsland.population;
-        for (let j = 0; j < migrationSize; j++) {
-          migrantsIndices.push(Math.floor(Math.random() * population.length));
-        }
-        break;
-      }
-      case "diverse": {
-        // Select most diverse individuals (simplified: select from different fitness ranges)
-        const sortedIndices = sourceIsland.fitnesses
-          .map((f, idx) => ({ fitness: f.fitnessScore, idx }))
-          .sort((a, b) => b.fitness - a.fitness)
-          .map((item) => item.idx);
-
-        // Take individuals from different quartiles
-        const quartileSize = Math.floor(sortedIndices.length / 4);
-        for (let j = 0; j < migrationSize; j++) {
-          const quartile = j % 4;
-          const idx =
-            quartile * quartileSize + Math.floor(Math.random() * quartileSize);
-          migrantsIndices.push(sortedIndices[idx] ?? 0);
-        }
-        break;
-      }
-    }
-
-    // Replace worst individuals in target island with migrants
-    const sortedTargetIndices = targetIsland.fitnesses
-      .map((f, idx) => ({ fitness: f.fitnessScore, idx }))
-      .sort((a, b) => a.fitness - b.fitness) // Ascending order (worst first)
-      .map((item) => item.idx);
-
-    for (let j = 0; j < migrationSize && j < migrantsIndices.length; j++) {
-      const migrantIdx = migrantsIndices[j]!;
-      const targetIdx = sortedTargetIndices[j]!;
-
-      // Copy migrant to target island
-      targetIsland.population[targetIdx] = [
-        ...sourceIsland.population[migrantIdx]!,
-      ];
-      targetIsland.fitnesses[targetIdx] = sourceIsland.fitnesses[migrantIdx]!;
-    }
-
-    // Update best in target island after migration
-    const bestIndex = findBestChromosome(
-      targetIsland.population,
-      targetIsland.fitnesses,
-    );
-    targetIsland.bestFitness = targetIsland.fitnesses[bestIndex]!;
-    targetIsland.bestChromosome = targetIsland.population[bestIndex]!;
   }
 }

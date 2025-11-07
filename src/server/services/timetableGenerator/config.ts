@@ -141,4 +141,7 @@ export function validateConfig(config: GAConfig): void {
   if (config.maxStagnantGenerations <= 0) {
     throw new Error("Stagnation limit must be positive.");
   }
+
+  if (config.multiThreadConfig.numIslands < 1)
+    throw new Error("Number of islands must be at least 1.");
 }

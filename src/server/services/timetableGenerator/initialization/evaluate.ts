@@ -23,7 +23,7 @@ export function evaluateInitialPopulation(
   const startTime = Date.now();
 
   const fitnessResults = evaluatePopulation(
-    population as any,
+    population,
     inputData,
     config.constraintWeights,
     cache,

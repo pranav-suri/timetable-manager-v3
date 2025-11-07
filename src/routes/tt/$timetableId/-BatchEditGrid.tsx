@@ -51,7 +51,9 @@ export interface BatchEditGridProps<
   collection: CollectionEmulator<T>;
 }
 
-export function BatchEditGrid<T extends Record<string, any> & { id: string }>({
+export function BatchEditGrid<
+  T extends Record<string, unknown> & { id: string },
+>({
   entityName,
   columns,
   data,
@@ -71,13 +73,17 @@ export function BatchEditGrid<T extends Record<string, any> & { id: string }>({
 
   const convertEntityToGridRow = useCallback(
     (row: T) => {
-      const clone: Record<string, any> = structuredClone(row);
+      const clone = structuredClone(row);
       columns.forEach((col) => {
         if (col.type === "dropdown") {
           const match = col.options?.find(
             (option) => option.value === clone[col.data],
           );
-          clone[col.data] = match?.label ?? clone[col.data] ?? "";
+          const value = clone[col.data];
+          const newValue = match?.label ?? clone[col.data];
+          if (typeof newValue === "string" && typeof value === "string") {
+            (clone[col.data] as string) = newValue;
+          }
         }
       });
       return clone;
@@ -85,29 +91,19 @@ export function BatchEditGrid<T extends Record<string, any> & { id: string }>({
     [columns],
   );
 
-  const convertGridRowToEntity = (row: Record<string, any>) => {
-    const clone: Record<string, any> = structuredClone(row);
+  const convertGridRowToEntity = (row: T) => {
+    const clone = structuredClone(row);
     columns.forEach((col) => {
       if (col.type === "dropdown") {
         const match = col.options?.find(
           (option) => option.label === clone[col.data],
         );
-        clone[col.data] = match?.value ?? "";
-      }
-      if (col.type === "numeric") {
         const value = clone[col.data];
-        if (value === "" || value === null || value === undefined) {
-          clone[col.data] = undefined;
-        } else if (typeof value === "string") {
-          const parsed = Number(value);
-          clone[col.data] = Number.isFinite(parsed) ? parsed : value;
-        }
-      }
-      if (col.type === "checkbox") {
-        clone[col.data] = Boolean(clone[col.data]);
+        if (typeof value === "string")
+          (clone[col.data] as string) = match?.value ?? "";
       }
     });
-    return clone as T;
+    return clone;
   };
 
   const tableDataRef = useRef<Array<Record<string, any>>>([]);
@@ -144,9 +140,9 @@ export function BatchEditGrid<T extends Record<string, any> & { id: string }>({
       return;
     }
 
-    const currentRows = hotInstance.getSourceData() as Array<
-      Record<string, any>
-    >;
+    // Can be safely casted because dataSchema ensures T structure
+    const currentRows = hotInstance.getSourceData() as T[];
+
     const normalizedRows = currentRows.map((row) => {
       console.log("Raw Row: ", row);
       const normalized = convertGridRowToEntity(row);

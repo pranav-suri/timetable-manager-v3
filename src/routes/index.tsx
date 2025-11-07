@@ -1,5 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { createFileRoute, Navigate, useNavigate } from "@tanstack/react-router";
 import { Box, CircularProgress } from "@mui/material";
 import { useAuthStore } from "@/zustand/authStore";
 
@@ -11,15 +10,9 @@ function App() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
 
-  useEffect(() => {
-    if (user) {
-      // If authenticated, redirect to timetables dashboard
-      navigate({ to: "/tt" });
-    } else {
-      // If not authenticated, redirect to login
-      navigate({ to: "/login" });
-    }
-  }, [user, navigate]);
+  if (user)
+    return <Navigate to="/tt" />; // Redirect to timetables if authenticated
+  else return <Navigate to="/login" />; // Redirect to login if not authenticated
 
   // Show loading state while redirecting
   return (

@@ -129,7 +129,7 @@ function RouteComponent() {
       acc[groupId].push(subject);
       return acc;
     },
-    {} as Record<string, typeof subjects>,
+    {} as Record<string, Subject[]>,
   );
 
   return (

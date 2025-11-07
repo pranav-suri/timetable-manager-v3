@@ -43,8 +43,8 @@ const getTheme = (mode: PaletteMode) => {
 const ThemeModeContextProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { themeMode, setThemeMode } = useUiStore();
-  const setThemeModeWrapper = setThemeMode as any;
+  const { themeMode, setThemeMode } = useUiStore(); // zustand store
+  const setThemeModeWrapper = setThemeMode as any; // we pass zustand function instead of React useState
 
   return (
     <ThemeModeContext.Provider
