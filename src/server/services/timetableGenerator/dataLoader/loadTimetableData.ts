@@ -28,7 +28,7 @@ export async function loadTimetableData(
   if (teachers.length === 0) throw new Error("No teachers found");
 
   const totalEvents = lectures.reduce(
-    (sum: number, l: { count: number }) => sum + l.count,
+    (sum: number, l) => sum + l.count * l.duration,
     0,
   );
   const eventIds: string[] = [];
