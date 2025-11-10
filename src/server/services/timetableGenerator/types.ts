@@ -318,7 +318,7 @@ export interface GAConfig {
   // Advanced options
   enableRepair: boolean; // Default: true
   enableMemetic: boolean; // Default: false (future enhancement)
-  enableParallel: boolean; // Default: false (future enhancement)
+  enableParallel: boolean; // Default: false
   randomSeed?: number; // For reproducibility (optional)
   stopOnFeasible: boolean; // if true, the algorithm will stop when a feasible solution is found
 

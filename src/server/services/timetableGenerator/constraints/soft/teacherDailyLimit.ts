@@ -28,7 +28,9 @@ export function checkTeacherDailyLimit(
     }
 
     const dayHours = teacherDayToHours.get(teacherId)!;
-    dayHours.set(slot.day, (dayHours.get(slot.day) || 0) + lecture.duration);
+    // Each gene represents exactly 1 slot/hour, not lecture.duration
+    // (multi-duration lectures create multiple genes, one per slot)
+    dayHours.set(slot.day, (dayHours.get(slot.day) || 0) + 1);
   });
 
   // Check each teacher's daily hours

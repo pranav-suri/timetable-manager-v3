@@ -1,6 +1,6 @@
 # AI Coding Agent Instructions: Timetable Manager V3
 
-## 🎯 TL;DR - Current Project State (November 3, 2025)
+## 🎯 TL;DR - Current Project State (November 8, 2025)
 
 **Status**: Production Ready - Timetable generation system COMPLETE ✅
 
@@ -17,14 +17,13 @@
 **Quick Commands**:
 
 ```bash
-bun run dev              # Start dev server
+bun run dev              # Start dev server (port 3000) (For type checking, only use `bunx tsgo --noEmit`)
 bunx tsgo --noEmit        # Type check (MUST pass)
 bun run check           # Format + lint auto-fix
-bunx prisma studio      # Browse database
 ```
 
 **Note**: This project does NOT have automated tests currently.
-**Note**: This project uses Tanstack DB, this is a new library and patterns are documented in `memory-bank/tanstackDbDocs.md`.
+**Note**: This project uses TanStack DB Collections - patterns are documented in `memory-bank/tanstackDbDocs.md`.
 
 **What's Next**: Preferred unavailability UI → Export filtering → Undo/Redo
 
@@ -324,6 +323,70 @@ memory-bank/                           # Agent memory system
 5. ❌ Skipping `bunx tsgo --noEmit` before commit → Breaks production build
 6. ❌ Adding mutation handlers to read-only collections → Causes runtime errors
 7. ❌ Direct Prisma calls from components → Bypasses cache/optimistic updates
+
+## Critical: Genetic Algorithm Gene Representation
+
+**MUST UNDERSTAND before editing constraint files in `src/server/services/timetableGenerator/constraints/`**
+
+### How Multi-Duration Lectures Work
+
+A lecture with `count=2` (2 weekly meetings) and `duration=3` (3 consecutive hours each) creates **6 separate genes**:
+
+```typescript
+// Generated in dataLoader/lookupMaps.ts
+totalEventSlots = lecture.count * lecture.duration = 2 * 3 = 6
+
+Genes created:
+- lec1-evt0, lec1-evt1, lec1-evt2  // Occurrence 0 (first meeting, 3 slots)
+- lec1-evt3, lec1-evt4, lec1-evt5  // Occurrence 1 (second meeting, 3 slots)
+```
+
+**Each gene represents EXACTLY 1 slot/hour**, not `lecture.duration` hours!
+
+### Common Gene Counting Bugs (Fixed Nov 8, 2025)
+
+❌ **WRONG** - Counting hours per gene:
+
+```typescript
+// BUG: Adds 3 hours for each gene (3 genes × 3 = 9 hours!)
+teacherHours += lecture.duration;
+```
+
+✅ **CORRECT** - Each gene = 1 hour:
+
+```typescript
+// Each gene represents exactly 1 slot/hour
+teacherHours += 1;
+```
+
+### Occurrence vs Gene Distinction
+
+- **Gene**: Single slot assignment (evt0, evt1, etc.)
+- **Occurrence**: Group of `duration` consecutive genes representing one meeting
+  - Occurrence index: `Math.floor(eventIndex / lecture.duration)`
+  - evt0-2 → Occurrence 0
+  - evt3-5 → Occurrence 1
+
+**When to count genes vs occurrences:**
+
+- Teacher workload (daily/weekly hours): Count **genes** (each = 1 hour)
+- Consecutive slots constraint: Check all **genes in same occurrence** are consecutive
+- Daily distribution: Count **occurrences** per day, not genes
+
+### Validating Constraint Logic
+
+Before implementing/fixing constraints, ask:
+
+1. Am I counting hours or occurrences?
+2. Does my loop iterate over genes or occurrences?
+3. For multi-duration lectures, does this make sense if duration=3?
+
+**See recent fixes in:**
+
+- `constraints/soft/teacherDailyLimit.ts` (line 33)
+- `constraints/soft/teacherWeeklyLimit.ts` (line 25)
+- `constraints/soft/dailyDistribution.ts` (occurrence grouping)
+- `constraints/hard/consecutiveSlots.ts` (occurrence validation)
 
 ## Support & Documentation
 

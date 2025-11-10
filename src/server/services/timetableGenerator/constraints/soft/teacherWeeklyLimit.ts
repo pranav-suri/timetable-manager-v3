@@ -20,10 +20,9 @@ export function checkTeacherWeeklyLimit(
     if (!lecture) return;
 
     const teacherId = lecture.teacherId;
-    teacherToHours.set(
-      teacherId,
-      (teacherToHours.get(teacherId) || 0) + lecture.duration,
-    );
+    // Each gene represents exactly 1 slot/hour, not lecture.duration
+    // (multi-duration lectures create multiple genes, one per slot)
+    teacherToHours.set(teacherId, (teacherToHours.get(teacherId) || 0) + 1);
   });
 
   // Check each teacher's weekly hours

@@ -78,7 +78,9 @@ export function buildLookupMaps(data: {
     );
     lectureToCombinedClassrooms.set(lecture.id, combinedClassroomIds);
 
-    for (let eventIndex = 0; eventIndex < lecture.count; eventIndex++) {
+    // Generate eventIds for all time slots (count * duration)
+    const totalEventSlots = lecture.count * lecture.duration;
+    for (let eventIndex = 0; eventIndex < totalEventSlots; eventIndex++) {
       const lectureEventId = `${lecture.id}-evt${eventIndex}`;
       eventToLecture.set(lectureEventId, lecture);
       eventToSubdivisions.set(lectureEventId, subdivisionIds);
@@ -88,7 +90,9 @@ export function buildLookupMaps(data: {
         subdivisionToLectures.get(subdivisionId)!.push(lectureEventId);
       }
 
-      const lockedSlot = lecture.lockedSlots[eventIndex];
+      // Map locked slots based on the instance (eventIndex / duration)
+      const instanceIndex = Math.floor(eventIndex / lecture.duration);
+      const lockedSlot = lecture.lockedSlots[instanceIndex];
       if (lockedSlot?.isLocked) {
         lockedAssignments.set(lectureEventId, { slotId: lockedSlot.slotId });
       }

@@ -27,13 +27,15 @@ export async function loadTimetableData(
   if (lectures.length === 0) throw new Error("No lectures to schedule");
   if (teachers.length === 0) throw new Error("No teachers found");
 
+  // Total events = total lecture instances (not multiplied by duration)
+  // Each event (gene) represents one lecture instance with its duration
   const totalEvents = lectures.reduce(
     (sum: number, l) => sum + l.count * l.duration,
     0,
   );
   const eventIds: string[] = [];
   for (const lecture of lectures) {
-    for (let i = 0; i < lecture.count; i++) {
+    for (let i = 0; i < lecture.count * lecture.duration; i++) {
       eventIds.push(`${lecture.id}-evt${i}`);
     }
   }

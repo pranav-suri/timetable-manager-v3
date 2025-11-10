@@ -13,40 +13,40 @@ import type { GAConfig, PartialGAConfig } from "./types";
  */
 export const DEFAULT_GA_CONFIG: GAConfig = {
   populationSize: 200,
-  maxGenerations: 1000,
+  maxGenerations: 2500,
   crossoverProbability: 0.9,
-  mutationProbability: 0.05,
-  eliteCount: 4, // 2% of 200
-  tournamentSize: 3,
-  maxStagnantGenerations: 200,
+  mutationProbability: 0.1,
+  eliteCount: 25,
+  tournamentSize: 5,
+  maxStagnantGenerations: 250,
   heuristicInitRatio: 0.2,
   swapMutationRatio: 0.9,
   targetFitness: 0.95,
-  maxExecutionTimeMs: 600000, // 10 minutes
+  maxExecutionTimeMs: 300000, // 5 minutes
   enableRepair: true,
   enableMemetic: false,
   enableParallel: false,
-  stopOnFeasible: false,
+  stopOnFeasible: true,
   constraintWeights: {
     hardConstraintWeight: 1000,
     idleTime: 5,
-    consecutivePreference: 8,
-    teacherDailyLimit: 10,
+    consecutivePreference: 15,
+    teacherDailyLimit: 30,
     teacherWeeklyLimit: 15,
     excessiveDailyLectures: 6,
     excessivelyEmptyDay: 4,
     excessivelyFilledDay: 4,
     multiDurationLate: 5,
-    deprioritizedDay: 3,
+    deprioritizedDay: 50,
     deprioritizedSlot: 200,
     deprioritizedDaySlot: 5,
     dailyDistribution: 5,
   },
-  multiThreaded: false,
+  multiThreaded: true,
   multiThreadConfig: {
     numIslands: 4,
     migrationInterval: 10,
-    migrationSize: 5,
+    migrationSize: 2,
     migrationStrategy: "best",
   },
 };
@@ -65,12 +65,7 @@ export const FAST_PRESET: PartialGAConfig = {
 /**
  * Preset for a balanced generation, providing good quality in reasonable time.
  */
-export const BALANCED_PRESET: PartialGAConfig = {
-  populationSize: 200,
-  maxGenerations: 1000,
-  maxStagnantGenerations: 100,
-  eliteCount: 4,
-};
+export const BALANCED_PRESET: PartialGAConfig = {};
 
 /**
  * Preset for a thorough, high-quality generation.
