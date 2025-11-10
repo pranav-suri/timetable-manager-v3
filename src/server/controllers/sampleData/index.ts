@@ -9,7 +9,7 @@ import { DIRNAME } from "./DIRNAME";
 import { prisma } from "@/server/prisma";
 import { BALANCED_PRESET } from "@/server/services/timetableGenerator/config";
 
-async function sampleDataUpload(timetableName: string, organizationId: string) {
+async function sampleDataUpload(timetableName: string, organizationId: string, onlySlots?: boolean) {
   // const timetable = await prisma.timetable.upsert({
   //   create: {
   //     name: timetableName,
@@ -48,6 +48,7 @@ async function sampleDataUpload(timetableName: string, organizationId: string) {
     path.join(DIRNAME, "./SAMPLE_DATA/batch_and_subdivision.csv"),
     "utf8",
   );
+  if (!onlySlots)
   await uploadSubdivsionData(batchAndSubData, timetable.id);
 
   /**
@@ -66,6 +67,7 @@ async function sampleDataUpload(timetableName: string, organizationId: string) {
     path.join(DIRNAME, "./SAMPLE_DATA/classroom.csv"),
     "utf8",
   );
+    if (!onlySlots)
   await uploadClassroomData(classroomData, timetable.id);
 
   /**
@@ -75,6 +77,7 @@ async function sampleDataUpload(timetableName: string, organizationId: string) {
     path.join(DIRNAME, "./SAMPLE_DATA/subject_and_teacher.csv"),
     "utf8",
   );
+  if (!onlySlots)
   await uploadSubjectAndTeacherData(subAndTeacherData, timetable.id);
 
   /**
@@ -84,6 +87,7 @@ async function sampleDataUpload(timetableName: string, organizationId: string) {
     path.join(DIRNAME, "./SAMPLE_DATA/timetable.csv"),
     "utf8",
   );
+  if (!onlySlots)
   await uploadTimetableData(timetableData, timetable.id);
   console.log(`All data for ${timetableName} uploaded successfully`);
 }

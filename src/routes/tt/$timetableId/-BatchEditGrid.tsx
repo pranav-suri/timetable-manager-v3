@@ -250,7 +250,7 @@ export function BatchEditGrid<
         data: col.data,
         type: col.type,
         source: col.options?.map((option) => option.label) ?? [],
-        allowInvalid: false,
+        allowInvalid: true,
         strict: true,
         trimDropdown: false,
       };

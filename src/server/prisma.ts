@@ -90,6 +90,12 @@ async function main() {
       console.log("✅ Unique constraint. EVEN Sample Data already exists.");
     else console.error("Error uploading EVEN sample data:", e);
   });
+
+  await sampleDataUpload("2026 EVEN", "default-org", true).catch((e) => {
+    if (isPrismaUniqueError(e))
+      console.log("✅ Unique constraint. 2025 EVEN Sample Data already exists.")
+    else console.error("Error updating 2025 EVEN sample data.", e);
+  })
   console.timeEnd(": Time taken for data upload");
 }
 
