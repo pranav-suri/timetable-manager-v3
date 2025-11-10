@@ -219,7 +219,10 @@ function RouteComponent() {
           subdivisionId: lectureSubdivision.subdivisionId,
           subdivisionName: subdivision.name,
         })),
-    [collections.lectureSubdivisionCollection, collections.subdivisionCollection],
+    [
+      collections.lectureSubdivisionCollection,
+      collections.subdivisionCollection,
+    ],
   );
   const { data: subdivisionGroupsComplete } = useLiveQuery(
     (q) => q.from({ subdivisionGroupTempCollection }),
@@ -350,296 +353,311 @@ function RouteComponent() {
         />
       ) : (
         <>
-          {/* Lecture Form */}
-          <Card sx={{ mb: 3 }}>
-            <CardContent>
-              <Typography variant="h5" component="h2" gutterBottom>
-                {editingId ? "Edit Lecture" : "Add New Lecture"}
-              </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 3,
+            }}
+          >
+            {/* Lecture Form */}
+            <Card sx={{ width: "60%", mr: 2 }}>
+              <CardContent>
+                <Typography variant="h5" component="h2" gutterBottom>
+                  {editingId ? "Edit Lecture" : "Add New Lecture"}
+                </Typography>
 
-              <Box
-                component="form"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  if (editingId) {
-                    handleUpdate();
-                  } else {
-                    form.handleSubmit();
-                  }
-                }}
-                sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-              >
-                <form.Field
-                  name="teacherId"
-                  validators={{
-                    onChange: ({ value }) =>
-                      !value ? "Teacher is required" : undefined,
+                <Box
+                  component="form"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (editingId) {
+                      handleUpdate();
+                    } else {
+                      form.handleSubmit();
+                    }
                   }}
-                  children={(field) => (
-                    <Autocomplete
-                      options={teachers}
-                      getOptionLabel={(option) =>
-                        typeof option === "string"
-                          ? option
-                          : `${option.name} (${option.email})`
-                      }
-                      value={
-                        teachers.find((t) => t.id === field.state.value) || null
-                      }
-                      onChange={(_, newValue) => {
-                        field.handleChange(newValue?.id || "");
-                      }}
-                      onBlur={field.handleBlur}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Teacher"
-                          error={
-                            field.state.meta.isTouched &&
-                            field.state.meta.errors.length > 0
-                          }
-                          helperText={
-                            field.state.meta.isTouched &&
-                            field.state.meta.errors.length
-                              ? field.state.meta.errors.join(", ")
-                              : ""
-                          }
-                        />
-                      )}
-                      fullWidth
-                      isOptionEqualToValue={(option, value) =>
-                        option.id === value.id
-                      }
-                    />
-                  )}
-                />
-
-                <form.Field
-                  name="subjectId"
-                  validators={{
-                    onChange: ({ value }) =>
-                      !value ? "Subject is required" : undefined,
-                  }}
-                  children={(field) => (
-                    <Autocomplete
-                      options={subjects}
-                      getOptionLabel={(option) =>
-                        typeof option === "string" ? option : option.name
-                      }
-                      value={
-                        subjects.find((s) => s.id === field.state.value) || null
-                      }
-                      onChange={(_, newValue) => {
-                        field.handleChange(newValue?.id || "");
-                      }}
-                      onBlur={field.handleBlur}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Subject"
-                          error={
-                            field.state.meta.isTouched &&
-                            field.state.meta.errors.length > 0
-                          }
-                          helperText={
-                            field.state.meta.isTouched &&
-                            field.state.meta.errors.length
-                              ? field.state.meta.errors.join(", ")
-                              : ""
-                          }
-                        />
-                      )}
-                      fullWidth
-                      isOptionEqualToValue={(option, value) =>
-                        option.id === value.id
-                      }
-                    />
-                  )}
-                />
-
-                {/* Subdivisions Selection */}
-                <form.Field name="subdivisionIds">
-                  {(field) => (
-                    <Autocomplete
-                      multiple
-                      options={subdivisions}
-                      getOptionLabel={(option) =>
-                        typeof option === "string" ? option : option.name
-                      }
-                      value={subdivisions.filter((s) =>
-                        field.state.value.includes(s.id),
-                      )}
-                      onChange={(_, newValue) => {
-                        field.handleChange(newValue.map((v) => v.id));
-                      }}
-                      renderInput={(params) => (
-                        <TextField {...params} label="Subdivisions" />
-                      )}
-                      fullWidth
-                      isOptionEqualToValue={(option, value) =>
-                        option.id === value.id
-                      }
-                    />
-                  )}
-                </form.Field>
-
-                {/* Subdivision Groups Selection */}
-                <Autocomplete
-                  multiple
-                  options={groupNames}
-                  value={[]}
-                  onChange={(_, selectedGroups) => {
-                    // Get current subdivision IDs
-                    const currentSubdivisionIds =
-                      form.state.values.subdivisionIds;
-
-                    // Get subdivision IDs from selected groups
-                    const newSubdivisionIds = selectedGroups.flatMap(
-                      (groupName) => groupNameToSubdivisionIds[groupName] || [],
-                    );
-
-                    // Combine and deduplicate
-                    const combinedSubdivisionIds = [
-                      ...new Set([
-                        ...currentSubdivisionIds,
-                        ...newSubdivisionIds,
-                      ]),
-                    ];
-
-                    // Update the form field
-                    form.setFieldValue(
-                      "subdivisionIds",
-                      combinedSubdivisionIds,
-                    );
-                  }}
-                  renderInput={(params) => (
-                    <TextField {...params} label="Add Subdivision Groups" />
-                  )}
-                  fullWidth
-                />
-
-                {/* Classrooms Selection */}
-                <form.Field name="classroomIds">
-                  {(field) => (
-                    <Autocomplete
-                      multiple
-                      options={classrooms}
-                      getOptionLabel={(option) =>
-                        typeof option === "string" ? option : option.name
-                      }
-                      value={classrooms.filter((c) =>
-                        form.state.values.classroomIds.includes(c.id),
-                      )}
-                      onChange={(_, newValue) => {
-                        field.handleChange(newValue.map((v) => v.id));
-                      }}
-                      renderInput={(params) => (
-                        <TextField {...params} label="Classrooms" />
-                      )}
-                      fullWidth
-                      isOptionEqualToValue={(option, value) =>
-                        option.id === value.id
-                      }
-                    />
-                  )}
-                </form.Field>
-
-                <form.Field
-                  name="count"
-                  validators={{
-                    onChange: ({ value }) =>
-                      value < 1 ? "Count must be at least 1" : undefined,
-                  }}
-                  children={(field) => (
-                    <TextField
-                      fullWidth
-                      label="Count"
-                      type="number"
-                      value={field.state.value}
-                      onChange={(e) =>
-                        field.handleChange(parseInt(e.target.value) || 1)
-                      }
-                      onBlur={field.handleBlur}
-                      error={
-                        field.state.meta.isTouched &&
-                        field.state.meta.errors.length > 0
-                      }
-                      helperText={
-                        field.state.meta.isTouched &&
-                        field.state.meta.errors.length
-                          ? field.state.meta.errors.join(", ")
-                          : "Number of times this lecture occurs"
-                      }
-                      inputProps={{ min: 1 }}
-                    />
-                  )}
-                />
-
-                <form.Field
-                  name="duration"
-                  validators={{
-                    onChange: ({ value }) =>
-                      value < 1
-                        ? "Duration must be at least 1 slot"
-                        : undefined,
-                  }}
-                  children={(field) => (
-                    <TextField
-                      fullWidth
-                      label="Duration (slots)"
-                      type="number"
-                      value={field.state.value}
-                      onChange={(e) =>
-                        field.handleChange(parseInt(e.target.value) || 1)
-                      }
-                      onBlur={field.handleBlur}
-                      error={
-                        field.state.meta.isTouched &&
-                        field.state.meta.errors.length > 0
-                      }
-                      helperText={
-                        field.state.meta.isTouched &&
-                        field.state.meta.errors.length
-                          ? field.state.meta.errors.join(", ")
-                          : "Number of time slots this lecture occupies"
-                      }
-                      inputProps={{ min: 1 }}
-                    />
-                  )}
-                />
-
-                <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
-                  <form.Subscribe
-                    selector={(state) => [state.canSubmit, state.isSubmitting]}
-                    children={([canSubmit, isSubmitting]) => (
-                      <Button
-                        type="submit"
-                        variant="contained"
-                        disabled={!canSubmit}
-                        startIcon={editingId ? <EditIcon /> : <AddIcon />}
-                      >
-                        {isSubmitting
-                          ? "Saving..."
-                          : editingId
-                            ? "Update"
-                            : "Add Lecture"}
-                      </Button>
+                  sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+                >
+                  <form.Field
+                    name="teacherId"
+                    validators={{
+                      onChange: ({ value }) =>
+                        !value ? "Teacher is required" : undefined,
+                    }}
+                    children={(field) => (
+                      <Autocomplete
+                        options={teachers}
+                        getOptionLabel={(option) =>
+                          typeof option === "string"
+                            ? option
+                            : `${option.name} (${option.email})`
+                        }
+                        value={
+                          teachers.find((t) => t.id === field.state.value) ||
+                          null
+                        }
+                        onChange={(_, newValue) => {
+                          field.handleChange(newValue?.id || "");
+                        }}
+                        onBlur={field.handleBlur}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Teacher"
+                            error={
+                              field.state.meta.isTouched &&
+                              field.state.meta.errors.length > 0
+                            }
+                            helperText={
+                              field.state.meta.isTouched &&
+                              field.state.meta.errors.length
+                                ? field.state.meta.errors.join(", ")
+                                : ""
+                            }
+                          />
+                        )}
+                        fullWidth
+                        isOptionEqualToValue={(option, value) =>
+                          option.id === value.id
+                        }
+                      />
                     )}
                   />
 
-                  {editingId && (
-                    <Button variant="outlined" onClick={cancelEdit}>
-                      Cancel
-                    </Button>
-                  )}
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
+                  <form.Field
+                    name="subjectId"
+                    validators={{
+                      onChange: ({ value }) =>
+                        !value ? "Subject is required" : undefined,
+                    }}
+                    children={(field) => (
+                      <Autocomplete
+                        options={subjects}
+                        getOptionLabel={(option) =>
+                          typeof option === "string" ? option : option.name
+                        }
+                        value={
+                          subjects.find((s) => s.id === field.state.value) ||
+                          null
+                        }
+                        onChange={(_, newValue) => {
+                          field.handleChange(newValue?.id || "");
+                        }}
+                        onBlur={field.handleBlur}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Subject"
+                            error={
+                              field.state.meta.isTouched &&
+                              field.state.meta.errors.length > 0
+                            }
+                            helperText={
+                              field.state.meta.isTouched &&
+                              field.state.meta.errors.length
+                                ? field.state.meta.errors.join(", ")
+                                : ""
+                            }
+                          />
+                        )}
+                        fullWidth
+                        isOptionEqualToValue={(option, value) =>
+                          option.id === value.id
+                        }
+                      />
+                    )}
+                  />
 
-          {/* Lectures List */}
-          <LectureList handleEdit={handleEdit} handleDelete={handleDelete} />
+                  {/* Subdivisions Selection */}
+                  <form.Field name="subdivisionIds">
+                    {(field) => (
+                      <Autocomplete
+                        multiple
+                        options={subdivisions}
+                        getOptionLabel={(option) =>
+                          typeof option === "string" ? option : option.name
+                        }
+                        value={subdivisions.filter((s) =>
+                          field.state.value.includes(s.id),
+                        )}
+                        onChange={(_, newValue) => {
+                          field.handleChange(newValue.map((v) => v.id));
+                        }}
+                        renderInput={(params) => (
+                          <TextField {...params} label="Subdivisions" />
+                        )}
+                        fullWidth
+                        isOptionEqualToValue={(option, value) =>
+                          option.id === value.id
+                        }
+                      />
+                    )}
+                  </form.Field>
+
+                  {/* Subdivision Groups Selection */}
+                  <Autocomplete
+                    multiple
+                    options={groupNames}
+                    value={[]}
+                    onChange={(_, selectedGroups) => {
+                      // Get current subdivision IDs
+                      const currentSubdivisionIds =
+                        form.state.values.subdivisionIds;
+
+                      // Get subdivision IDs from selected groups
+                      const newSubdivisionIds = selectedGroups.flatMap(
+                        (groupName) =>
+                          groupNameToSubdivisionIds[groupName] || [],
+                      );
+
+                      // Combine and deduplicate
+                      const combinedSubdivisionIds = [
+                        ...new Set([
+                          ...currentSubdivisionIds,
+                          ...newSubdivisionIds,
+                        ]),
+                      ];
+
+                      // Update the form field
+                      form.setFieldValue(
+                        "subdivisionIds",
+                        combinedSubdivisionIds,
+                      );
+                    }}
+                    renderInput={(params) => (
+                      <TextField {...params} label="Add Subdivision Groups" />
+                    )}
+                    fullWidth
+                  />
+
+                  {/* Classrooms Selection */}
+                  <form.Field name="classroomIds">
+                    {(field) => (
+                      <Autocomplete
+                        multiple
+                        options={classrooms}
+                        getOptionLabel={(option) =>
+                          typeof option === "string" ? option : option.name
+                        }
+                        value={classrooms.filter((c) =>
+                          form.state.values.classroomIds.includes(c.id),
+                        )}
+                        onChange={(_, newValue) => {
+                          field.handleChange(newValue.map((v) => v.id));
+                        }}
+                        renderInput={(params) => (
+                          <TextField {...params} label="Classrooms" />
+                        )}
+                        fullWidth
+                        isOptionEqualToValue={(option, value) =>
+                          option.id === value.id
+                        }
+                      />
+                    )}
+                  </form.Field>
+
+                  <form.Field
+                    name="count"
+                    validators={{
+                      onChange: ({ value }) =>
+                        value < 1 ? "Count must be at least 1" : undefined,
+                    }}
+                    children={(field) => (
+                      <TextField
+                        fullWidth
+                        label="Count"
+                        type="number"
+                        value={field.state.value}
+                        onChange={(e) =>
+                          field.handleChange(parseInt(e.target.value) || 1)
+                        }
+                        onBlur={field.handleBlur}
+                        error={
+                          field.state.meta.isTouched &&
+                          field.state.meta.errors.length > 0
+                        }
+                        helperText={
+                          field.state.meta.isTouched &&
+                          field.state.meta.errors.length
+                            ? field.state.meta.errors.join(", ")
+                            : "Number of times this lecture occurs"
+                        }
+                        inputProps={{ min: 1 }}
+                      />
+                    )}
+                  />
+
+                  <form.Field
+                    name="duration"
+                    validators={{
+                      onChange: ({ value }) =>
+                        value < 1
+                          ? "Duration must be at least 1 slot"
+                          : undefined,
+                    }}
+                    children={(field) => (
+                      <TextField
+                        fullWidth
+                        label="Duration (slots)"
+                        type="number"
+                        value={field.state.value}
+                        onChange={(e) =>
+                          field.handleChange(parseInt(e.target.value) || 1)
+                        }
+                        onBlur={field.handleBlur}
+                        error={
+                          field.state.meta.isTouched &&
+                          field.state.meta.errors.length > 0
+                        }
+                        helperText={
+                          field.state.meta.isTouched &&
+                          field.state.meta.errors.length
+                            ? field.state.meta.errors.join(", ")
+                            : "Number of time slots this lecture occupies"
+                        }
+                        inputProps={{ min: 1 }}
+                      />
+                    )}
+                  />
+
+                  <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
+                    <form.Subscribe
+                      selector={(state) => [
+                        state.canSubmit,
+                        state.isSubmitting,
+                      ]}
+                      children={([canSubmit, isSubmitting]) => (
+                        <Button
+                          type="submit"
+                          variant="contained"
+                          disabled={!canSubmit}
+                          startIcon={editingId ? <EditIcon /> : <AddIcon />}
+                        >
+                          {isSubmitting
+                            ? "Saving..."
+                            : editingId
+                              ? "Update"
+                              : "Add Lecture"}
+                        </Button>
+                      )}
+                    />
+
+                    {editingId && (
+                      <Button variant="outlined" onClick={cancelEdit}>
+                        Cancel
+                      </Button>
+                    )}
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+
+            {/* Lectures List */}
+            <LectureList handleEdit={handleEdit} handleDelete={handleDelete} />
+          </Box>
         </>
       )}
     </Container>

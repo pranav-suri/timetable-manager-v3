@@ -48,7 +48,13 @@ export function LectureList({
         </Typography>
 
         {lectures.length > 0 ? (
-          <List>
+          <List
+            sx={{
+              maxHeight: "600px",
+              overflowY: "auto",
+              overflowX: "hidden",
+            }}
+          >
             {lectures.map((lecture) => (
               <LectureItem
                 key={lecture.id}
