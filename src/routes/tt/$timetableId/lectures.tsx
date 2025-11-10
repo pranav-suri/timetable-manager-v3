@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { nanoid } from "nanoid";
-import { useLiveQuery } from "@tanstack/react-db";
+import { eq, useLiveQuery } from "@tanstack/react-db";
 import { useForm } from "@tanstack/react-form";
 import {
   Autocomplete,
@@ -160,6 +160,8 @@ function useLectureHandlers(collections: Collections) {
     handleDelete,
     cancelEdit,
     editingId,
+    insertLecture,
+    updateLecture,
   };
 }
 
@@ -174,6 +176,8 @@ function RouteComponent() {
     handleDelete,
     cancelEdit,
     editingId,
+    insertLecture,
+    updateLecture,
   } = useLectureHandlers(collections);
   const { timetableId } = Route.useParams();
   const { lectureCollection, subdivisionGroupTempCollection } = collections;
@@ -181,6 +185,41 @@ function RouteComponent() {
   const { data: lectures } = useLiveQuery(
     (q) => q.from({ lectureCollection }),
     [lectureCollection],
+  );
+
+  // Fetch lecture relationships for batch edit grid
+  const { data: lectureClassroomsData } = useLiveQuery(
+    (q) =>
+      q
+        .from({ lectureClassroom: collections.lectureClassroomCollection })
+        .innerJoin(
+          { classroom: collections.classroomCollection },
+          ({ lectureClassroom, classroom }) =>
+            eq(lectureClassroom.classroomId, classroom.id),
+        )
+        .select(({ lectureClassroom, classroom }) => ({
+          lectureId: lectureClassroom.lectureId,
+          classroomId: lectureClassroom.classroomId,
+          classroomName: classroom.name,
+        })),
+    [collections.lectureClassroomCollection, collections.classroomCollection],
+  );
+
+  const { data: lectureSubdivisionsData } = useLiveQuery(
+    (q) =>
+      q
+        .from({ lectureSubdivision: collections.lectureSubdivisionCollection })
+        .innerJoin(
+          { subdivision: collections.subdivisionCollection },
+          ({ lectureSubdivision, subdivision }) =>
+            eq(lectureSubdivision.subdivisionId, subdivision.id),
+        )
+        .select(({ lectureSubdivision, subdivision }) => ({
+          lectureId: lectureSubdivision.lectureId,
+          subdivisionId: lectureSubdivision.subdivisionId,
+          subdivisionName: subdivision.name,
+        })),
+    [collections.lectureSubdivisionCollection, collections.subdivisionCollection],
   );
   const { data: subdivisionGroupsComplete } = useLiveQuery(
     (q) => q.from({ subdivisionGroupTempCollection }),
@@ -207,6 +246,16 @@ function RouteComponent() {
   const subjectOptions = subjects.map((subject) => ({
     label: subject.name,
     value: subject.id,
+  }));
+
+  const classroomOptions = classrooms.map((classroom) => ({
+    label: classroom.name,
+    value: classroom.id,
+  }));
+
+  const subdivisionOptions = subdivisions.map((subdivision) => ({
+    label: subdivision.name,
+    value: subdivision.id,
   }));
 
   const lectureColumns = [
@@ -243,6 +292,18 @@ function RouteComponent() {
         typeof value === "number" && value >= 1
           ? undefined
           : "Duration must be at least 1 slot.",
+    },
+    {
+      data: "classroomName",
+      type: "dropdown",
+      header: "Classroom",
+      options: classroomOptions,
+    },
+    {
+      data: "subdivisionName",
+      type: "dropdown",
+      header: "Subdivision",
+      options: subdivisionOptions,
     },
   ] satisfies LectureColumnConfig[];
 
@@ -282,6 +343,10 @@ function RouteComponent() {
             createdAt: new Date(),
           })}
           collection={lectureCollection}
+          lectureClassrooms={lectureClassroomsData}
+          lectureSubdivisions={lectureSubdivisionsData}
+          onInsertLecture={insertLecture}
+          onUpdateLecture={updateLecture}
         />
       ) : (
         <>
