@@ -236,6 +236,7 @@ export interface LookupMaps {
 
   // Slot mapping
   slotIdToSlot: Map<string, GASlot>; // slotId -> GASlot
+  slotToNextSlotId: Map<string, string | undefined>; // slotId -> next consecutive slotId (if any)
   slotLinearization: Map<string, number>; // slotId -> linearized index
   linearToSlotId: Map<number, string>; // linearized index -> slotId
 
@@ -456,6 +457,12 @@ export interface MultiThreadedGAConfig {
   /** Selection strategy for migration: 'best' | 'random' | 'diverse' */
   migrationStrategy: "best" | "random" | "diverse";
 }
+
+/**
+ * Represents the full occupancy of a timeslot, including lectures that
+ * started in previous slots but extend into this one.
+ */
+export type SlotOccupancyMap = Map<string, Gene[]>;
 
 /**
  * Partial configuration for user-provided overrides.

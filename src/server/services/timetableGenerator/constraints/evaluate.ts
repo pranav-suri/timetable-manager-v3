@@ -1,4 +1,5 @@
 import { SoftConstraintType } from "../types";
+import { buildSlotOccupancyMap } from "./utils";
 import { checkConsecutiveSlots } from "./hard/consecutiveSlots";
 import { checkLockedSlots } from "./hard/lockedSlots";
 import { checkRoomCapacity } from "./hard/roomCapacity";
@@ -31,16 +32,18 @@ export function evaluateChromosome(
   inputData: GAInputData,
   weights: ConstraintWeights,
 ): FitnessResult {
+  // Build a map of all slots and the genes that occupy them, accounting for duration.
+  const slotOccupancyMap = buildSlotOccupancyMap(chromosome, inputData);
+
   // Check all hard constraints
   const hardViolations: HardViolation[] = [
-    ...checkTeacherClash(chromosome, inputData),
-    ...checkSubdivisionClash(chromosome, inputData),
-    ...checkRoomClash(chromosome, inputData),
+    ...checkTeacherClash(slotOccupancyMap, chromosome, inputData),
+    ...checkSubdivisionClash(slotOccupancyMap, chromosome, inputData),
+    ...checkRoomClash(slotOccupancyMap, chromosome, inputData),
     ...checkTeacherUnavailability(chromosome, inputData),
     ...checkSubdivisionUnavailability(chromosome, inputData),
     ...checkRoomUnavailability(chromosome, inputData),
     ...checkRoomCapacity(chromosome, inputData),
-    // checkAllowedClassroom REMOVED - classrooms are now immutable per lecture
     ...checkConsecutiveSlots(chromosome, inputData),
     ...checkLockedSlots(chromosome, inputData),
   ];

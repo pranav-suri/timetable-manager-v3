@@ -1,4 +1,4 @@
-import { HardConstraintType } from "../../types";
+import { HardConstraintType, SlotOccupancyMap } from "../../types";
 import type { Chromosome, GAInputData, HardViolation } from "../../types";
 
 /**
@@ -10,25 +10,21 @@ import type { Chromosome, GAInputData, HardViolation } from "../../types";
  * - Only violations occur when:
  *   1. Non-elective lectures overlap (allowSimultaneous = false)
  *   2. Elective lectures from different groups overlap in the same slot
+ *
+ * This version uses a pre-computed slotOccupancyMap that accounts for lecture duration.
  */
 export function checkSubdivisionClash(
+  slotOccupancyMap: SlotOccupancyMap,
   chromosome: Chromosome,
   inputData: GAInputData,
 ): HardViolation[] {
   const violations: HardViolation[] = [];
   const { lookupMaps, subdivisions } = inputData;
 
-  // Group genes by timeslot
-  const slotToGenes = new Map<string, number[]>();
-  chromosome.forEach((gene, index) => {
-    if (!slotToGenes.has(gene.timeslotId)) {
-      slotToGenes.set(gene.timeslotId, []);
-    }
-    slotToGenes.get(gene.timeslotId)!.push(index);
-  });
+  // Check each timeslot for subdivision conflicts using the occupancy map
+  for (const [slotId, occupyingGenes] of slotOccupancyMap) {
+    if (occupyingGenes.length <= 1) continue; // No possible clash if only one gene occupies the slot
 
-  // Check each timeslot for subdivision conflicts
-  for (const [slotId, geneIndices] of slotToGenes) {
     // Group by subdivision, then by allowSimultaneous status, then by groupId
     const subdivisionData = new Map<
       string,
@@ -39,10 +35,7 @@ export function checkSubdivisionClash(
     >();
 
     // Build the structure
-    for (const geneIndex of geneIndices) {
-      const gene = chromosome[geneIndex];
-      if (!gene) continue;
-
+    for (const gene of occupyingGenes) {
       const lecture = lookupMaps.eventToLecture.get(gene.lectureEventId);
       if (!lecture) continue;
 
@@ -66,10 +59,18 @@ export function checkSubdivisionClash(
           if (!data.electiveByGroup.has(groupId)) {
             data.electiveByGroup.set(groupId, []);
           }
-          data.electiveByGroup.get(groupId)!.push(geneIndex);
+
+          // Find the original index of this gene in the chromosome
+          const geneIndex = chromosome.findIndex(cGene => cGene.lectureEventId === gene.lectureEventId);
+          if (geneIndex !== -1) {
+            data.electiveByGroup.get(groupId)!.push(geneIndex);
+          }
         } else {
           // Non-elective
-          data.nonElectiveIndices.push(geneIndex);
+          const geneIndex = chromosome.findIndex(cGene => cGene.lectureEventId === gene.lectureEventId);
+          if (geneIndex !== -1) {
+            data.nonElectiveIndices.push(geneIndex);
+          }
         }
       }
     }
@@ -84,7 +85,7 @@ export function checkSubdivisionClash(
           type: HardConstraintType.SUBDIVISION_CLASH,
           geneIndices: data.nonElectiveIndices,
           severity: data.nonElectiveIndices.length,
-          description: `Subdivision ${subdivision?.name || subdivisionId} has ${data.nonElectiveIndices.length} overlapping non-elective lectures in slot ${slotId}`,
+          description: `Subdivision ${subdivision?.name || subdivisionId} has ${data.nonElectiveIndices.length} overlapping non-elective lectures in slot ${slotId} (duration accounted for)`,
           entityIds: [subdivisionId, slotId],
         });
       }
@@ -100,7 +101,7 @@ export function checkSubdivisionClash(
           type: HardConstraintType.SUBDIVISION_CLASH,
           geneIndices: allIndices,
           severity: allIndices.length,
-          description: `Subdivision ${subdivision?.name || subdivisionId} has non-elective and elective lectures overlapping in slot ${slotId}`,
+          description: `Subdivision ${subdivision?.name || subdivisionId} has non-elective and elective lectures overlapping in slot ${slotId} (duration accounted for)`,
           entityIds: [subdivisionId, slotId],
         });
       }
@@ -118,7 +119,7 @@ export function checkSubdivisionClash(
           type: HardConstraintType.SUBDIVISION_CLASH,
           geneIndices: allElectiveIndices,
           severity: allElectiveIndices.length,
-          description: `Subdivision ${subdivision?.name || subdivisionId} has elective lectures from ${data.electiveByGroup.size} different groups overlapping in slot ${slotId}`,
+          description: `Subdivision ${subdivision?.name || subdivisionId} has elective lectures from ${data.electiveByGroup.size} different groups overlapping in slot ${slotId} (duration accounted for)`,
           entityIds: [subdivisionId, slotId],
         });
       }

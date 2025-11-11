@@ -1,10 +1,5 @@
 import { HardConstraintType } from "../../types";
-import type {
-  Chromosome,
-  GAInputData,
-  GASlot,
-  HardViolation,
-} from "../../types";
+import type { Chromosome, GAInputData, HardViolation } from "../../types";
 
 /**
  * Check for consecutive slots constraint: multi-slot lectures must be in consecutive periods.
@@ -43,36 +38,27 @@ export function checkConsecutiveSlots(
     for (const geneIndex of geneIndices) {
       const gene = chromosome[geneIndex];
       if (!gene) continue;
-      const slot = lookupMaps.slotIdToSlot.get(gene.timeslotId);
-      if (!slot) continue;
 
-      // Check if there are enough consecutive slots available
-      const requiredSlots: GASlot[] = [slot];
-      let currentSlot = slot;
-      let allConsecutive = true;
+      // Use pre-calculated slotToNextSlotId map for O(1) consecutive slot lookup
+      let currentSlotId: string | undefined = gene.timeslotId;
+      let consecutiveCount = 1;
 
+      // Check if we can traverse lecture.duration consecutive slots
       for (let i = 1; i < lecture.duration; i++) {
-        // Find next consecutive slot (same day, next period)
-        const nextSlot = Array.from(lookupMaps.slotIdToSlot.values()).find(
-          (s) =>
-            s.day === currentSlot.day && s.number === currentSlot.number + 1,
-        );
-
-        if (!nextSlot) {
-          allConsecutive = false;
+        currentSlotId = lookupMaps.slotToNextSlotId.get(currentSlotId);
+        if (currentSlotId === undefined) {
+          // Not enough consecutive slots available
           break;
         }
-
-        requiredSlots.push(nextSlot);
-        currentSlot = nextSlot;
+        consecutiveCount++;
       }
 
-      if (!allConsecutive) {
+      if (consecutiveCount < lecture.duration) {
         violations.push({
           type: HardConstraintType.CONSECUTIVE_SLOTS,
           geneIndices: [geneIndex],
           severity: lecture.duration,
-          description: `Lecture ${lectureId} requires ${lecture.duration} consecutive slots but slot ${gene.timeslotId} doesn't have enough consecutive periods`,
+          description: `Lecture ${lectureId} requires ${lecture.duration} consecutive slots but slot ${gene.timeslotId} only has ${consecutiveCount} consecutive period(s) available`,
           entityIds: [lectureId, gene.timeslotId],
         });
       }

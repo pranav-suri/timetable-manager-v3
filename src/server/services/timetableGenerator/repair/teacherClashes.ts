@@ -1,4 +1,5 @@
 import { checkTeacherClash } from "../constraints";
+import { buildSlotOccupancyMap } from "../constraints/utils";
 import { MAX_REPAIR_ATTEMPTS } from "./constants";
 import { findValidSlotForGene } from "./helpers";
 import type { Chromosome, GAInputData } from "../types";
@@ -8,7 +9,8 @@ export function repairTeacherClashes(
   inputData: GAInputData,
 ): Chromosome {
   let attempts = 0;
-  let violations = checkTeacherClash(chromosome, inputData);
+  const slotOccupancyMap = buildSlotOccupancyMap(chromosome, inputData);
+  let violations = checkTeacherClash(slotOccupancyMap, chromosome, inputData);
 
   while (violations.length > 0 && attempts < MAX_REPAIR_ATTEMPTS) {
     const violation = violations[0]!; // Fix first violation
@@ -30,7 +32,8 @@ export function repairTeacherClashes(
     }
 
     attempts++;
-    violations = checkTeacherClash(chromosome, inputData);
+    const updatedOccupancyMap = buildSlotOccupancyMap(chromosome, inputData);
+    violations = checkTeacherClash(updatedOccupancyMap, chromosome, inputData);
   }
 
   return chromosome;

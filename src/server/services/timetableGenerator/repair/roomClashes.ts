@@ -1,4 +1,5 @@
 import { checkRoomClash } from "../constraints";
+import { buildSlotOccupancyMap } from "../constraints/utils";
 import { MAX_REPAIR_ATTEMPTS } from "./constants";
 import { findValidSlotForGene } from "./helpers";
 import type { Chromosome, GAInputData } from "../types";
@@ -8,7 +9,8 @@ export function repairRoomClashes(
   inputData: GAInputData,
 ): Chromosome {
   let attempts = 0;
-  let violations = checkRoomClash(chromosome, inputData);
+  const slotOccupancyMap = buildSlotOccupancyMap(chromosome, inputData);
+  let violations = checkRoomClash(slotOccupancyMap, chromosome, inputData);
 
   while (violations.length > 0 && attempts < MAX_REPAIR_ATTEMPTS) {
     const violation = violations[0]!;
@@ -28,7 +30,8 @@ export function repairRoomClashes(
     }
 
     attempts++;
-    violations = checkRoomClash(chromosome, inputData);
+    const updatedOccupancyMap = buildSlotOccupancyMap(chromosome, inputData);
+    violations = checkRoomClash(updatedOccupancyMap, chromosome, inputData);
   }
 
   return chromosome;

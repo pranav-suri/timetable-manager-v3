@@ -1,34 +1,27 @@
-import { HardConstraintType } from "../../types";
+import { HardConstraintType, SlotOccupancyMap } from "../../types";
 import type { Chromosome, GAInputData, HardViolation } from "../../types";
 
 /**
  * Check for teacher clash: teacher assigned to multiple lectures simultaneously.
  * HC1 from research Section 1.2.1
+ * This version uses a pre-computed slotOccupancyMap that accounts for lecture duration.
  */
 export function checkTeacherClash(
+  slotOccupancyMap: SlotOccupancyMap,
   chromosome: Chromosome,
   inputData: GAInputData,
 ): HardViolation[] {
   const violations: HardViolation[] = [];
   const { lookupMaps } = inputData;
 
-  // Group genes by timeslot for efficient checking
-  const slotToGenes = new Map<string, number[]>();
-  chromosome.forEach((gene, index) => {
-    if (!slotToGenes.has(gene.timeslotId)) {
-      slotToGenes.set(gene.timeslotId, []);
-    }
-    slotToGenes.get(gene.timeslotId)!.push(index);
-  });
+  // Check each timeslot for teacher conflicts using the occupancy map
+  for (const [slotId, occupyingGenes] of slotOccupancyMap) {
+    if (occupyingGenes.length <= 1) continue; // No possible clash if only one gene occupies the slot
 
-  // Check each timeslot for teacher conflicts
-  for (const [slotId, geneIndices] of slotToGenes) {
     const teacherToGenes = new Map<string, number[]>();
 
     // Group genes in this slot by teacher
-    for (const geneIndex of geneIndices) {
-      const gene = chromosome[geneIndex];
-      if (!gene) continue;
+    for (const gene of occupyingGenes) {
       const lecture = lookupMaps.eventToLecture.get(gene.lectureEventId);
       if (!lecture) continue;
 
@@ -36,7 +29,12 @@ export function checkTeacherClash(
       if (!teacherToGenes.has(teacherId)) {
         teacherToGenes.set(teacherId, []);
       }
-      teacherToGenes.get(teacherId)!.push(geneIndex);
+
+      // Find the original index of this gene in the chromosome
+      const geneIndex = chromosome.findIndex(cGene => cGene.lectureEventId === gene.lectureEventId);
+      if (geneIndex !== -1) {
+        teacherToGenes.get(teacherId)!.push(geneIndex);
+      }
     }
 
     // Report violations for teachers with multiple assignments
@@ -47,7 +45,7 @@ export function checkTeacherClash(
           type: HardConstraintType.TEACHER_CLASH,
           geneIndices: indices,
           severity: indices.length, // More clashes = higher severity
-          description: `Teacher ${teacher?.name || teacherId} assigned to ${indices.length} lectures simultaneously in slot ${slotId}`,
+          description: `Teacher ${teacher?.name || teacherId} assigned to ${indices.length} lectures simultaneously in slot ${slotId} (duration accounted for)`,
           entityIds: [teacherId, slotId],
         });
       }

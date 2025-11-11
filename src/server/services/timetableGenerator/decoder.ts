@@ -8,6 +8,8 @@ import type { Prisma } from "generated/prisma/client";
 
 /**
  * Converts a chromosome into an array of LectureSlot create data objects.
+ * This function now handles multi-duration lectures by creating a separate
+ * LectureSlot record for each slot the lecture occupies.
  * @param chromosome The chromosome to convert.
  * @param inputData The GA input data containing lookup maps.
  * @returns An array of objects for Prisma's `createMany`.
@@ -16,21 +18,44 @@ export function chromosomeToLectureSlots(
   chromosome: Chromosome,
   inputData: GAInputData,
 ): Prisma.LectureSlotCreateManyInput[] {
-  return chromosome.map((gene) => {
+  return chromosome.flatMap((gene) => {
     const lecture = inputData.lookupMaps.eventToLecture.get(
       gene.lectureEventId,
     );
     if (!lecture) {
-      // This should ideally not happen if data is consistent
       throw new Error(
         `Could not find lecture for event ${gene.lectureEventId}`,
       );
     }
-    return {
-      lectureId: lecture.id,
-      slotId: gene.timeslotId,
-      isLocked: gene.isLocked,
-    };
+
+    const lectureSlotsForGene: Prisma.LectureSlotCreateManyInput[] = [];
+    let currentSlotId: string | undefined = gene.timeslotId;
+
+    // Create a LectureSlot record for each slot occupied by the lecture's duration
+    for (let i = 0; i < gene.duration; i++) {
+      // If we run out of consecutive slots (e.g., end of day, or a broken solution), stop.
+      if (!currentSlotId) {
+        console.warn(
+          `Lecture event ${gene.lectureEventId} with duration ${gene.duration} ran out of consecutive slots. Only creating ${i} records. This may indicate an infeasible solution was saved.`,
+        );
+        break;
+      }
+
+      // The first slot's isLocked status is determined by the gene.
+      // Subsequent slots are implicitly part of the same event and are considered unlocked.
+      const isLockedForThisSlot = i === 0 ? gene.isLocked : false;
+
+      lectureSlotsForGene.push({
+        lectureId: lecture.id,
+        slotId: currentSlotId,
+        isLocked: isLockedForThisSlot,
+      });
+
+      // Move to the next consecutive slot for the next iteration.
+      currentSlotId = inputData.lookupMaps.slotToNextSlotId.get(currentSlotId);
+    }
+
+    return lectureSlotsForGene;
   });
 }
 
