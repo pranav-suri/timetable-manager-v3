@@ -1,12 +1,22 @@
 import type { Chromosome, GAInputData, Gene } from "../types";
+import { SlotOccupancyTracker } from "../utils/slotOccupancy";
+import {
+  findAllConsecutiveSlots,
+  getConsecutiveBlockFromStart,
+} from "../utils/slotUtils";
 
 /**
- * Initialize a single chromosome using greedy heuristic.
+ * Initialize a single chromosome using greedy heuristic with multi-duration awareness.
+ *
+ * Key improvements:
+ * 1. Uses SlotOccupancyMap for O(1) conflict checking instead of O(n²) iteration
+ * 2. Treats multi-duration lectures as atomic blocks
+ * 3. Finds valid consecutive slot blocks for lectures with duration > 1
  */
 export function initializeHeuristicChromosome(
   inputData: GAInputData,
 ): Chromosome {
-  const { eventIds, lookupMaps, slots } = inputData;
+  const { eventIds, lookupMaps } = inputData;
 
   // Create event metadata for sorting
   interface EventMeta {
@@ -28,12 +38,15 @@ export function initializeHeuristicChromosome(
     };
   });
 
-  // Sort by constraints: locked first, then by duration
+  // Sort by constraints: locked first, then by duration (longer first)
   eventMetas.sort((a, b) => {
     if (a.isLocked && !b.isLocked) return -1;
     if (!a.isLocked && b.isLocked) return 1;
     return b.lecture.duration - a.lecture.duration;
   });
+
+  // Initialize occupancy tracker for O(1) conflict checking
+  const occupancyTracker = new SlotOccupancyTracker(inputData);
 
   // Initialize partial chromosome with same order as eventIds
   const geneMap = new Map<string, Gene>();
@@ -48,16 +61,34 @@ export function initializeHeuristicChromosome(
     if (lockedAssignment) {
       // Use locked assignment
       timeslotId = lockedAssignment.slotId;
+
+      // Verify it's a valid block start for multi-duration lectures
+      const block = getConsecutiveBlockFromStart(
+        timeslotId,
+        lecture.duration,
+        inputData,
+      );
+
+      if (!block) {
+        // Locked slot is invalid for this duration, fall back to finding a valid block
+        console.warn(
+          `Locked slot ${timeslotId} is invalid for lecture ${lecture.id} with duration ${lecture.duration}`,
+        );
+        timeslotId = findBestBlockForEvent(
+          eventId,
+          lecture,
+          occupancyTracker,
+          inputData,
+        );
+      }
     } else {
-      // Heuristic: find slot with minimal conflicts
-      const bestSlot = findBestSlotForEvent(
+      // Heuristic: find best consecutive block with minimal conflicts
+      timeslotId = findBestBlockForEvent(
         eventId,
         lecture,
-        Array.from(geneMap.values()),
-        slots,
-        lookupMaps,
+        occupancyTracker,
+        inputData,
       );
-      timeslotId = bestSlot;
     }
 
     const gene: Gene = {
@@ -69,6 +100,19 @@ export function initializeHeuristicChromosome(
     };
 
     geneMap.set(eventId, gene);
+
+    // Update occupancy tracker with this placement
+    const block = getConsecutiveBlockFromStart(
+      timeslotId,
+      lecture.duration,
+      inputData,
+    );
+    if (block) {
+      occupancyTracker.addBlock(gene, block);
+    } else {
+      // Fallback: just add the single slot (shouldn't happen if findBestBlockForEvent works)
+      occupancyTracker.addGene(gene);
+    }
   }
 
   // Convert map back to ordered array
@@ -80,64 +124,45 @@ export function initializeHeuristicChromosome(
 }
 
 /**
- * Find the best slot for an event by minimizing conflicts with already-scheduled genes.
+ * Find the best consecutive block for an event by minimizing conflicts.
+ * Uses SlotOccupancyTracker for O(1) conflict checking (vs. O(n²) in old implementation).
+ *
+ * @param eventId - The event ID to schedule
+ * @param lecture - The lecture data
+ * @param occupancyTracker - Current slot occupancy state
+ * @param inputData - The GA input data
+ * @returns The starting slot ID of the best block
  */
-function findBestSlotForEvent(
+function findBestBlockForEvent(
   eventId: string,
   lecture: GAInputData["lectures"][0],
-  scheduledGenes: Gene[],
-  slots: GAInputData["slots"],
-  lookupMaps: GAInputData["lookupMaps"],
+  occupancyTracker: SlotOccupancyTracker,
+  inputData: GAInputData,
 ): string {
-  const teacherId = lecture.teacherId;
-  const subdivisionIds = lookupMaps.eventToSubdivisions.get(eventId) || [];
+  // Find all valid consecutive blocks for this lecture's duration
+  const allBlocks = findAllConsecutiveSlots(lecture.duration, inputData);
 
-  // Count conflicts for each slot
-  const slotConflicts = new Map<string, number>();
-
-  for (const slot of slots) {
-    let conflicts = 0;
-
-    // Check for conflicts with already-scheduled genes in this slot
-    for (const gene of scheduledGenes) {
-      if (gene.timeslotId === slot.id) {
-        const otherLecture = lookupMaps.eventToLecture.get(gene.lectureEventId);
-        if (!otherLecture) continue;
-
-        // Teacher conflict
-        if (otherLecture.teacherId === teacherId) {
-          conflicts += 10; // High penalty for teacher clash
-        }
-
-        // Subdivision conflict
-        const otherSubdivisions = lookupMaps.eventToSubdivisions.get(
-          gene.lectureEventId,
-        );
-        if (otherSubdivisions) {
-          const hasOverlap = subdivisionIds.some((sid) =>
-            otherSubdivisions.includes(sid),
-          );
-          if (hasOverlap) {
-            conflicts += 10; // High penalty for subdivision clash
-          }
-        }
-      }
-    }
-
-    slotConflicts.set(slot.id, conflicts);
+  if (allBlocks.length === 0) {
+    // No valid blocks found, fallback to first slot
+    console.warn(
+      `No valid consecutive blocks for lecture ${lecture.id} with duration ${lecture.duration}`,
+    );
+    return inputData.slots[0]!.id;
   }
 
-  // Find slot with minimum conflicts
-  let bestSlotId = slots[0]!.id;
-  let minConflicts = slotConflicts.get(bestSlotId) || 0;
+  // Use occupancy tracker to find blocks with fewest conflicts (O(1) per block check)
+  const validBlocks = occupancyTracker.findValidBlocks(
+    lecture,
+    eventId,
+    allBlocks,
+  );
 
-  for (const slot of slots) {
-    const conflicts = slotConflicts.get(slot.id) || 0;
-    if (conflicts < minConflicts) {
-      minConflicts = conflicts;
-      bestSlotId = slot.id;
-    }
+  if (validBlocks.length > 0) {
+    // Return the best block (fewest conflicts)
+    return validBlocks[0]!.startSlotId;
   }
 
-  return bestSlotId;
+  // No conflict-free blocks found, use the first available block
+  // (repair will fix conflicts later)
+  return allBlocks[0]!.startSlotId;
 }
