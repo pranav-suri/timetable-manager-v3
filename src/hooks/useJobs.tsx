@@ -34,7 +34,10 @@ export function useJobs(timetableId: string) {
         const result = await trpcClient.generate.status.query({ jobId });
 
         // If job status changed to completed/failed/cancelled, invalidate jobs list
-        const previousData = queryClient.getQueryData(["job", jobId]);
+        const previousData = queryClient.getQueryData<typeof result>([
+          "job",
+          jobId,
+        ]);
         if (
           previousData &&
           (previousData.status === "IN_PROGRESS" ||
